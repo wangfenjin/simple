@@ -8,7 +8,7 @@ simple 是一个支持中文和拼音的 [sqlite3 fts5](https://www.sqlite.org/f
 ```sql
 select fts5(?1);
 ```
-如果支持输出空不报错就说明没问题。如果不支持可以在项目根目录 `make sqlite3-shell` 本地编译一个用于测试。
+输出空不报错就说明没问题。如果不支持可以在项目根目录 `make sqlite3-shell` 本地编译一个用于测试。
 
 2. `.load libsimple` 加载 so 文件
 
