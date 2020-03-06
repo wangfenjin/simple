@@ -1,2 +1,6 @@
 a.out
 .ccls*
+sqlite*
+*.so
+build/
+*.gch
