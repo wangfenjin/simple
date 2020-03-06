@@ -1,5 +1,3 @@
-name.txt:
-https://raw.githubusercontent.com/KehaoWu/Jinyong-Corpus/master/人名.txt
+## 拼音文件
 
-pinyin.txt:
-https://raw.githubusercontent.com/mozillazg/pinyin-data/master/pinyin.txt
+wget https://raw.githubusercontent.com/mozillazg/pinyin-data/master/pinyin.txt
