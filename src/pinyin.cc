@@ -43,10 +43,10 @@ std::set<std::string> PinYin::to_plain(const std::string &input) {
   return s;
 }
 
-std::map<int, std::vector<std::string>> PinYin::build_pinyin_map() {
+std::map<int, std::vector<std::string> > PinYin::build_pinyin_map() {
   std::ifstream pinyin_file("./contrib/pinyin.txt");
   std::string line;
-  std::map<int, std::vector<std::string>> pinyin;
+  std::map<int, std::vector<std::string> > pinyin;
   std::regex re{R"(U\+(\w+):\s+(\S+)\s+.*)"};
   std::smatch match;
   while (std::getline(pinyin_file, line)) {

@@ -29,10 +29,10 @@ else
 endif
 
 clean-lib:
-	rm -f libsimple.so
+	rm -f ${LIBNAME} ${SHAREDNAME}
 
 ${LIBNAME}: ${SHAREDNAME} clean-lib
-	${CPP} src/*.h src/*.cc src/*.c -shared -rdynamic -o ${LIBNAME} -I build/ -fPIC ${LIB} ${SHELL_FLAGS}
+	${CPP} -std=c++14 src/*.c src/*.cc -shared -rdynamic -o ${LIBNAME} -I build/ -fPIC ${LIB} ${SHELL_FLAGS}
 
 ${SHAREDNAME}: build/sqlite3.c
 	${CC} $^ -c -o $@ -fPIC
@@ -71,3 +71,5 @@ format:
 	clang-format-7 -i *.cc src/*.h src/*.cc src/*.c
 	cpplint --extensions=h,cc --linelength=120 --filter=-build/include,-legal/copyright,-readability/streams,-whitespace/comma --root=src src/*
 
+.DEFAULT_GOAL := all
+all: sqlite3-shell ${LIBNAME}
