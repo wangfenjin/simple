@@ -21,7 +21,7 @@ SHELL_FLAGS = \
 UNAME_S := $(shell uname -s)
 
 ifeq ($(UNAME_S),Darwin)
-	LIBNAME := libsimple.dylib
+	LIBNAME := libsimple.dylib	# change lib name to dylib is macOS
 	SHAREDNAME := sqlite3.dylib
 else
 	LIBNAME := libsimple.so
@@ -31,6 +31,7 @@ endif
 clean-lib:
 	rm -f ${LIBNAME} ${SHAREDNAME}
 
+# compile libsimple
 ${LIBNAME}: ${SHAREDNAME} clean-lib
 	${CPP} -std=c++14 src/*.c src/*.cc -shared -rdynamic -o ${LIBNAME} -I build/ -fPIC ${LIB} ${SHELL_FLAGS}
 
@@ -48,8 +49,12 @@ build/sqlite3.c: $(SQLITE_BASENAME).zip
 $(SQLITE_BASENAME).zip:
 	wget -N -c "$(SQLITE_URL)"
 
+# compile sqlite3-shell for testing
 sqlite3-shell: build/sqlite3.c
 	${CC} -lm build/sqlite3.c build/shell.c ${LIB} -o $@ ${SHELL_FLAGS}
+
+.DEFAULT_GOAL := all
+all: sqlite3-shell ${LIBNAME}
 
 clean:
 	rm -f "$(SQLITE_BASENAME).zip"
@@ -70,6 +75,3 @@ main:
 format:
 	clang-format-7 -i *.cc src/*.h src/*.cc src/*.c
 	cpplint --extensions=h,cc --linelength=120 --filter=-build/include,-legal/copyright,-readability/streams,-whitespace/comma --root=src src/*
-
-.DEFAULT_GOAL := all
-all: sqlite3-shell ${LIBNAME}
