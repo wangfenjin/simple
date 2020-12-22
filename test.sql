@@ -1,7 +1,7 @@
 -- Examples to use simple tokenizer
 
 -- load so file
-.load libsimple.so
+.load libsimple
 
 -- set tokenize to simple
 CREATE VIRTUAL TABLE t1 USING fts5(x, tokenize = "simple");
