@@ -1,0 +1,100 @@
+sudo: false
+dist: trusty
+language: cpp
+
+addons:
+  apt:
+    packages:
+
+matrix:
+  include:
+
+    # XCode 9.3
+    - os: osx
+      osx_image: xcode9.3
+      env:
+        - MATRIX_EVAL="CC=clang && CXX=clang++"
+        - CMAKE_OPTNS="-D CMAKE_BUILD_TYPE=Debug"
+
+    # GCC 5
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-5
+            - libboost-dev
+            - lcov
+      env:
+        - MATRIX_EVAL="CC=gcc-5 && CXX=g++-5"
+        - CMAKE_OPTNS="-D Template_ENABLE_COVERAGE:BOOL=TRUE
+                       -D CMAKE_BUILD_TYPE=Debug"
+
+    # GCC 6
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-6
+            - libboost-dev
+            - lcov
+      env:
+        - MATRIX_EVAL="CC=gcc-6 && CXX=g++-6"
+        - CMAKE_OPTNS="-D Template_ENABLE_COVERAGE:BOOL=TRUE
+                       -D CMAKE_BUILD_TYPE=Debug"
+
+    # GCC 7
+    - os: linux
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - g++-7
+            - libboost-dev
+            - lcov
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+        - CMAKE_OPTNS="-D Template_ENABLE_COVERAGE:BOOL=TRUE
+                       -D CMAKE_BUILD_TYPE=Debug"
+
+    # Clang 4.0
+    - os: linux
+      sudo: required
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-4.0
+          packages:
+            - clang-4.0
+            - libboost-dev
+      env:
+        - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
+        - CMAKE_OPTNS="-D Template_USE_CLANG_TIDY:BOOL=TRUE 
+                       -D Template_MEMCHECK:BOOL=TRUE 
+                       -D CMAKE_BUILD_TYPE=Debug"
+
+    # Clang 5.0
+    - os: linux
+      sudo: required
+      addons:
+        apt:
+          sources:
+            - llvm-toolchain-trusty-5.0
+          packages:
+            - clang-5.0
+            - libboost-dev
+      env:
+        - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"
+        - CMAKE_OPTNS="-D Template_USE_CLANG_TIDY:BOOL=TRUE
+                       -D Template_MEMCHECK:BOOL=TRUE
+                       -D CMAKE_BUILD_TYPE=Debug"
+
+before_install:
+  - eval "${MATRIX_EVAL}"
+
+script:
+  - ./build-and-run

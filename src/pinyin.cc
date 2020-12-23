@@ -1,10 +1,13 @@
 #include "pinyin.h"
 #include <fstream>
 #include <iostream>
+#include <streambuf>
 #include <map>
 #include <regex>
 #include <set>
 #include <vector>
+
+extern char _binary_src_pinyin_txt_start, _binary_src_pinyin_txt_end;
 
 namespace simple_tokenizer {
 
@@ -43,8 +46,17 @@ std::set<std::string> PinYin::to_plain(const std::string &input) {
   return s;
 }
 
+struct membuf : std::streambuf {
+  membuf(char* begin, char* end) {
+      this->setg(begin, begin, end);
+  }
+};
+
+
+
 std::map<int, std::vector<std::string>> PinYin::build_pinyin_map() {
-  std::ifstream pinyin_file("./contrib/pinyin.txt");
+  membuf sbuf(&_binary_src_pinyin_txt_start, &_binary_src_pinyin_txt_end);
+  std::istream pinyin_file(&sbuf);
   std::string line;
   std::map<int, std::vector<std::string>> pinyin;
   std::regex re{R"(U\+(\w+):\s+(\S+)\s+.*)"};
