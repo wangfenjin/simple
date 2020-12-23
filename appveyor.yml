@@ -1,6 +1,10 @@
 image:
   - Visual Studio 2017
 
+configuration:
+  - Debug
+  - Release
+
 clone_folder: c:\projects\source
 
 # Boost is already installed on AppVeyor.
@@ -15,8 +19,11 @@ build_script:
 
     cmake c:\projects\source ..
 
-    cmake --build .
+    cmake --build . --config %CONFIGURATION%
 
+after_build:
+  - cmake --build . --config %CONFIGURATION% --target INSTALL
+  
 test_script:
-- cmd: ctest . -V
+  - cmake --build . --config %CONFIGURATION% --target RUN_TESTS
 
