@@ -1,5 +1,5 @@
 sudo: false
-dist: trusty
+dist: bionic
 language: cpp
 
 addons:
@@ -31,18 +31,18 @@ matrix:
         - CMAKE_OPTNS="-D Template_ENABLE_COVERAGE:BOOL=TRUE
                        -D CMAKE_BUILD_TYPE=Debug"
 
-    # Clang 6.0
+    # Clang 7.0
     - os: linux
       sudo: required
       addons:
         apt:
           sources:
-            - llvm-toolchain-trusty-6.0
+            - llvm-toolchain-bionic-7.0
           packages:
-            - clang-6.0
+            - clang-7.0
             - libboost-dev
       env:
-        - MATRIX_EVAL="CC=clang-6.0 && CXX=clang++-6.0"
+        - MATRIX_EVAL="CC=clang-7.0 && CXX=clang++-7.0"
         - CMAKE_OPTNS="-D Template_USE_CLANG_TIDY:BOOL=TRUE
                        -D Template_MEMCHECK:BOOL=TRUE
                        -D CMAKE_BUILD_TYPE=Debug"
