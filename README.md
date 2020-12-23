@@ -1,5 +1,4 @@
-[![Build
-Status](https://travis-ci.org/wangfenjin/simple.svg?branch=master)](https://travis-ci.org/wangfenjin/simple)
+[![Build Status](https://travis-ci.com/wangfenjin/simple.svg?branch=master)](https://travis-ci.com/wangfenjin/simple)
 [![Build status](https://ci.appveyor.com/api/projects/status/294whpr16wvs0bvk/branch/master?svg=true)](https://ci.appveyor.com/project/wangfenjin/simple/branch/master)
 
 # Simple tokenizer
@@ -39,8 +38,8 @@ make install
 ## TODO
 
 - [ ] 加一些代码注释
-- [ ] 添加 CI/CD 自动出各平台的包
+- [x] 添加 CI/CD 
 - [ ] 添加 Java 和 Swift 使用的例子，方便在移动端使用
-- [ ] 部分参数可配，比如拼音文件的路径
+- [x] 部分参数可配，比如拼音文件的路径(已经把文件打包到 so 中)
 - [ ] 减少依赖，减小 so 的大小
 - [ ] 给出性能数据
