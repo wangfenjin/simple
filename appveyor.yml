@@ -3,13 +3,8 @@ image:
 
 configuration:
   - Debug
-  - Release
 
-clone_folder: c:\projects\source
-
-# Boost is already installed on AppVeyor.
-environment:
-  BOOST_ROOT: C:\Libraries\boost_1_64_0
+clone_folder: d:\projects\source
 
 build_script:
 - cmd: >-
@@ -17,13 +12,10 @@ build_script:
 
     cd build
 
-    cmake c:\projects\source ..
+    cmake d:\projects\source ..
 
     cmake --build . --config %CONFIGURATION%
-
-after_build:
-  - cmake --build . --config %CONFIGURATION% --target INSTALL
-  
+ 
 test_script:
   - cmake --build . --config %CONFIGURATION% --target RUN_TESTS
 
