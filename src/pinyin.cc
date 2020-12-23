@@ -51,7 +51,7 @@ std::map<int, std::vector<std::string>> PinYin::build_pinyin_map() {
   auto pinyin_data = fs.open("contrib/pinyin.txt");
   std::istringstream pinyin_file(std::string(pinyin_data.begin(), pinyin_data.end()));
   std::string line;
-  std::map<int, std::vector<std::string>> pinyin;
+  std::map<int, std::vector<std::string> > pinyin;
   std::regex re{R"(U\+(\w+):\s+(\S+)\s+.*)"};
   std::smatch match;
   while (std::getline(pinyin_file, line)) {

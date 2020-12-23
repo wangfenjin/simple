@@ -12,7 +12,7 @@ select fts5(?1);
 ```
 输出空不报错就说明没问题。如果不支持可以在项目根目录 `make sqlite3-shell` 本地编译一个用于测试。
 
-2. `.load libsimple` 加载 so 文件
+2. `.load libsimple` 加载编译好的库文件
 
 然后就可以使用了，具体的例子可以参考 [test.sql](./test.sql)
 
@@ -20,10 +20,9 @@ select fts5(?1);
 
 ### 编译相关
 
-使用支持 c++11 以上的编译器编译
+使用支持 c++14 以上的编译器编译
 
-- `make libsimple.so` 打包扩展
-- `make sqlite3-shell` 编译测试用的 sqlite3
+- `make` 打包扩展，它会编译 libsimple 库文件和 sqlite3-shell 用于测试
 - `make test` 运行 test.sql
 
 ### 代码

@@ -1,6 +1,8 @@
 a.out
 .ccls*
 *.so
+sqlite*
+libsimple.*
 build/
 *.gch
 bin/
