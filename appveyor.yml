@@ -7,6 +7,16 @@ clone_folder: c:\projects\source
 environment:
   BOOST_ROOT: C:\Libraries\boost_1_64_0
 
-test_script:
+build_script:
 - cmd: >-
-    ./build-and-run
+    mkdir build
+
+    cd build
+    
+    cmake c:\projects\source -G "Visual Studio 15" ..
+    
+    make -j 12
+
+test_script:
+- cmd: ./test/simple_tests
+
