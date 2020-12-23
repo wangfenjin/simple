@@ -1,0 +1,51 @@
+sudo: false
+dist: bionic
+language: cpp
+
+addons:
+  apt:
+    packages:
+
+matrix:
+  include:
+
+    # XCode 9.3
+    - os: osx
+      osx_image: xcode9.3
+      env:
+        - MATRIX_EVAL="CC=clang && CXX=clang++"
+        - CMAKE_OPTNS="-D CMAKE_BUILD_TYPE=Debug"
+
+    # GCC 7
+    - os: linux
+      compiler: gcc
+      env:
+        - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
+        - CMAKE_OPTNS="-D Template_ENABLE_COVERAGE:BOOL=TRUE
+                       -D CMAKE_BUILD_TYPE=Debug"
+
+    # Clang
+    - os: linux
+      env: LLVM_VERSION=default
+      compiler: clang
+
+before_install:
+  - eval "${MATRIX_EVAL}"
+
+script:
+  - mkdir build && cd build
+  - cmake $CMAKE_OPTNS ..
+  - cmake --build .
+  - ctest . -V
+
+# after_success:
+#   # Creating report
+#   - cd ${TRAVIS_BUILD_DIR}
+#   # capture coverage info
+#   - lcov --directory . --capture --output-file coverage.info 
+#   # filter out system and catch headers
+#   - lcov --remove coverage.info '/usr/*' 'tests/catch.hpp' --output-file coverage.info 
+#   # debug info
+#   - lcov --list coverage.info 
+#   # Uploading report to CodeCov
+#   - bash <(curl -s https://codecov.io/bash) -X gcov || echo "Codecov did not collect coverage reports"

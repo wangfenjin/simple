@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+#
+# © 2018-2019 Konstantin Gredeskoul, All Rights Reserved.
+# MIT License
+#
+# WARNING: This BASH script is completely optional. You don't need it to build this project.
+#
+# If you choose to run this script to build the project, run:
+#
+#     $ ./build-and-run
+#
+# It will clean, build and run the tests.
+#
+
+[[ -z $(which git) ]] && {
+  echo "You need git installed. Please run 'xcode-select --install' first."
+  exit 1
+}
+
+export BashMatic="${HOME}/.bashmatic"
+bash -c "$(curl -fsSL https://bashmatic.re1.re); bashmatic-install"
+source "${BashMatic}/init.sh"
+
+export ProjectRoot=$(pwd)
+export BuildDir="${ProjectRoot}/build/run"
+export BashLibRoot="${ProjectRoot}/bin/lib-bash"
+export LibBashRepo="https://github.com/kigster/lib-bash"
+
+simple.header() {
+  h1.purple "Simple Tokenizer"
+  local OIFC=${IFC}
+  IFS="|" read -r -a gcc_info <<< "$(gcc --version 2>&1 | tr '\n' '|')"
+  export IFC=${OIFC}
+  h1 "${bldylw}GCC" "${gcc_info[1]}" "${gcc_info[2]}" "${gcc_info[3]}" "${gcc_info[4]}"
+  h1 "${bldylw}GIT:    ${bldblu}$(git --version)"
+  h1 "${bldylw}CMAKE:  ${bldblu}$(cmake --version | tr '\n' ' ')"
+}
+
+simple.setup() {
+  hl.subtle "Creating Build Folder..."
+  run "mkdir -p build/run"
+}
+
+simple.clean() {
+  hl.subtle "Cleaning output folders..."
+  run 'rm -rf bin/* include/* lib/* build/*'
+}
+
+simple.build() {
+  hl.subtle "build..."
+  run "cd build/run"
+  run "cmake ../.. "
+  run.set-next show-output-on
+  run "make -j 12"
+  run "make install | egrep -v 'gmock|gtest'"
+  run "cd ${ProjectRoot}"
+}
+
+simple.tests() {
+  hl.subtle "testing..."
+  run.set-all show-output-on
+  run "cd build/run"
+  run "ctest . -V"
+  run "cd ${ProjectRoot}"
+}
+
+simple.example() {
+  [[ ! -f ./output/bin/sqlite3 ]] && {
+      error "You don't have the cmpiled sqlite3 binary yet".
+      exit 3
+  }
+  hl.subtle "run example..."
+  run "cd output/bin/"
+  run "./sqlite3 < ${ProjectRoot}/example.sql"
+  run "cd ${ProjectRoot}"
+
+}
+
+main() {
+  simple.header
+  simple.setup
+  simple.build
+  simple.tests
+  simple.example
+}
+
+(( $_s_ )) || main
