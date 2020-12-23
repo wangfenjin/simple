@@ -34,6 +34,7 @@ ExternalProject_Add(sqlite-amalgamation
                     CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX:PATH=${SQLITE_INSTALL_DIR}
                                 -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
                                 -DCMAKE_C_FLAGS="-lm" 
+                                -DCMAKE_EXE_LINKER_FLAGS="-lm"
                                 -DSQLITE_ENABLE_FTS5=ON
                                 -DBUILD_SHELL=ON
                     URL https://github.com/azadkuh/sqlite-amalgamation/archive/3.32.3.zip)

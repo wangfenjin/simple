@@ -17,7 +17,7 @@ build_script:
 
     cmake c:\projects\source -G "Visual Studio 15" ..
 
-    cmake --build . --config "Debug"
+    make -j 4
 
 test_script:
 - cmd: ./test/simple_tests
