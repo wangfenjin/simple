@@ -18,21 +18,16 @@ matrix:
 
     # GCC 7
     - os: linux
-      addons: *gcc7
+      compiler: gcc
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
         - CMAKE_OPTNS="-D Template_ENABLE_COVERAGE:BOOL=TRUE
                        -D CMAKE_BUILD_TYPE=Debug"
 
-    # Clang 7.0
+    # Clang
     - os: linux
-      sudo: required
-      addons: *clang7
-      env:
-        - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
-        - CMAKE_OPTNS="-D Template_USE_CLANG_TIDY:BOOL=TRUE
-                       -D Template_MEMCHECK:BOOL=TRUE
-                       -D CMAKE_BUILD_TYPE=Debug"
+      env: LLVM_VERSION=default
+      compiler: clang
 
 before_install:
   - eval "${MATRIX_EVAL}"
