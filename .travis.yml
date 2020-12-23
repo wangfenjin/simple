@@ -18,14 +18,7 @@ matrix:
 
     # GCC 7
     - os: linux
-      addons:
-        apt:
-          sources:
-            - ubuntu-toolchain-r-test
-          packages:
-            - g++-7
-            - libboost-dev
-            - lcov
+      addons: *gcc7
       env:
         - MATRIX_EVAL="CC=gcc-7 && CXX=g++-7"
         - CMAKE_OPTNS="-D Template_ENABLE_COVERAGE:BOOL=TRUE
@@ -34,15 +27,9 @@ matrix:
     # Clang 7.0
     - os: linux
       sudo: required
-      addons:
-        apt:
-          sources:
-            - llvm-toolchain-bionic-7.0
-          packages:
-            - clang-7.0
-            - libboost-dev
+      addons: *clang7
       env:
-        - MATRIX_EVAL="CC=clang-7.0 && CXX=clang++-7.0"
+        - MATRIX_EVAL="CC=clang-7 && CXX=clang++-7"
         - CMAKE_OPTNS="-D Template_USE_CLANG_TIDY:BOOL=TRUE
                        -D Template_MEMCHECK:BOOL=TRUE
                        -D CMAKE_BUILD_TYPE=Debug"

@@ -6,6 +6,8 @@ set(CXX_STANDARD_REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+elif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+  set(CMAKE_GENERATOR "Visual Studio 15")
 endif()
 # for build sqlite with fts5
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lm")

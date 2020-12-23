@@ -9,13 +9,11 @@ environment:
 
 build_script:
 - cmd: >-
-    choco install make
-
     mkdir build
 
     cd build
 
-    cmake c:\projects\source -G "Visual Studio 15" ..
+    cmake c:\projects\source ..
 
     cmake --build .
 
