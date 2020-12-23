@@ -39,6 +39,8 @@ install(PROGRAMS ${SQLITE_INSTALL_DIR}/bin/sqlite3 DESTINATION bin)
 
 include(contrib/CMakeRC.cmake)
 cmrc_add_resource_library(PINYIN_TEXT NAMESPACE pinyin_text contrib/pinyin.txt)
+# https://github.com/vector-of-bool/cmrc/issues/17#issuecomment-659501280
+set_property(TARGET PINYIN_TEXT PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 add_subdirectory(src)
 add_subdirectory(test)

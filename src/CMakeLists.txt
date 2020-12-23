@@ -12,6 +12,7 @@ set(SOURCE_FILES
 )
 
 add_library(simple SHARED ${SOURCE_FILES})
-target_link_libraries(simple PRIVATE PINYIN_TEXT PUBLIC sqlite3)
+target_link_libraries(simple PRIVATE PINYIN_TEXT)
+add_dependencies(simple sqlite-amalgamation)
 
 install(TARGETS simple DESTINATION bin)
