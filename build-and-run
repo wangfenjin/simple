@@ -47,6 +47,7 @@ simple.clean() {
 }
 
 simple.build() {
+  hl.subtle "build..."
   run "cd build/run"
   run "cmake ../.. "
   run.set-next show-output-on
@@ -56,20 +57,20 @@ simple.build() {
 }
 
 simple.tests() {
+  hl.subtle "testing..."
   run.set-all show-output-on
-  run "cd output/bin/"
-  if [[ -f ./simple_tests ]]; then
-    export DYLD_LIBRARY_PATH=./:$DYLD_LIBRARY_PATH
-    run "./simple_tests"
-  else
-    printf "${bldred}Can't find installed executable ${bldylw}bin/simple_tests.${clr}\n"
-    exit 2
-  fi
+  run "cd build/run"
+  run "ctest . -V"
+  run "cd ${ProjectRoot}"
+}
 
-  [[ ! -f ./sqlite3 ]] && {
+simple.example() {
+  [[ ! -f ./output/bin/sqlite3 ]] && {
       error "You don't have the cmpiled sqlite3 binary yet".
       exit 3
   }
+  hl.subtle "run example..."
+  run "cd output/bin/"
   run "./sqlite3 < ${ProjectRoot}/example.sql"
   run "cd ${ProjectRoot}"
 
@@ -80,6 +81,7 @@ main() {
   simple.setup
   simple.build
   simple.tests
+  simple.example
 }
 
 (( $_s_ )) || main

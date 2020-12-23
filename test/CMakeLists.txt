@@ -37,7 +37,8 @@ include_directories(${SIMPLE_HEADERS_DIR})
 include_directories(${SQLITE3_HEADERS_DIR})
 set(SOURCE_FILES main.cpp pinyin_test.cc tokenizer_test.cc)
 
+include(GoogleTest)
 add_executable(simple_tests ${SOURCE_FILES})
 target_link_libraries(simple_tests gtest_main simple)
 install(TARGETS simple_tests DESTINATION bin)
-
+gtest_discover_tests(simple_tests)

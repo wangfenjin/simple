@@ -35,8 +35,8 @@ before_install:
 script:
   - mkdir build && cd build
   - cmake $CMAKE_OPTNS ..
-  - make -j 4
-  - ./test/simple_tests
+  - cmake --build .
+  - ctest . -V
 
 # after_success:
 #   # Creating report

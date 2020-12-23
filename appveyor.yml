@@ -18,5 +18,5 @@ build_script:
     cmake --build .
 
 test_script:
-- cmd: ./test/simple_tests
+- cmd: ctest . -V
 
