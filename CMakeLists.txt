@@ -2,7 +2,11 @@ cmake_minimum_required(VERSION 3.2)
 project(simple-tokenizer)
 
 set(CMAKE_CXX_STANDARD 14)
+set(CXX_STANDARD_REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
+endif()
 # for build sqlite with fts5
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lm")
 

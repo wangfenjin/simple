@@ -5,6 +5,7 @@
 #include <map>
 #include <regex>
 #include <set>
+#include <sstream>
 #include <vector>
 
 CMRC_DECLARE(pinyin_text);

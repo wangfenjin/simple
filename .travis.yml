@@ -71,6 +71,7 @@ matrix:
           packages:
             - clang-4.0
             - libboost-dev
+            - libc++-dev
       env:
         - MATRIX_EVAL="CC=clang-4.0 && CXX=clang++-4.0"
         - CMAKE_OPTNS="-D Template_USE_CLANG_TIDY:BOOL=TRUE 
@@ -86,6 +87,7 @@ matrix:
             - llvm-toolchain-trusty-5.0
           packages:
             - clang-5.0
+            - libc++-dev
             - libboost-dev
       env:
         - MATRIX_EVAL="CC=clang-5.0 && CXX=clang++-5.0"

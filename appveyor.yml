@@ -9,6 +9,8 @@ environment:
 
 build_script:
 - cmd: >-
+    choco install make
+
     mkdir build
 
     cd build
