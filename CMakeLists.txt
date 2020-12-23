@@ -6,19 +6,17 @@ set(CXX_STANDARD_REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
-elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
+elseif (MSVC)
   set(CMAKE_GENERATOR "Visual Studio 15")
+  # https://stackoverflow.com/a/65128497/1203241
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+  set(BUILD_SHARED_LIBS TRUE)
 endif()
-# for build sqlite with fts5
-#set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lm")
 
-set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR})
+set(CMAKE_INSTALL_PREFIX ${PROJECT_SOURCE_DIR}/output)
 
+set(SQLITE3_HEADERS_DIR ${PROJECT_SOURCE_DIR}/contrib/sqlite3)
 set(SIMPLE_HEADERS_DIR ${PROJECT_SOURCE_DIR}/src)
-set(SIMPLE_INSTALL_LIB_DIR ${PROJECT_SOURCE_DIR}/lib)
-
-include_directories(${SIMPLE_INSTALL_INCLUDE_DIR})
-include_directories(${SIMPLE_HEADERS_DIR})
 
 # setup sqlite
 option(SQLITE_ENABLE_FTS5         "enables full text searches version 5"         ON)
@@ -27,22 +25,7 @@ set(SQLITE_ROOT ${PROJECT_SOURCE_DIR}/build/sqlite)
 set(SQLITE_INSTALL_DIR ${SQLITE_ROOT})
 set(SQLITE_INCLUDE_DIR ${SQLITE_INSTALL_DIR}/include)
 set(SQLITE_LIB_DIR ${SQLITE_INSTALL_DIR}/lib)
-include(ExternalProject)
-ExternalProject_Add(sqlite-amalgamation
-                    PREFIX ${SQLITE_ROOT}
-                    INSTALL_DIR ${SQLITE_INSTALL_DIR}
-                    INSTALL_COMMAND cmake --build . --target install
-                    COMMAND ${CMAKE_COMMAND} -E copy ${SQLITE_ROOT}/src/sqlite-amalgamation/sqlite3ext.h ${SQLITE_INCLUDE_DIR}
-                    CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX:PATH=${SQLITE_INSTALL_DIR}
-                                -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
-                                -DCMAKE_C_FLAGS="-lm" 
-                                -DCMAKE_EXE_LINKER_FLAGS="-lm"
-                                -DSQLITE_ENABLE_FTS5=ON
-                                -DBUILD_SHELL=ON
-                    URL https://github.com/azadkuh/sqlite-amalgamation/archive/3.32.3.zip)
-include_directories(BEFORE SYSTEM ${SQLITE_INCLUDE_DIR})
-link_directories(${SQLITE_LIB_DIR})
-install(PROGRAMS ${SQLITE_INSTALL_DIR}/bin/sqlite3 DESTINATION bin)
+add_subdirectory(contrib/sqlite3)
 
 include(contrib/CMakeRC.cmake)
 cmrc_add_resource_library(PINYIN_TEXT NAMESPACE pinyin_text contrib/pinyin.txt)

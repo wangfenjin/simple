@@ -34,6 +34,7 @@ if (CMAKE_VERSION VERSION_LESS 2.8.11)
 endif()
 
 include_directories(${SIMPLE_HEADERS_DIR})
+include_directories(${SQLITE3_HEADERS_DIR})
 set(SOURCE_FILES main.cpp pinyin_test.cc tokenizer_test.cc)
 
 add_executable(simple_tests ${SOURCE_FILES})

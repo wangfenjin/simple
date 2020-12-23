@@ -11,8 +11,8 @@ set(SOURCE_FILES
     entry.cc
 )
 
+include_directories(${SQLITE3_HEADERS_DIR})
 add_library(simple SHARED ${SOURCE_FILES})
-target_link_libraries(simple PRIVATE PINYIN_TEXT)
-add_dependencies(simple sqlite-amalgamation)
+target_link_libraries(simple PRIVATE PINYIN_TEXT SQLite3)
 
 install(TARGETS simple DESTINATION bin)

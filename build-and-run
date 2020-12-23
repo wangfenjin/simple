@@ -57,7 +57,7 @@ simple.build() {
 
 simple.tests() {
   run.set-all show-output-on
-  run "cd bin/"
+  run "cd output/bin/"
   if [[ -f ./simple_tests ]]; then
     export DYLD_LIBRARY_PATH=./:$DYLD_LIBRARY_PATH
     run "./simple_tests"
@@ -70,7 +70,7 @@ simple.tests() {
       error "You don't have the cmpiled sqlite3 binary yet".
       exit 3
   }
-  run "./sqlite3 < ../example.sql"
+  run "./sqlite3 < ${ProjectRoot}/example.sql"
   run "cd ${ProjectRoot}"
 
 }
