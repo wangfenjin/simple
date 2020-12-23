@@ -12,12 +12,12 @@ ExternalProject_Add(gtest
 ExternalProject_Get_Property(gtest source_dir binary_dir)
 
 include_directories(${SIMPLE_HEADERS_DIR})
+include_directories(${source_dir}/googletest/include)
 
 set(SOURCE_FILES main.cpp pinyin_test.cc tokenizer_test.cc)
 
 add_executable(simple_tests ${SOURCE_FILES})
 add_dependencies(simple_tests gtest)
-include_directories(${source_dir}/include)
 target_link_libraries(simple_tests ${binary_dir}/lib/libgtest.a ${binary_dir}/lib/libgtest_main.a simple pthread)
-# install(TARGETS simple_tests DESTINATION bin)
+install(TARGETS simple_tests DESTINATION bin)
 

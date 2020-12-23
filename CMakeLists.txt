@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.2)
-
 project(simple-tokenizer)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -36,8 +35,11 @@ ExternalProject_Add(sqlite-amalgamation
                     GIT_REPOSITORY "git@github.com:azadkuh/sqlite-amalgamation.git")
 include_directories(BEFORE SYSTEM ${SQLITE_INCLUDE_DIR})
 link_directories(${SQLITE_LIB_DIR})
+install(PROGRAMS ${SQLITE_INSTALL_DIR}/bin/sqlite3 DESTINATION bin)
+
+include(contrib/CMakeRC.cmake)
+cmrc_add_resource_library(PINYIN_TEXT NAMESPACE pinyin_text contrib/pinyin.txt)
 
 add_subdirectory(src)
 add_subdirectory(test)
-
 

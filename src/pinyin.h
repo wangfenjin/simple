@@ -3,6 +3,7 @@
 
 #include <map>
 #include <set>
+#include <string>
 #include <vector>
 
 namespace simple_tokenizer {

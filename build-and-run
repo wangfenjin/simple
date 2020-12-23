@@ -18,12 +18,7 @@
 }
 
 export BashMatic="${HOME}/.bashmatic"
-
-[[ -s ${BashMatic}/init.sh ]] || {
-  rm -rf "${BashMatic}" 2>/dev/null
-  git clone https://github.com/kigster/bashmatic "${BashMatic}" 2>&1 1>/dev/null
-}
-
+bash -c "$(curl -fsSL https://bashmatic.re1.re); bashmatic-install"
 source "${BashMatic}/init.sh"
 
 export ProjectRoot=$(pwd)
@@ -44,14 +39,11 @@ simple.header() {
 simple.setup() {
   hl.subtle "Creating Build Folder..."
   run "mkdir -p build/run"
-  run "git submodule init && git submodule update"
-
-  [[ -f .idea/workspace.xml ]] || cp .idea/workspace.xml.example .idea/workspace.xml
 }
 
 simple.clean() {
   hl.subtle "Cleaning output folders..."
-  run 'rm -rf bin/d* include/d* lib/* build/*'
+  run 'rm -rf bin/* include/* lib/* build/*'
 }
 
 simple.build() {
@@ -67,6 +59,7 @@ simple.tests() {
   run.set-all show-output-on
   run "cd bin/"
   if [[ -f ./simple_tests ]]; then
+    export DYLD_LIBRARY_PATH=./:$DYLD_LIBRARY_PATH
     run "./simple_tests"
   else
     printf "${bldred}Can't find installed executable ${bldylw}bin/simple_tests.${clr}\n"
@@ -77,7 +70,7 @@ simple.tests() {
       error "You don't have the cmpiled sqlite3 binary yet".
       exit 3
   }
-  run "./sqlite3 < ../test.sql"
+  run "./sqlite3 < ../example.sql"
   run "cd ${ProjectRoot}"
 
 }
