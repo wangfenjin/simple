@@ -4,15 +4,13 @@ image:
 configuration:
   - Debug
 
-clone_folder: d:\projects\source
-
 build_script:
 - cmd: >-
     mkdir build
 
     cd build
 
-    cmake d:\projects\source ..
+    cmake ..
 
     cmake --build . --config %CONFIGURATION%
  
