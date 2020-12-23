@@ -1,3 +1,7 @@
+[![Build
+Status](https://travis-ci.org/wangfenjin/simple.svg?branch=master)](https://travis-ci.org/wangfenjin/simple)
+[![Build status](https://ci.appveyor.com/api/projects/status/294whpr16wvs0bvk/branch/master?svg=true)](https://ci.appveyor.com/project/wangfenjin/simple/branch/master)
+
 # Simple tokenizer
 
 simple 是一个支持中文和拼音的 [sqlite3 fts5](https://www.sqlite.org/fts5.html) 拓展。它完整提供了 [微信移动端的全文检索多音字问题解决方案](https://cloud.tencent.com/developer/article/1198371) 一文中的方案四，非常简单和高效地支持中文及拼音的搜索。

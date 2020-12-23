@@ -9,14 +9,12 @@ addons:
 matrix:
   include:
 
-    # XCode 9.3
     - os: osx
-      osx_image: xcode9.3
+      osx_image: xcode12.2
       env:
         - MATRIX_EVAL="CC=clang && CXX=clang++"
         - CMAKE_OPTNS="-D CMAKE_BUILD_TYPE=Debug"
 
-    # GCC 7
     - os: linux
       compiler: gcc
       env:
@@ -24,7 +22,6 @@ matrix:
         - CMAKE_OPTNS="-D Template_ENABLE_COVERAGE:BOOL=TRUE
                        -D CMAKE_BUILD_TYPE=Debug"
 
-    # Clang
     - os: linux
       env: LLVM_VERSION=default
       compiler: clang
