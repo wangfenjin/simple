@@ -32,7 +32,7 @@ ExternalProject_Add(sqlite-amalgamation
                                 -DCMAKE_C_FLAGS="-lm" 
                                 -DSQLITE_ENABLE_FTS5=ON
                                 -DBUILD_SHELL=ON
-                    GIT_REPOSITORY "git@github.com:azadkuh/sqlite-amalgamation.git")
+                    URL https://github.com/azadkuh/sqlite-amalgamation/archive/3.32.3.zip)
 include_directories(BEFORE SYSTEM ${SQLITE_INCLUDE_DIR})
 link_directories(${SQLITE_LIB_DIR})
 install(PROGRAMS ${SQLITE_INSTALL_DIR}/bin/sqlite3 DESTINATION bin)

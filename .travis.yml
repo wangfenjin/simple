@@ -99,7 +99,7 @@ before_install:
 script:
   - mkdir build && cd build
   - cmake $CMAKE_OPTNS ..
-  - make -j 12
+  - make -j 4
   - ./test/simple_tests
 
 # after_success:

@@ -6,24 +6,25 @@ simple 是一个支持中文和拼音的 [sqlite3 fts5](https://www.sqlite.org/f
 
 ## 用法
 
-1. 首先需要确认你用到的 sqlite 版本支持 fts5 拓展，确认方法是：
+首先需要确认你用到的 sqlite 版本支持 fts5 拓展，确认方法是：
 ```sql
 select fts5(?1);
 ```
-输出空不报错就说明没问题。如果不支持可以在项目根目录 `make sqlite3-shell` 本地编译一个用于测试。
-
-2. `.load libsimple` 加载编译好的库文件
-
-然后就可以使用了，具体的例子可以参考 [test.sql](./test.sql)
+然后就可以使用了，具体的例子可以参考 [example.sql](./example.sql)
 
 ## 开发
 
 ### 编译相关
 
-使用支持 c++14 以上的编译器编译
+使用支持 c++14 以上的编译器编译，直接在根目录 ./build-and-run 就会编译所有需要的文件并运行测试。编译输出见 bin 目录
 
-- `make` 打包扩展，它会编译 libsimple 库文件和 sqlite3-shell 用于测试
-- `make test` 运行 test.sql
+也可以手动 cmake:
+```shell
+mkdir build; cd build
+cmake ..
+make -j 12
+make install
+```
 
 ### 代码
 - `src/entry` 入口文件，注册 sqlite tokenizer 和函数

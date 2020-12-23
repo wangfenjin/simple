@@ -3,8 +3,9 @@ project(simple_tests)
 
 include(ExternalProject)
 ExternalProject_Add(gtest
-    GIT_REPOSITORY https://github.com/google/googletest.git
-    GIT_TAG master
+    URL https://github.com/google/googletest/archive/release-1.10.0.zip
+    #GIT_REPOSITORY https://github.com/google/googletest.git
+    #GIT_TAG master
     PREFIX ${CMAKE_CURRENT_BINARY_DIR}/gtest
     INSTALL_COMMAND ""
     TEST_COMMAND ""

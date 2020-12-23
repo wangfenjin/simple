@@ -12,10 +12,10 @@ build_script:
     mkdir build
 
     cd build
-    
+
     cmake c:\projects\source -G "Visual Studio 15" ..
-    
-    make -j 12
+
+    cmake --build . -- -j4
 
 test_script:
 - cmd: ./test/simple_tests
