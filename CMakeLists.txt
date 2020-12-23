@@ -4,12 +4,10 @@ project(simple-tokenizer)
 set(CMAKE_CXX_STANDARD 14)
 set(CXX_STANDARD_REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-set(SQLITE_INSTALL_CMD "make install")
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -stdlib=libc++")
 elseif (${CMAKE_SYSTEM_NAME} MATCHES "Windows")
   set(CMAKE_GENERATOR "Visual Studio 15")
-  set(SQLITE_INSTALL_CMD "cmake --build . --target install")
 endif()
 # for build sqlite with fts5
 #set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -lm")
@@ -33,7 +31,7 @@ include(ExternalProject)
 ExternalProject_Add(sqlite-amalgamation
                     PREFIX ${SQLITE_ROOT}
                     INSTALL_DIR ${SQLITE_INSTALL_DIR}
-                    INSTALL_COMMAND ${SQLITE_INSTALL_CMD}
+                    INSTALL_COMMAND cmake --build . --target install
                     COMMAND ${CMAKE_COMMAND} -E copy ${SQLITE_ROOT}/src/sqlite-amalgamation/sqlite3ext.h ${SQLITE_INCLUDE_DIR}
                     CMAKE_ARGS  -DCMAKE_INSTALL_PREFIX:PATH=${SQLITE_INSTALL_DIR}
                                 -DCMAKE_C_COMPILER=${CMAKE_C_COMPILER}
