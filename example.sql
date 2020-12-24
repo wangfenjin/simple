@@ -14,15 +14,20 @@ select '    ', * from t1;
 
 select '搜索 杰伦:';
 select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('杰伦');
+select '    ', simple_highlight_pos(t1, 0) from t1 where x match simple_query('杰伦');
 
 select '搜索 zhoujiel:';
 select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('zhoujiel');
+select '    ', simple_highlight_pos(t1, 0) from t1 where x match simple_query('zhoujiel');
 
 select '搜索 zjl:';
 select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('zjl');
+select '    ', simple_highlight_pos(t1, 0) from t1 where x match simple_query('zjl');
 
 select '搜索 ZHOUJi:';
 select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('ZHOUJi');
+select '    ', simple_highlight_pos(t1, 0) from t1 where x match simple_query('ZHOUJi');
 
 select '搜索 love zg:';
 select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('love zg');
+select '    ', simple_highlight_pos(t1, 0) from t1 where x match simple_query('love zg');

@@ -15,6 +15,7 @@
 #include "simple_highlight.h"
 #include <math.h> /* amalgamator: keep */
 #include <string.h>
+#include <stdio.h>
 SQLITE_EXTENSION_INIT3
 
 /*
@@ -233,4 +234,114 @@ void simple_highlight(const Fts5ExtensionApi *pApi, /* API offered by current FT
 }
 /*
 ** End of highlight() implementation.
+**************************************************************************/
+
+/*************************************************************************
+** Start of highlight_pos() implementation.
+*/
+typedef struct HighlightPosContext HighlightPosContext;
+struct HighlightPosContext {
+  CInstIter iter;                 /* Coalesced Instance Iterator */
+  int iPos;                       /* Current token offset in zIn[] */
+  int iRangeStart;                /* First token to include */
+  int iRangeEnd;                  /* If non-zero, last token to include */
+  const char *zIn;                /* Input text */
+  int nIn;                        /* Size of input text in bytes */
+  int iOff;                       /* Current offset within zIn[] */
+  char *zOut;                     /* Output value */
+};
+
+/*
+** Append text to the HighlightPosContext output string - p->zOut. Argument
+** z points to a buffer containing n bytes of text to append. If n is
+** negative, everything up until the first '\0' is appended to the output.
+**
+** If *pRc is set to any value other than SQLITE_OK when this function is
+** called, it is a no-op. If an error (i.e. an OOM condition) is encountered,
+** *pRc is set to an error code before returning.
+*/
+static void fts5HighlightPosAppend(
+  int *pRc,
+  HighlightPosContext *p,
+  const char *z, int n
+){
+  if( *pRc==SQLITE_OK ){
+    if( n<0 ) n = (int)strlen(z);
+    p->zOut = sqlite3_mprintf("%z%.*s", p->zOut, n, z);
+    if( p->zOut==0 ) *pRc = SQLITE_NOMEM;
+  }
+}
+
+static void fts5HighlightPosAppendStart(
+  int *pRc,
+  HighlightPosContext *p,
+  int start
+) {
+    char str[64];
+    sprintf(str, "%d", start);
+    fts5HighlightPosAppend(pRc, p, str, -1);
+    fts5HighlightPosAppend(pRc, p, ",", -1);
+}
+
+static void fts5HighlightPosAppendEnd(
+  int *pRc,
+  HighlightPosContext *p,
+  int end
+) {
+    char str[64];
+    sprintf(str, "%d", end);
+    fts5HighlightPosAppend(pRc, p, str, -1);
+    fts5HighlightPosAppend(pRc, p, ";", -1);
+}
+
+/*
+** Implementation of simple_highlight_pos() function.
+*/
+void simple_highlight_pos(
+  const Fts5ExtensionApi *pApi,   /* API offered by current FTS version */
+  Fts5Context *pFts,              /* First arg to pass to pApi functions */
+  sqlite3_context *pCtx,          /* Context for returning result/error */
+  int nVal,                       /* Number of values in apVal[] array */
+  sqlite3_value **apVal           /* Array of trailing arguments */
+){
+  HighlightPosContext ctx;
+  int rc;
+  int iCol;
+
+  if( nVal!=1 ){
+    const char *zErr = "wrong number of arguments to function highlight_pos()";
+    sqlite3_result_error(pCtx, zErr, -1);
+    return;
+  }
+
+  iCol = sqlite3_value_int(apVal[0]);
+  memset(&ctx, 0, sizeof(HighlightPosContext));
+  rc = pApi->xColumnText(pFts, iCol, &ctx.zIn, &ctx.nIn);
+
+  if( ctx.zIn ){
+    if( rc==SQLITE_OK ){
+      rc = fts5CInstIterInit(pApi, pFts, iCol, &ctx.iter);
+    }
+
+    while( rc == SQLITE_OK ){
+        if (ctx.iter.iStart >= 0 && ctx.iter.iEnd >= 0) {
+            fts5HighlightPosAppendStart(&rc, &ctx, ctx.iter.iStart);
+            fts5HighlightPosAppendEnd(&rc, &ctx, ctx.iter.iEnd + 1);
+            rc = fts5CInstIterNext(&ctx.iter);
+        } else {
+            break;
+        }
+    }
+
+    if( rc==SQLITE_OK ){
+      sqlite3_result_text(pCtx, (const char*)ctx.zOut, -1, SQLITE_TRANSIENT);
+    }
+    sqlite3_free(ctx.zOut);
+  }
+  if( rc!=SQLITE_OK ){
+    sqlite3_result_error_code(pCtx, rc);
+  }
+}
+/*
+** End of highlight_pos() implementation.
 **************************************************************************/
