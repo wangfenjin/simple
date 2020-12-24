@@ -18,7 +18,9 @@
 }
 
 export BashMatic="${HOME}/.bashmatic"
-bash -c "$(curl -fsSL https://bashmatic.re1.re); bashmatic-install"
+[[ ! -f "${BashMatic}/init.sh" ]] && {
+  bash -c "$(curl -fsSL https://bashmatic.re1.re); bashmatic-install"
+}
 source "${BashMatic}/init.sh"
 
 export ProjectRoot=$(pwd)

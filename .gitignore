@@ -1,6 +1,7 @@
 a.out
 .ccls*
 *.so
+compile_commands.json
 libsimple.*
 build/
 *.gch
