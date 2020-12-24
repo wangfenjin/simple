@@ -77,5 +77,7 @@ int sqlite3_simple_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines
       fts5api->xCreateFunction(fts5api, "simple_highlight", reinterpret_cast<void *>(fts5api), &simple_highlight, NULL);
   rc =
       fts5api->xCreateFunction(fts5api, "simple_highlight_pos", reinterpret_cast<void *>(fts5api), &simple_highlight_pos, NULL);
+  rc =
+      fts5api->xCreateFunction(fts5api, "simple_snippet", reinterpret_cast<void *>(fts5api), &simple_snippet, NULL);
   return rc;
 }

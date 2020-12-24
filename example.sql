@@ -14,7 +14,18 @@ select '    ', * from t1;
 
 select '搜索 杰伦:';
 select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('杰伦');
+select '    ', simple_snippet(t1, 0, '[', ']', '...', 1) from t1 where x match simple_query('杰伦');
+select '    ', simple_snippet(t1, 0, '[', ']', '...', 2) from t1 where x match simple_query('杰伦');
+select '    ', simple_snippet(t1, 0, '[', ']', '...', 3) from t1 where x match simple_query('杰伦');
+select '    ', simple_snippet(t1, 0, '[', ']', '...', 4) from t1 where x match simple_query('杰伦');
+select '    ', simple_snippet(t1, 0, '[', ']', '...', 5) from t1 where x match simple_query('杰伦');
+select '    ', simple_snippet(t1, 0, '[', ']', '...', 10) from t1 where x match simple_query('杰伦');
+select '    ', simple_snippet(t1, 0, '[', ']', '...', 20) from t1 where x match simple_query('杰伦');
+select '    ', simple_snippet(t1, 0, '[', ']', '...', 100) from t1 where x match simple_query('杰伦');
 select '    ', simple_highlight_pos(t1, 0) from t1 where x match simple_query('杰伦');
+
+select '搜索 雨天:';
+select '    ', simple_snippet(t1, 0, '[', ']', '...', 10) from t1 where x match simple_query('雨天');
 
 select '搜索 zhoujiel:';
 select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('zhoujiel');

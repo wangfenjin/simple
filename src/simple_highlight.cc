@@ -18,6 +18,16 @@
 #include <stdio.h>
 SQLITE_EXTENSION_INIT3
 
+/* Mark a function parameter as unused, to suppress nuisance compiler
+** warnings. */
+#ifndef UNUSED_PARAM
+# define UNUSED_PARAM(X)  (void)(X)
+#endif
+
+#ifndef UNUSED_PARAM2
+# define UNUSED_PARAM2(X, Y)  (void)(X), (void)(Y)
+#endif
+
 /*
 ** Object used to iterate through all "coalesced phrase instances" in
 ** a single column of the current row. If the phrase instances in the
@@ -345,3 +355,287 @@ void simple_highlight_pos(
 /*
 ** End of highlight_pos() implementation.
 **************************************************************************/
+
+
+/*************************************************************************/
+/* Start of simple_snippet() implementation.
+/* adapt from snippet 
+/*
+** Context object passed to the fts5SnippetFinderCb() function.
+*/
+typedef struct Fts5SnippetFinder Fts5SnippetFinder;
+struct Fts5SnippetFinder {
+  int iPos;                       /* Current token position */
+  int nFirstAlloc;                /* Allocated size of aFirst[] */
+  int nFirst;                     /* Number of entries in aFirst[] */
+  int *aFirst;                    /* Array of first token in each sentence */
+  const char *zDoc;               /* Document being tokenized */
+};
+
+/*
+** Add an entry to the Fts5SnippetFinder.aFirst[] array. Grow the array if
+** necessary. Return SQLITE_OK if successful, or SQLITE_NOMEM if an
+** error occurs.
+*/
+static int fts5SnippetFinderAdd(Fts5SnippetFinder *p, int iAdd){
+  if( p->nFirstAlloc==p->nFirst ){
+    int nNew = p->nFirstAlloc ? p->nFirstAlloc*2 : 64;
+    int *aNew;
+
+    aNew = (int*)sqlite3_realloc64(p->aFirst, nNew*sizeof(int));
+    if( aNew==0 ) return SQLITE_NOMEM;
+    p->aFirst = aNew;
+    p->nFirstAlloc = nNew;
+  }
+  p->aFirst[p->nFirst++] = iAdd;
+  return SQLITE_OK;
+}
+
+/*
+** This function is an xTokenize() callback used by the auxiliary simple_snippet()
+** function. Its job is to identify tokens that are the first in a sentence.
+** For each such token, an entry is added to the SFinder.aFirst[] array.
+*/
+static int fts5SnippetFinderCb(
+  void *pContext,                 /* Pointer to HighlightContext object */
+  int tflags,                     /* Mask of FTS5_TOKEN_* flags */
+  const char *pToken,             /* Buffer containing token */
+  int nToken,                     /* Size of token in bytes */
+  int iStartOff,                  /* Start offset of token */
+  int iEndOff                     /* End offset of token */
+){
+  int rc = SQLITE_OK;
+
+  UNUSED_PARAM2(pToken, nToken);
+  UNUSED_PARAM(iEndOff);
+
+  if( (tflags & FTS5_TOKEN_COLOCATED)==0 ){
+    Fts5SnippetFinder *p = (Fts5SnippetFinder*)pContext;
+    if( p->iPos>0 ){
+      int i;
+      char c = 0;
+      for(i=iStartOff-1; i>=0; i--){
+        c = p->zDoc[i];
+        if( c!=' ' && c!='\t' && c!='\n' && c!='\r' ) break;
+      }
+      if( i!=iStartOff-1 && (c=='.' || c==':') ){
+        rc = fts5SnippetFinderAdd(p, p->iPos);
+      }
+    }else{
+      rc = fts5SnippetFinderAdd(p, 0);
+    }
+    p->iPos++;
+  }
+  return rc;
+}
+
+static int fts5SnippetScore(
+  const Fts5ExtensionApi *pApi,   /* API offered by current FTS version */
+  Fts5Context *pFts,              /* First arg to pass to pApi functions */
+  int nDocsize,                   /* Size of column in tokens */
+  unsigned char *aSeen,           /* Array with one element per query phrase */
+  int iCol,                       /* Column to score */
+  int iPos,                       /* Starting offset to score */
+  int nToken,                     /* Max tokens per snippet */
+  int *pnScore,                   /* OUT: Score */
+  int *piPos                      /* OUT: Adjusted offset */
+){
+  int rc;
+  int i;
+  int ip = 0;
+  int ic = 0;
+  int iOff = 0;
+  int iFirst = -1;
+  int nInst;
+  int nScore = 0;
+  int iLast = 0;
+  sqlite3_int64 iEnd = (sqlite3_int64)iPos + nToken;
+
+  rc = pApi->xInstCount(pFts, &nInst);
+  for(i=0; i<nInst && rc==SQLITE_OK; i++){
+    rc = pApi->xInst(pFts, i, &ip, &ic, &iOff);
+    if( rc==SQLITE_OK && ic==iCol && iOff>=iPos && iOff<iEnd ){
+      nScore += (aSeen[ip] ? 1 : 1000);
+      aSeen[ip] = 1;
+      if( iFirst<0 ) iFirst = iOff;
+      iLast = iOff + pApi->xPhraseSize(pFts, ip);
+    }
+  }
+
+  *pnScore = nScore;
+  if( piPos ){
+    sqlite3_int64 iAdj = iFirst - (nToken - (iLast-iFirst)) / 2;
+    if( (iAdj+nToken)>nDocsize ) iAdj = nDocsize - nToken;
+    if( iAdj<0 ) iAdj = 0;
+    *piPos = (int)iAdj;
+  }
+
+  return rc;
+}
+
+/*
+** Return the value in pVal interpreted as utf-8 text. Except, if pVal 
+** contains a NULL value, return a pointer to a static string zero
+** bytes in length instead of a NULL pointer.
+*/
+static const char *fts5ValueToText(sqlite3_value *pVal){
+  const char *zRet = (const char*)sqlite3_value_text(pVal);
+  return zRet ? zRet : "";
+}
+
+/*
+** Implementation of simple_snippet() function.
+*/
+void simple_snippet(
+  const Fts5ExtensionApi *pApi,   /* API offered by current FTS version */
+  Fts5Context *pFts,              /* First arg to pass to pApi functions */
+  sqlite3_context *pCtx,          /* Context for returning result/error */
+  int nVal,                       /* Number of values in apVal[] array */
+  sqlite3_value **apVal           /* Array of trailing arguments */
+){
+  HighlightContext ctx;
+  int rc = SQLITE_OK;             /* Return code */
+  int iCol;                       /* 1st argument to snippet() */
+  const char *zEllips;            /* 4th argument to snippet() */
+  int nToken;                     /* 5th argument to snippet() */
+  int nInst = 0;                  /* Number of instance matches this row */
+  int i;                          /* Used to iterate through instances */
+  int nPhrase;                    /* Number of phrases in query */
+  unsigned char *aSeen;           /* Array of "seen instance" flags */
+  int iBestCol;                   /* Column containing best snippet */
+  int iBestStart = 0;             /* First token of best snippet */
+  int nBestScore = 0;             /* Score of best snippet */
+  int nColSize = 0;               /* Total size of iBestCol in tokens */
+  Fts5SnippetFinder sFinder;            /* Used to find the beginnings of sentences */
+  int nCol;
+
+  if( nVal!=5 ){
+    const char *zErr = "wrong number of arguments to function snippet()";
+    sqlite3_result_error(pCtx, zErr, -1);
+    return;
+  }
+
+  nCol = pApi->xColumnCount(pFts);
+  memset(&ctx, 0, sizeof(HighlightContext));
+  iCol = sqlite3_value_int(apVal[0]);
+  ctx.zOpen = fts5ValueToText(apVal[1]);
+  ctx.zClose = fts5ValueToText(apVal[2]);
+  zEllips = fts5ValueToText(apVal[3]);
+  nToken = sqlite3_value_int(apVal[4]);
+
+  iBestCol = (iCol>=0 ? iCol : 0);
+  nPhrase = pApi->xPhraseCount(pFts);
+  aSeen = (unsigned char*)sqlite3_malloc(nPhrase);
+  if( aSeen==0 ){
+    rc = SQLITE_NOMEM;
+  }
+  if( rc==SQLITE_OK ){
+    rc = pApi->xInstCount(pFts, &nInst);
+  }
+
+  memset(&sFinder, 0, sizeof(Fts5SnippetFinder));
+  for(i=0; i<nCol; i++){
+    if( iCol<0 || iCol==i ){
+      int nDoc;
+      int nDocsize;
+      int ii;
+      sFinder.iPos = 0;
+      sFinder.nFirst = 0;
+      rc = pApi->xColumnText(pFts, i, &sFinder.zDoc, &nDoc);
+      if( rc!=SQLITE_OK ) break;
+      rc = pApi->xTokenize(pFts, 
+          sFinder.zDoc, nDoc, (void*)&sFinder,fts5SnippetFinderCb
+      );
+      if( rc!=SQLITE_OK ) break;
+      rc = pApi->xColumnSize(pFts, i, &nDocsize);
+      if( rc!=SQLITE_OK ) break;
+
+      for(ii=0; rc==SQLITE_OK && ii<nInst; ii++){
+        int ip, ic, io;
+        int iAdj;
+        int nScore;
+        int jj;
+
+        rc = pApi->xInst(pFts, ii, &ip, &ic, &io);
+        if( ic!=i ) continue;
+        if( io>nDocsize ) rc = SQLITE_CORRUPT_VTAB;
+        if( rc!=SQLITE_OK ) continue;
+        memset(aSeen, 0, nPhrase);
+        rc = fts5SnippetScore(pApi, pFts, nDocsize, aSeen, i,
+            io, nToken, &nScore, &iAdj
+        );
+        if( rc==SQLITE_OK && nScore>nBestScore ){
+          nBestScore = nScore;
+          iBestCol = i;
+          iBestStart = iAdj;
+          nColSize = nDocsize;
+        }
+
+        if( rc==SQLITE_OK && sFinder.nFirst && nDocsize>nToken ){
+          for(jj=0; jj<(sFinder.nFirst-1); jj++){
+            if( sFinder.aFirst[jj+1]>io ) break;
+          }
+
+          if( sFinder.aFirst[jj]<io ){
+            memset(aSeen, 0, nPhrase);
+            rc = fts5SnippetScore(pApi, pFts, nDocsize, aSeen, i, 
+              sFinder.aFirst[jj], nToken, &nScore, 0
+            );
+
+            nScore += (sFinder.aFirst[jj]==0 ? 120 : 100);
+            if( rc==SQLITE_OK && nScore>nBestScore ){
+              nBestScore = nScore;
+              iBestCol = i;
+              iBestStart = sFinder.aFirst[jj];
+              nColSize = nDocsize;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  if( rc==SQLITE_OK ){
+    rc = pApi->xColumnText(pFts, iBestCol, &ctx.zIn, &ctx.nIn);
+  }
+  if( rc==SQLITE_OK && nColSize==0 ){
+    rc = pApi->xColumnSize(pFts, iBestCol, &nColSize);
+  }
+  if( ctx.zIn ){
+    if( rc==SQLITE_OK ){
+      rc = fts5CInstIterInit(pApi, pFts, iBestCol, &ctx.iter);
+    }
+
+    ctx.iRangeStart = iBestStart;
+    ctx.iRangeEnd = iBestStart + nToken - 1;
+
+    if( iBestStart>0 ){
+      fts5HighlightAppend(&rc, &ctx, zEllips, -1);
+    }
+
+    /* Advance iterator ctx.iter so that it points to the first coalesced
+    ** phrase instance at or following position iBestStart. */
+    while( ctx.iter.iStart>=0 && ctx.iter.iStart<iBestStart && rc==SQLITE_OK ){
+      rc = fts5CInstIterNext(&ctx.iter);
+    }
+
+    if( rc==SQLITE_OK ){
+      rc = pApi->xTokenize(pFts, ctx.zIn, ctx.nIn, (void*)&ctx, fts5HighlightCb);
+    }
+    if( ctx.iRangeEnd>=(nColSize-1) ){
+      fts5HighlightAppend(&rc, &ctx, &ctx.zIn[ctx.iOff], ctx.nIn - ctx.iOff);
+    }else{
+      fts5HighlightAppend(&rc, &ctx, zEllips, -1);
+    }
+  }
+  if( rc==SQLITE_OK ){
+    sqlite3_result_text(pCtx, (const char*)ctx.zOut, -1, SQLITE_TRANSIENT);
+  }else{
+    sqlite3_result_error_code(pCtx, rc);
+  }
+  sqlite3_free(ctx.zOut);
+  sqlite3_free(aSeen);
+  sqlite3_free(sFinder.aFirst);
+}
+
+/************************************************************************/
