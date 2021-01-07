@@ -8,7 +8,12 @@
 #include <vector>
 
 namespace simple_tokenizer {
-SimpleTokenizer::SimpleTokenizer(const char **azArg, int nArg) {}
+SimpleTokenizer::SimpleTokenizer(const char **azArg, int nArg) {
+  if (nArg >= 1) {
+    enable_pinyin = atoi(azArg[0]) != 0;
+  }
+}
+
 std::unique_ptr<PinYin> SimpleTokenizer::pinyin = std::make_unique<PinYin>();
 
 enum class TokenCategory {
@@ -45,7 +50,7 @@ static TokenCategory from_char(char c) {
   return TokenCategory::OTHER;
 }
 
-std::string SimpleTokenizer::tokenize_query(const char *text, int textLen) {
+std::string SimpleTokenizer::tokenize_query(const char *text, int textLen, int flags) {
   int start = 0;
   int index = 0;
   std::string tmp;
@@ -68,7 +73,7 @@ std::string SimpleTokenizer::tokenize_query(const char *text, int textLen) {
         std::transform(tmp.begin(), tmp.end(), tmp.begin(), [](unsigned char c) { return std::tolower(c); });
       }
 
-      if (category == TokenCategory::ASCII_ALPHABETIC && tmp.size() > 1) {
+      if (flags != 0 && category == TokenCategory::ASCII_ALPHABETIC && tmp.size() > 1) {
         if (start == 0) {
           result.append("( ");
         } else {
@@ -125,7 +130,7 @@ int SimpleTokenizer::tokenize(void *pCtx, int flags, const char *text, int textL
       }
 
       rc = xToken(pCtx, 0, result.c_str(), result.length(), start, index);
-      if (category == TokenCategory::OTHER && (flags & FTS5_TOKENIZE_DOCUMENT)) {
+      if (enable_pinyin && category == TokenCategory::OTHER && (flags & FTS5_TOKENIZE_DOCUMENT)) {
         const std::vector<std::string> &pys = pinyin->get_pinyin(result);
         for (const std::string &s : pys) {
           rc = xToken(pCtx, FTS5_TOKEN_COLOCATED, s.c_str(), s.length(), start, index);
