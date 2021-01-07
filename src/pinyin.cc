@@ -50,7 +50,7 @@ std::set<std::string> PinYin::to_plain(const std::string &input) {
 // clang-format off
 std::map<int, std::vector<std::string> > PinYin::build_pinyin_map() {
   std::map<int, std::vector<std::string> > pinyin;
-// clang-format on
+  // clang-format on
   auto fs = cmrc::pinyin_text::get_filesystem();
   auto pinyin_data = fs.open("contrib/pinyin.txt");
   std::istringstream pinyin_file(std::string(pinyin_data.begin(), pinyin_data.end()));
