@@ -12,11 +12,12 @@ namespace simple_tokenizer {
 class SimpleTokenizer {
  private:
   static std::unique_ptr<PinYin> pinyin;
+  bool enable_pinyin = true;
 
  public:
   SimpleTokenizer(const char **zaArg, int nArg);
   int tokenize(void *pCtx, int flags, const char *text, int textLen, xTokenFn xToken);
-  static std::string tokenize_query(const char *text, int textLen);
+  static std::string tokenize_query(const char *text, int textLen, int flags = 1);
 };
 
 }  // namespace simple_tokenizer
