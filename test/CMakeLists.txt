@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.2)
 project(simple_tests)
 
+# https://github.com/maps-gpu/MAPS/issues/7#issuecomment-418200278
+cmake_policy(SET CMP0057 NEW)
 # Download and unpack googletest at configure time
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
