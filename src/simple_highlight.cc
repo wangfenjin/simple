@@ -13,6 +13,7 @@
 */
 
 #include "simple_highlight.h"
+
 #include <math.h> /* amalgamator: keep */
 #include <stdio.h>
 #include <string.h>

@@ -1,4 +1,5 @@
 #include "simple_tokenizer.h"
+
 #include <algorithm>
 #include <cctype>
 #include <iostream>
@@ -89,7 +90,10 @@ std::string SimpleTokenizer::tokenize_query(const char *text, int textLen) {
         if (start > 0) {
           result.append(" AND ");
         }
-        result.append(tmp);
+        if (tmp == "'" || tmp == "\"") {
+          tmp += tmp;
+        }
+        result.append('"' + tmp + '"');
         if (category != TokenCategory::OTHER) {
           result.append("*");
         }

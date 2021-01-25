@@ -2,6 +2,7 @@
 #define SIMPLE_TOKENIZER_H_
 
 #include <memory>
+
 #include "pinyin.h"
 #include "sqlite3ext.h"
 

@@ -8,9 +8,14 @@ CREATE VIRTUAL TABLE t1 USING fts5(x, tokenize = 'simple');
 
 -- add some values into the table
 insert into t1(x) values ('周杰伦 Jay Chou:最美的不是下雨天，是曾与你躲过雨的屋檐'),
-                      ('I love China! 我爱中国!') ;
+                         ('I love China! 我爱中国!'),
+                         ('@English &special _characters."''bacon-&and''-eggs%');
 select '所有数据:';
 select '    ', * from t1;
+
+select '特殊字符:';
+select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('@"._-&%');
+select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match '"''"';
 
 select '搜索 杰伦:';
 select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('杰伦');
