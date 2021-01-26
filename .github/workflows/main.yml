@@ -47,7 +47,7 @@ jobs:
       uses: ammaraskar/msvc-problem-matcher@master
 
     - name: 'Run CMake with VS16'
-      uses: lukka/run-cmake@v2
+      uses: lukka/run-cmake@v3
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
@@ -68,7 +68,7 @@ jobs:
     - uses: actions/checkout@v2
       
     - name: 'Run CMake'
-      uses: lukka/run-cmake@v2
+      uses: lukka/run-cmake@v3
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
@@ -84,9 +84,9 @@ jobs:
   MacOS:
     runs-on: macos-latest
     steps:
-    - uses: actions/checkout@main
+    - uses: actions/checkout@v2
     - name: 'Run CMake'
-      uses: lukka/run-cmake@main
+      uses: lukka/run-cmake@v3
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
