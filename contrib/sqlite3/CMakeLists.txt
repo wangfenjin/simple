@@ -101,7 +101,7 @@ if(BUILD_SHELL)
     find_package(Readline)
     if(READLINE_FOUND)
       set(CMAKE_C_FLAGS "-DHAVE_READLINE")
-      target_link_libraries(shell_app PRIVATE ${PROJECT_NAME} Readline)
+      target_link_libraries(shell_app PRIVATE ${PROJECT_NAME} ${Readline_LIBRARY})
     endif()
 
     if(UNIX)
