@@ -3,6 +3,10 @@ project(simple_tests)
 
 # https://github.com/maps-gpu/MAPS/issues/7#issuecomment-418200278
 cmake_policy(SET CMP0057 NEW)
+
+# https://github.com/google/googletest/issues/2791
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/src)
+
 # Download and unpack googletest at configure time
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
