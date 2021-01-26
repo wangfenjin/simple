@@ -1,5 +1,4 @@
-[![Build Status](https://travis-ci.com/wangfenjin/simple.svg?branch=master)](https://travis-ci.com/wangfenjin/simple)
-[![Build status](https://ci.appveyor.com/api/projects/status/294whpr16wvs0bvk/branch/master?svg=true)](https://ci.appveyor.com/project/wangfenjin/simple/branch/master)
+![build](https://github.com/wangfenjin/simple/workflows/CI/badge.svg)
 
 # Simple tokenizer
 
