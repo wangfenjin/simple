@@ -13,7 +13,15 @@ simple 是一个支持中文和拼音的 [sqlite3 fts5](https://www.sqlite.org/f
 ```sql
 select fts5(?1);
 ```
-然后就可以使用了，具体的例子可以参考 [example.sql](./example.sql)
+然后就可以使用了，具体的例子可以参考 [example.sql](./example.sql) 和 [cpp](https://github.com/wangfenjin/simple/blob/master/examples/cpp/main.cc) 
+
+## 功能
+
+1. simple tokenizer 支持中文和拼音的分词，并且可通过开关控制是否需要支持拼音
+2. simple_query() 函数实现自动组装 match query 的功能，用户不用学习 fts5 query 的语法
+3. simple_highlight() 实现连续高亮 match 的词汇，与 sqlite 自带的 highlight 类似，但是 simple_highlight 实现了连续 match 的词汇分到同一组的逻辑，理论上用户更需要这样
+4. simple_highlight_pos() 实现返回 match 的词汇位置，用户可以自行决定怎么使用
+5. simple_snippet() 实现截取 match 片段的功能，与 sqlite 自带的 snippet 功能类似，同样是增强连续 match 的词汇分到同一组的逻辑
 
 ## 开发
 
@@ -39,7 +47,7 @@ make install
 
 - [ ] 加一些代码注释
 - [x] 添加 CI/CD 
-- [ ] 添加 Java 和 Swift 使用的例子，方便在移动端使用
+- [x] 添加使用的例子，参见 [cpp](https://github.com/wangfenjin/simple/blob/master/examples/cpp/main.cc) 
 - [x] 部分参数可配，比如拼音文件的路径(已经把文件打包到 so 中)
 - [ ] 减少依赖，减小 so 的大小
 - [ ] 给出性能数据
