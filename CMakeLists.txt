@@ -28,6 +28,7 @@ cmrc_add_resource_library(PINYIN_TEXT NAMESPACE pinyin_text contrib/pinyin.txt)
 set_property(TARGET PINYIN_TEXT PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 add_subdirectory(src)
+add_subdirectory(examples/cpp)
 enable_testing()
 add_subdirectory(test)
 

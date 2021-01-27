@@ -74,6 +74,7 @@ simple.example() {
   hl.subtle "run example..."
   run "cd output/bin/"
   run "./sqlite3 < ${ProjectRoot}/example.sql"
+  run "./simple_cpp_example"
   run "cd ${ProjectRoot}"
 
 }
