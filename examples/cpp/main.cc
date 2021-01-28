@@ -1,6 +1,7 @@
 #include <sqlite3.h>
 
 #include <iostream>
+#include <sstream>
 
 using namespace std;
 
@@ -13,8 +14,9 @@ int callback(void *NotUsed, int argc, char **argv, char **azColName) {
     // Show column name, value, and newline
     cout << azColName[i] << ": " << argv[i] << endl;
   }
-  // Insert a newline
-  cout << endl;
+  if (argc > 0) {
+    cout << endl;
+  }
   // Return successful
   return 0;
 }
@@ -24,6 +26,15 @@ void handle_rc(sqlite3 *db, int rc) {
     cout << "sqlite3 rc: " << rc << ", error: " << sqlite3_errmsg(db) << endl;
     exit(rc);
   }
+}
+
+string get_query(sqlite3 *db, string input) {
+  sqlite3_stmt *stmt;
+  ostringstream sql;
+  sql << "SELECT simple_query('" << input << "')";
+  sqlite3_prepare(db, sql.str().c_str(), -1, &stmt, NULL);
+  sqlite3_step(stmt);
+  return string((char *)sqlite3_column_text(stmt, 0));
 }
 
 int main() {
@@ -56,10 +67,29 @@ int main() {
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
 
-  // match the string
-  sql = "select simple_highlight(t1, 0, '[', ']') as matched_row from t1 where x match simple_query('zhoujiel')";
+  // case 1: match pinyin
+  sql = "select simple_highlight(t1, 0, '[', ']') as matched_pinyin from t1 where x match simple_query('zhoujiel')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
+  // case 2: match special chars
+  sql = "select simple_highlight(t1, 0, '[', ']') as matched_no_single_quote_special_chars from t1 where x match simple_query('@\"._-&%')";
+  rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+  handle_rc(db, rc);
+  // case 3: single quote, no match
+  sql = "select simple_highlight(t1, 0, '[', ']') as matched_simple_query_special_chars from t1 where x match simple_query('@\"._''-&%')";
+  rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+  handle_rc(db, rc);
+  // case 4: match single quote, will match!
+  string match_str = get_query(db, "@\"._''-&%");
+  sql = "select simple_highlight(t1, 0, '[', ']') as matched_query_string_special_chars from t1 where x match '" + match_str + "'";
+  rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+  handle_rc(db, rc);
+
+  // So, I suggest you allways get_query first, and then pass the query string into the sql, follow case 4, it will solve all cases
+  // Or you can add an if else, if (input.contains("''")), use case 4; else normal case 1.
+
+  // Why the input should contains two single quotes, because sqlite use single quote for string, and two single quotes will escape
+  // the second as a normal char
 
   // Close the connection
   sqlite3_close(db);
