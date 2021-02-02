@@ -75,13 +75,8 @@ int main() {
   sql = "select simple_highlight(t1, 0, '[', ']') as matched_no_single_quote_special_chars from t1 where x match simple_query('@\"._-&%')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
-  // case 3: single quote, no match
+  // case 3: single quote, will match!
   sql = "select simple_highlight(t1, 0, '[', ']') as matched_simple_query_special_chars from t1 where x match simple_query('@\"._''-&%')";
-  rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
-  handle_rc(db, rc);
-  // case 4: match single quote, will match!
-  string match_str = get_query(db, "@\"._''-&%");
-  sql = "select simple_highlight(t1, 0, '[', ']') as matched_query_string_special_chars from t1 where x match '" + match_str + "'";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
 

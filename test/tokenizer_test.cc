@@ -13,7 +13,7 @@ TEST(simple, tokenizer) {
   std::vector<std::string> arr;
   std::vector<std::string> query;
   arr.push_back("english@\"''");
-  query.push_back(R"VAGON(( e n g l i s h* OR english* ) AND "@" AND """" AND "''" AND "''")VAGON");
+  query.push_back(R"VAGON(( e n g l i s h* OR english* ) AND "@" AND """" AND "'" AND "'")VAGON");
   arr.push_back("zhou杰伦");
   query.push_back(R"VAGON(( z h o u* OR zhou* ) AND "杰" AND "伦")VAGON");
   for (int i = 0; i < arr.size(); i++) {
