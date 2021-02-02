@@ -15,7 +15,7 @@ select '所有数据:';
 select '    ', * from t1;
 
 select '特殊字符:';
-select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('@"._-&%');
+select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('@"''._-&%');
 select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match '"''"';
 
 select '搜索 杰伦:';

@@ -95,7 +95,7 @@ std::string SimpleTokenizer::tokenize_query(const char *text, int textLen, int f
         if (start > 0) {
           result.append(" AND ");
         }
-        if (tmp == "'" || tmp == "\"") {
+        if (tmp == "\"") {
           tmp += tmp;
         }
         result.append('"' + tmp + '"');
