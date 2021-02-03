@@ -13,6 +13,6 @@ set(SOURCE_FILES
 
 include_directories(${SQLITE3_HEADERS_DIR})
 add_library(simple SHARED ${SOURCE_FILES})
-target_link_libraries(simple PRIVATE PINYIN_TEXT SQLite3)
+target_link_libraries(simple PUBLIC coverage_config  PRIVATE PINYIN_TEXT SQLite3)
 
 install(TARGETS simple DESTINATION bin)

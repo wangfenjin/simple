@@ -1,0 +1,2 @@
+fixes:
+  - "*/::"        # Adjust the relative path of the files (should be relative to git repo's root)

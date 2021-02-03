@@ -45,6 +45,7 @@ set(SOURCE_FILES main.cpp pinyin_test.cc tokenizer_test.cc)
 
 include(GoogleTest)
 add_executable(simple_tests ${SOURCE_FILES})
-target_link_libraries(simple_tests gtest_main simple)
+target_link_libraries(simple_tests PUBLIC coverage_config PRIVATE gtest_main simple)
+target_compile_options(simple_tests PUBLIC -Wall -pedantic)
 install(TARGETS simple_tests DESTINATION bin)
 gtest_add_tests(TARGET simple_tests ${SOURCE_FILES})

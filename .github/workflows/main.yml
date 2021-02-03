@@ -75,11 +75,26 @@ jobs:
         cmakeBuildType: Debug  
         buildDirectory: "${{ github.workspace }}/../../_temp/linux"
         buildWithCMake: true
-        buildWithCMakeArgs: --config Debug  
+        buildWithCMakeArgs: --config Debug 
+        cmakeAppendedArgs: " -DCODE_COVERAGE=ON "
         
     - name: 'Run CTest'
-      run: ctest -C Debug
+      run: ctest -V -C Debug
       working-directory: "${{ github.workspace }}/../../_temp/linux"
+
+    # CODE COVERAGE
+    - name: Code coverage - Capture coverage info
+      working-directory: "${{ github.workspace }}/../../_temp/linux"
+      run: lcov --directory . --capture --output-file coverage.info 
+    - name: Code coverage - Filter out system, external, and unit test source files
+      working-directory: "${{ github.workspace }}/../../_temp/linux"
+      run: lcov --remove coverage.info '/Library/*' '/usr/*' "${HOME}"'/.cache/*' '*/tests/*' '*/external/*' --output-file coverage.info
+    - name: Code coverage - Output coverage data for debugging
+      working-directory: "${{ github.workspace }}/../../_temp/linux"
+      run: lcov --list coverage.info
+    - name: Code coverage - Upload to CodeCov
+      working-directory: "${{ github.workspace }}/../../_temp/linux"
+      run:  bash <(curl -s https://codecov.io/bash) -f coverage.info || echo "Codecov did not collect coverage reports"
   
   MacOS:
     runs-on: macos-latest
