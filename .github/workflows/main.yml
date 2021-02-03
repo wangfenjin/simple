@@ -104,7 +104,7 @@ jobs:
       run: lcov --list coverage_filter.info
     - name: Code coverage - Upload to CodeCov
       working-directory: "${{ github.workspace }}/../../_temp/linux"
-      run:  bash <(curl -s https://codecov.io/bash) -f coverage_filter.info || echo "Codecov did not collect coverage reports"
+      run:  bash <(curl -s https://codecov.io/bash) -f coverage.info || echo "Codecov did not collect coverage reports"
   
   MacOS:
     runs-on: macos-latest
