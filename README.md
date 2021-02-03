@@ -1,6 +1,6 @@
-![build](https://github.com/wangfenjin/simple/workflows/CI/badge.svg)
+[![build](https://github.com/wangfenjin/simple/workflows/CI/badge.svg)](https://github.com/wangfenjin/simple/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/wangfenjin/simple/branch/master/graph/badge.svg?token=8SHLFZ3RB4)](https://codecov.io/gh/wangfenjin/simple)
-![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/wangfenjin/simple/blob/master/LICENSE)
 
 # Simple tokenizer
 
@@ -50,5 +50,5 @@ make install
 - [x] 添加 CI/CD 
 - [x] 添加使用的例子，参见 [cpp](https://github.com/wangfenjin/simple/blob/master/examples/cpp/main.cc) 
 - [x] 部分参数可配，比如拼音文件的路径(已经把文件打包到 so 中)
-- [ ] 减少依赖，减小 so 的大小
+- [x] 减少依赖，减小 so 的大小
 - [ ] 给出性能数据
