@@ -1,2 +1,2 @@
-fixes:
-  - "*/::"        # Adjust the relative path of the files (should be relative to git repo's root)
+codecov:
+  disable_default_path_fixes: false
