@@ -98,7 +98,11 @@ std::string SimpleTokenizer::tokenize_query(const char *text, int textLen, int f
         if (tmp == "\"") {
           tmp += tmp;
         }
-        result.append('"' + tmp + '"');
+        if (category != TokenCategory::ASCII_ALPHABETIC) {
+          result.append('"' + tmp + '"');
+        } else {
+          result.append(tmp);
+        }
         if (category != TokenCategory::OTHER) {
           result.append("*");
         }
