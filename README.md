@@ -1,5 +1,6 @@
 ![build](https://github.com/wangfenjin/simple/workflows/CI/badge.svg)
-
+[![codecov](https://codecov.io/gh/wangfenjin/simple/branch/master/graph/badge.svg?token=8SHLFZ3RB4)](https://codecov.io/gh/wangfenjin/simple)
+![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)
 
 # Simple tokenizer
 
