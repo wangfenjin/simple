@@ -1,9 +1,8 @@
-#include <sqlite3.h>
-
 #include <iostream>
 #include <sstream>
 
-using namespace std;
+#include "gtest/gtest.h"
+#include "sqlite3.h"
 
 // Create a callback function
 int callback(void *NotUsed, int argc, char **argv, char **azColName) {
@@ -12,10 +11,10 @@ int callback(void *NotUsed, int argc, char **argv, char **azColName) {
   // (array) argv: holds each value
   for (int i = 0; i < argc; i++) {
     // Show column name, value, and newline
-    cout << azColName[i] << ": " << argv[i] << endl;
+    std::cout << azColName[i] << ": " << argv[i] << std::endl;
   }
   if (argc > 0) {
-    cout << endl;
+    std::cout << std::endl;
   }
   // Return successful
   return 0;
@@ -23,12 +22,12 @@ int callback(void *NotUsed, int argc, char **argv, char **azColName) {
 
 void handle_rc(sqlite3 *db, int rc) {
   if (rc != SQLITE_OK) {
-    cout << "sqlite3 rc: " << rc << ", error: " << sqlite3_errmsg(db) << endl;
+    std::cout << "sqlite3 rc: " << rc << ", error: " << sqlite3_errmsg(db) << std::endl;
     exit(rc);
   }
 }
 
-int main() {
+TEST(simple, integration) {
   // Pointer to SQLite connection
   sqlite3 *db;
   // Save any error messages
@@ -45,7 +44,7 @@ int main() {
   handle_rc(db, rc);
 
   // create fts table
-  string sql = "CREATE VIRTUAL TABLE t1 USING fts5(x, tokenize = 'simple')";
+  std::string sql = "CREATE VIRTUAL TABLE t1 USING fts5(x, tokenize = 'simple')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
 
@@ -59,24 +58,26 @@ int main() {
   handle_rc(db, rc);
 
   // case 1: match pinyin
-  sql = "select simple_highlight(t1, 0, '[', ']') as matched_pinyin from t1 where x match simple_query('zhoujiel')";
+  sql =
+      "select simple_snippet(t1, 0, '[', ']', '...', 5), simple_highlight_pos(t1, 0), simple_highlight(t1, 0, '[', "
+      "']') as matched_pinyin from t1 where x match simple_query('zhoujiel')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
   // case 2: match special chars
   sql =
-      "select simple_highlight(t1, 0, '[', ']') as matched_no_single_quote_special_chars from t1 where x match "
+      "select simple_snippet(t1, 0, '[', ']', '...', 5), simple_highlight_pos(t1, 0), simple_highlight(t1, 0, '[', "
+      "']') as matched_no_single_quote_special_chars from t1 where x match "
       "simple_query('@\"._-&%')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
   // case 3: single quote, will match!
   sql =
-      "select simple_highlight(t1, 0, '[', ']') as matched_simple_query_special_chars from t1 where x match "
+      "select simple_snippet(t1, 0, '[', ']', '...', 5), simple_highlight_pos(t1, 0), simple_highlight(t1, 0, '[', "
+      "']') as matched_simple_query_special_chars from t1 where x match "
       "simple_query('@\"._''-&%')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
 
   // Close the connection
   sqlite3_close(db);
-
-  return (0);
 }

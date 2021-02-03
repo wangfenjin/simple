@@ -51,7 +51,7 @@ simple.clean() {
 simple.build() {
   hl.subtle "build..."
   run "cd build/run"
-  run "cmake -DCODE_COVERAGE=ON -DCMAKE_INSTALL_PREFIX=${ProjectRoot}/output ../.."
+  run "cmake -DCODE_COVERAGE=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ProjectRoot}/output ../.."
   run.set-next show-output-on
   run "make -j 12"
   run "make install | egrep -v 'gmock|gtest'"
