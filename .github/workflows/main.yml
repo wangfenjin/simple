@@ -66,7 +66,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-      
+
+    - name: Update apt-get
+      run: sudo apt-get update
+
+    - name: Install lcov
+      run: sudo apt-get install lcov
+    
+    - name: Install codecov
+      shell: bash
+      run: sudo pip install codecov
+
     - name: 'Run CMake'
       uses: lukka/run-cmake@v3
       with:
