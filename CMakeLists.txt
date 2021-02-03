@@ -27,6 +27,28 @@ cmrc_add_resource_library(PINYIN_TEXT NAMESPACE pinyin_text contrib/pinyin.txt)
 # https://github.com/vector-of-bool/cmrc/issues/17#issuecomment-659501280
 set_property(TARGET PINYIN_TEXT PROPERTY POSITION_INDEPENDENT_CODE ON)
 
+
+# Code Coverage Configuration
+if(NOT TARGET coverage_config)
+  add_library(coverage_config INTERFACE)
+endif()
+option(CODE_COVERAGE "Enable coverage reporting" OFF)
+# if(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+if(CODE_COVERAGE)
+  # Add required flags (GCC & LLVM/Clang)
+  target_compile_options(coverage_config INTERFACE
+    -O0        # no optimization
+    -g         # generate debug info
+    --coverage # sets all required flags
+  )
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL 3.13)
+    target_link_options(coverage_config INTERFACE --coverage)
+  else()
+    target_link_libraries(coverage_config INTERFACE --coverage)
+  endif()
+endif(CODE_COVERAGE)
+# endif(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
+
 add_subdirectory(src)
 add_subdirectory(examples/cpp)
 enable_testing()
