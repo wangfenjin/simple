@@ -28,15 +28,6 @@ void handle_rc(sqlite3 *db, int rc) {
   }
 }
 
-string get_query(sqlite3 *db, string input) {
-  sqlite3_stmt *stmt;
-  ostringstream sql;
-  sql << "SELECT simple_query('" << input << "')";
-  sqlite3_prepare(db, sql.str().c_str(), -1, &stmt, NULL);
-  sqlite3_step(stmt);
-  return string((char *)sqlite3_column_text(stmt, 0));
-}
-
 int main() {
   // Pointer to SQLite connection
   sqlite3 *db;
@@ -72,19 +63,17 @@ int main() {
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
   // case 2: match special chars
-  sql = "select simple_highlight(t1, 0, '[', ']') as matched_no_single_quote_special_chars from t1 where x match simple_query('@\"._-&%')";
+  sql =
+      "select simple_highlight(t1, 0, '[', ']') as matched_no_single_quote_special_chars from t1 where x match "
+      "simple_query('@\"._-&%')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
   // case 3: single quote, will match!
-  sql = "select simple_highlight(t1, 0, '[', ']') as matched_simple_query_special_chars from t1 where x match simple_query('@\"._''-&%')";
+  sql =
+      "select simple_highlight(t1, 0, '[', ']') as matched_simple_query_special_chars from t1 where x match "
+      "simple_query('@\"._''-&%')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
-
-  // So, I suggest you allways get_query first, and then pass the query string into the sql, follow case 4, it will solve all cases
-  // Or you can add an if else, if (input.contains("''")), use case 4; else normal case 1.
-
-  // Why the input should contains two single quotes, because sqlite use single quote for string, and two single quotes will escape
-  // the second as a normal char
 
   // Close the connection
   sqlite3_close(db);
