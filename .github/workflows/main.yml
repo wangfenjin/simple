@@ -98,7 +98,7 @@ jobs:
       run: lcov --directory . --capture --output-file coverage.info 
     - name: Code coverage - Filter out system, external, and unit test source files
       working-directory: "${{ github.workspace }}/../../_temp/linux"
-      run: lcov --remove coverage.info '/Library/*' '/usr/*' '*/googletest/*' '*/cmrc/*' '*/entry.cc' '*/simple_highlight.*' --output-file coverage.info
+      run: lcov --remove coverage.info '/Library/*' '/usr/*' '*/cmrc/*' '*/entry.cc' '*/simple_highlight.*' --output-file coverage.info
     - name: Code coverage - Output coverage data for debugging
       working-directory: "${{ github.workspace }}/../../_temp/linux"
       run: lcov --list coverage.info
