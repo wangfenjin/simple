@@ -16,8 +16,8 @@ TEST(simple, tokenizer_with_pinyin) {
   query.push_back(R"VAGON(( e n g l i s h* OR english* ) AND "@" AND """" AND "'" AND "'")VAGON");
   arr.push_back("zhou杰伦");
   query.push_back(R"VAGON(( z h o u* OR zhou* ) AND "杰" AND "伦")VAGON");
-  arr.push_back("杰伦123");
-  query.push_back(R"VAGON("杰" AND "伦" AND "123"*)VAGON");
+  arr.push_back("杰伦 zhou 123");
+  query.push_back(R"VAGON("杰" AND "伦" AND ( z h o u* OR zhou* ) AND "123"*)VAGON");
   for (int i = 0; i < arr.size(); i++) {
     std::string s = arr[i];
     std::cout << s << " as doc:\n";
