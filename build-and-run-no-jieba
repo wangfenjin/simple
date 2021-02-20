@@ -29,7 +29,7 @@ export BashLibRoot="${ProjectRoot}/bin/lib-bash"
 export LibBashRepo="https://github.com/kigster/lib-bash"
 
 simple.header() {
-  h1.purple "Simple Tokenizer"
+  h1.purple "Simple Tokenizer no jieba"
   local OIFC=${IFC}
   IFS="|" read -r -a gcc_info <<< "$(gcc --version 2>&1 | tr '\n' '|')"
   export IFC=${OIFC}
@@ -40,19 +40,19 @@ simple.header() {
 
 simple.setup() {
   hl.subtle "Creating Build Folder..."
-  run "mkdir -p build/run"
+  run "mkdir -p build/run-no-jieba"
 }
 
 simple.clean() {
   hl.subtle "Cleaning output folders..."
-  run 'rm -rf bin/* include/* lib/* build/*'
+  run 'rm -rf bin-no-jieba/* include/* lib/* build/*'
 }
 
 simple.build() {
   hl.subtle "build..."
-  run "cd build/run"
+  run "cd build/run-no-jieba"
   find . -name "*.gcda" -print0 | xargs -0 rm
-  run "cmake -DCODE_COVERAGE=ON -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ProjectRoot}/output ../.."
+  run "cmake -DCODE_COVERAGE=ON -DSIMPLE_WITH_JIEBA=OFF -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DCMAKE_INSTALL_PREFIX=${ProjectRoot}/output-no-jieba ../.."
   run.set-next show-output-on
   run "make -j 12"
   run "make install | egrep -v 'gmock|gtest'"
@@ -62,19 +62,19 @@ simple.build() {
 simple.tests() {
   hl.subtle "testing..."
   run.set-all show-output-on
-  run "cd build/run"
+  run "cd build/run-no-jieba"
   run "ctest . -V"
   run "cd ${ProjectRoot}"
 }
 
 simple.example() {
-  [[ ! -f ./output/bin/sqlite3 ]] && {
+  [[ ! -f ./output-no-jieba/bin/sqlite3 ]] && {
       error "You don't have the cmpiled sqlite3 binary yet".
       exit 3
   }
   hl.subtle "run example..."
-  run "cd output/bin/"
-  run "cat ${ProjectRoot}/example.sql ${ProjectRoot}/example-jieba.sql | ./sqlite3"
+  run "cd output-no-jieba/bin/"
+  run "./sqlite3 < ${ProjectRoot}/example.sql"
   run "./simple_cpp_example"
   run "cd ${ProjectRoot}"
 

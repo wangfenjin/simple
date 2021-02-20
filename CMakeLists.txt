@@ -27,7 +27,6 @@ cmrc_add_resource_library(PINYIN_TEXT NAMESPACE pinyin_text contrib/pinyin.txt)
 # https://github.com/vector-of-bool/cmrc/issues/17#issuecomment-659501280
 set_property(TARGET PINYIN_TEXT PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-
 # Code Coverage Configuration
 if(NOT TARGET coverage_config)
   add_library(coverage_config INTERFACE)
@@ -49,7 +48,14 @@ if(CODE_COVERAGE)
 endif(CODE_COVERAGE)
 # endif(CODE_COVERAGE AND CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang")
 
+# https://stackoverflow.com/a/15212881/1203241
+OPTION(SIMPLE_WITH_JIEBA "Option to build with cppjieba" ON)
+if(SIMPLE_WITH_JIEBA)
+  add_definitions(-DUSE_JIEBA=1)
+endif()
+
 add_subdirectory(src)
+
 add_subdirectory(examples/cpp)
 enable_testing()
 add_subdirectory(test)

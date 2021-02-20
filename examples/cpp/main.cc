@@ -74,6 +74,16 @@ int main() {
       "simple_query('@\"._''-&%')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
+#ifdef USE_JIEBA
+  // case 4: jieba, no match
+  sql = "select simple_highlight(t1, 0, '[', ']') as no_matched_jieba from t1 where x match jieba_query('国中')";
+  rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+  handle_rc(db, rc);
+  // case 5: jieba, match
+  sql = "select simple_highlight(t1, 0, '[', ']') as matched_jieba from t1 where x match jieba_query('中国')";
+  rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+  handle_rc(db, rc);
+#endif
 
   // Close the connection
   sqlite3_close(db);
