@@ -44,6 +44,25 @@ static int fts5_api_from_db(sqlite3 *db, fts5_api **ppApi) {
   return rc;
 }
 
+#ifdef USE_JIEBA
+static void jieba_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
+  int rc;
+  if (nVal >= 1) {
+    const char *text = (const char *)sqlite3_value_text(apVal[0]);
+    if (text) {
+      int flags = 1;
+      if (nVal >= 2) {
+        flags = atoi((const char *)sqlite3_value_text(apVal[1]));
+      }
+      std::string result = simple_tokenizer::SimpleTokenizer::tokenize_jieba_query(text, std::strlen(text), flags);
+      sqlite3_result_text(pCtx, result.c_str(), -1, SQLITE_TRANSIENT);
+      return;
+    }
+  }
+  sqlite3_result_null(pCtx);
+}
+#endif
+
 static void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
   int rc;
   if (nVal >= 1) {
@@ -67,6 +86,10 @@ int sqlite3_simple_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines
 
   rc = sqlite3_create_function(db, "simple_query", -1, SQLITE_UTF8 | SQLITE_DETERMINISTIC, NULL, &simple_query, NULL,
                                NULL);
+#ifdef USE_JIEBA
+  rc = sqlite3_create_function(db, "jieba_query", -1, SQLITE_UTF8 | SQLITE_DETERMINISTIC, NULL, &jieba_query, NULL,
+                               NULL);
+#endif
 
   // fts5_tokenizer tokenizer = {fts5AsciiCreate, fts5AsciiDelete, fts5AsciiTokenize };
   fts5_tokenizer tokenizer = {fts5_simple_xCreate, fts5_simple_xDelete, fts5_simple_xTokenize};

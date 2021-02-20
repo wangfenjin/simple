@@ -3,12 +3,22 @@
 
 #include <memory>
 
+#ifdef USE_JIEBA
+#include "cppjieba/Jieba.hpp"
+#endif
 #include "pinyin.h"
 #include "sqlite3ext.h"
 
 typedef int (*xTokenFn)(void *, int, const char *, int, int, int);
 
 namespace simple_tokenizer {
+
+enum class TokenCategory {
+  SPACE,
+  ASCII_ALPHABETIC,
+  DIGIT,
+  OTHER,
+};
 
 class SimpleTokenizer {
  private:
@@ -19,6 +29,12 @@ class SimpleTokenizer {
   SimpleTokenizer(const char **zaArg, int nArg);
   int tokenize(void *pCtx, int flags, const char *text, int textLen, xTokenFn xToken);
   static std::string tokenize_query(const char *text, int textLen, int flags = 1);
+#ifdef USE_JIEBA
+  static std::string tokenize_jieba_query(const char *text, int textLen, int flags = 1);
+#endif
+
+ private:
+  static void append_result(std::string &result, std::string part, TokenCategory category, int offset, int flags);
 };
 
 }  // namespace simple_tokenizer

@@ -49,7 +49,6 @@ select '搜索 love zg:';
 select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('love zg');
 select '    ', simple_highlight_pos(t1, 0) from t1 where x match simple_query('love zg');
 
-
 select '';
 select '';
 select '--------------------------------------------------------------------------------';

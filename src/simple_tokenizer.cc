@@ -17,13 +17,6 @@ SimpleTokenizer::SimpleTokenizer(const char **azArg, int nArg) {
 
 std::unique_ptr<PinYin> SimpleTokenizer::pinyin = std::make_unique<PinYin>();
 
-enum class TokenCategory {
-  SPACE,
-  ASCII_ALPHABETIC,
-  DIGIT,
-  OTHER,
-};
-
 class Token {
  public:
   int start;
@@ -67,50 +60,72 @@ std::string SimpleTokenizer::tokenize_query(const char *text, int textLen, int f
         }
         break;
     }
-    if (category != TokenCategory::SPACE) {
-      tmp.clear();
-      std::copy(text + start, text + index, std::back_inserter(tmp));
-      if (category == TokenCategory::ASCII_ALPHABETIC) {
-        std::transform(tmp.begin(), tmp.end(), tmp.begin(), [](unsigned char c) { return std::tolower(c); });
-      }
-
-      if (flags != 0 && category == TokenCategory::ASCII_ALPHABETIC && tmp.size() > 1) {
-        if (start == 0) {
-          result.append("( ");
-        } else {
-          result.append(" AND ( ");
-        }
-        std::set<std::string> pys = pinyin->split_pinyin(tmp);
-        bool addOr = false;
-        for (const std::string &s : pys) {
-          if (addOr) {
-            result.append(" OR ");
-          }
-          result.append(s);
-          result.append("*");
-          addOr = true;
-        }
-        result.append(" )");
-      } else {
-        if (start > 0) {
-          result.append(" AND ");
-        }
-        if (tmp == "\"") {
-          tmp += tmp;
-        }
-        if (category != TokenCategory::ASCII_ALPHABETIC) {
-          result.append('"' + tmp + '"');
-        } else {
-          result.append(tmp);
-        }
-        if (category != TokenCategory::OTHER) {
-          result.append("*");
-        }
-      }
-    }
+    tmp.clear();
+    std::copy(text + start, text + index, std::back_inserter(tmp));
+    append_result(result, tmp, category, start, flags);
     start = index;
   }
   return result;
+}
+
+#ifdef USE_JIEBA
+std::string SimpleTokenizer::tokenize_jieba_query(const char *text, int textLen, int flags) {
+  static cppjieba::Jieba jieba("./dict/jieba.dict.utf8", "./dict/hmm_model.utf8", "./dict/user.dict.utf8",
+                               "./dict/idf.utf8", "./dict/stop_words.utf8");
+  std::string tmp;
+  std::string result;
+  std::vector<cppjieba::Word> words;
+  jieba.Cut(text, words);
+  for (auto word : words) {
+    TokenCategory category = from_char(text[word.offset]);
+    append_result(result, word.word, category, word.offset, flags);
+  }
+  return result;
+}
+#endif
+
+void SimpleTokenizer::append_result(std::string &result, std::string part, TokenCategory category, int offset,
+                                    int flags) {
+  if (category != TokenCategory::SPACE) {
+    std::string tmp = part;
+    if (category == TokenCategory::ASCII_ALPHABETIC) {
+      std::transform(tmp.begin(), tmp.end(), tmp.begin(), [](unsigned char c) { return std::tolower(c); });
+    }
+
+    if (flags != 0 && category == TokenCategory::ASCII_ALPHABETIC && tmp.size() > 1) {
+      if (offset == 0) {
+        result.append("( ");
+      } else {
+        result.append(" AND ( ");
+      }
+      std::set<std::string> pys = pinyin->split_pinyin(tmp);
+      bool addOr = false;
+      for (const std::string &s : pys) {
+        if (addOr) {
+          result.append(" OR ");
+        }
+        result.append(s);
+        result.append("*");
+        addOr = true;
+      }
+      result.append(" )");
+    } else {
+      if (offset > 0) {
+        result.append(" AND ");
+      }
+      if (tmp == "\"") {
+        tmp += tmp;
+      }
+      if (category != TokenCategory::ASCII_ALPHABETIC) {
+        result.append('"' + tmp + '"');
+      } else {
+        result.append(tmp);
+      }
+      if (category != TokenCategory::OTHER) {
+        result.append("*");
+      }
+    }
+  }
 }
 
 // https://cloud.tencent.com/developer/article/1198371
