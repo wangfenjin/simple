@@ -45,6 +45,27 @@ static int fts5_api_from_db(sqlite3 *db, fts5_api **ppApi) {
 }
 
 #ifdef USE_JIEBA
+static void jieba_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
+  int rc;
+  if (nVal >= 1) {
+    const char *text = (const char *)sqlite3_value_text(apVal[0]);
+    if (text) {
+      std::string tmp(text);
+      char sep = '/';
+#ifdef _WIN32
+      sep = '\\';
+#endif
+      if (tmp.back() != sep) {  // Need to add a
+        tmp += sep;             // path separator
+      }
+      simple_tokenizer::jieba_dict_path = tmp;
+      sqlite3_result_text(pCtx, tmp.c_str(), -1, SQLITE_TRANSIENT);
+      return;
+    }
+  }
+  sqlite3_result_null(pCtx);
+}
+
 static void jieba_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
   int rc;
   if (nVal >= 1) {
@@ -89,6 +110,7 @@ int sqlite3_simple_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines
 #ifdef USE_JIEBA
   rc = sqlite3_create_function(db, "jieba_query", -1, SQLITE_UTF8 | SQLITE_DETERMINISTIC, NULL, &jieba_query, NULL,
                                NULL);
+  rc = sqlite3_create_function(db, "jieba_dict", 1, SQLITE_UTF8 | SQLITE_DETERMINISTIC, NULL, &jieba_dict, NULL, NULL);
 #endif
 
   // fts5_tokenizer tokenizer = {fts5AsciiCreate, fts5AsciiDelete, fts5AsciiTokenize };
