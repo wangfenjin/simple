@@ -14,7 +14,7 @@ typedef int (*xTokenFn)(void *, int, const char *, int, int, int);
 namespace simple_tokenizer {
 
 #ifdef USE_JIEBA
-static std::string jieba_dict_path = "./dict/";
+extern std::string jieba_dict_path;
 #endif
 
 enum class TokenCategory {

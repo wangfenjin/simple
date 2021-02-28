@@ -69,6 +69,7 @@ std::string SimpleTokenizer::tokenize_query(const char *text, int textLen, int f
 }
 
 #ifdef USE_JIEBA
+std::string jieba_dict_path = "./dict/";
 std::string SimpleTokenizer::tokenize_jieba_query(const char *text, int textLen, int flags) {
   static cppjieba::Jieba jieba(jieba_dict_path + "jieba.dict.utf8", jieba_dict_path + "hmm_model.utf8",
                                jieba_dict_path + "user.dict.utf8", jieba_dict_path + "idf.utf8",
