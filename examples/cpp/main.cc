@@ -3,7 +3,23 @@
 #include <iostream>
 #include <sstream>
 
+#ifdef WINDOWS
+#include <direct.h>
+#define GetCurrentDir _getcwd
+#else
+#include <unistd.h>
+#define GetCurrentDir getcwd
+#endif
+
 using namespace std;
+
+// https://www.tutorialspoint.com/find-out-the-current-working-directory-in-c-cplusplus
+string get_current_dir() {
+   char buff[FILENAME_MAX]; //create string buffer to hold path
+   GetCurrentDir( buff, FILENAME_MAX );
+   string current_working_dir(buff);
+   return current_working_dir;
+}
 
 // Create a callback function
 int callback(void *NotUsed, int argc, char **argv, char **azColName) {
@@ -75,6 +91,11 @@ int main() {
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
 #ifdef USE_JIEBA
+  // set dict path manually
+  string dict_path = get_current_dir()+"/dict";
+  sql = "select jieba_dict('"+dict_path+"')";
+  rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+  handle_rc(db, rc);
   // case 4: jieba, no match
   sql = "select simple_highlight(t1, 0, '[', ']') as no_matched_jieba from t1 where x match jieba_query('国中')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);

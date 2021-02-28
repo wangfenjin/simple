@@ -13,6 +13,10 @@ typedef int (*xTokenFn)(void *, int, const char *, int, int, int);
 
 namespace simple_tokenizer {
 
+#ifdef USE_JIEBA
+static std::string jieba_dict_path = "./dict/";
+#endif
+
 enum class TokenCategory {
   SPACE,
   ASCII_ALPHABETIC,
