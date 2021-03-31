@@ -37,6 +37,12 @@ select '搜索 zhoujiel:';
 select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('zhoujiel');
 select '    ', simple_highlight_pos(t1, 0) from t1 where x match simple_query('zhoujiel');
 
+select '搜索 zhoujie:';
+select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('zhoujie');
+-- will not match
+select '    !!!!! should not match', simple_highlight_pos(t1, 0) from t1 where x match simple_query('jiezhou');
+
+
 select '搜索 zjl:';
 select '    ', simple_highlight(t1, 0, '[', ']') from t1 where x match simple_query('zjl');
 select '    ', simple_highlight_pos(t1, 0) from t1 where x match simple_query('zjl');
@@ -81,6 +87,7 @@ select '    ', simple_snippet(t2, 0, '[', ']', '...', 10) from t2 where x match 
 select '搜索 zhoujiel:';
 select '    ', simple_highlight(t2, 0, '[', ']') from t2 where x match simple_query('zhoujiel', '0');
 select '    ', simple_highlight_pos(t2, 0) from t2 where x match simple_query('zhoujiel', '0');
+select '    !!!!! should not match', simple_highlight_pos(t1, 0) from t1 where x match simple_query('jiezhou', '0');
 
 select '搜索 zjl:';
 select '    ', simple_highlight(t2, 0, '[', ']') from t2 where x match simple_query('zjl', '0');
