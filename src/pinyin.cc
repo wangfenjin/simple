@@ -127,7 +127,7 @@ std::vector<std::string> PinYin::_split_pinyin(const std::string &input, int beg
     }
     std::vector<std::string> tmp = _split_pinyin(input, start, end);
     for (auto s : tmp) {
-      result.push_back(first + " " + s);
+      result.push_back(first + "+" + s);
     }
     ++start;
   }
@@ -143,7 +143,7 @@ std::set<std::string> PinYin::split_pinyin(const std::string &input) {
 
   std::string spacedInput;
   for (auto c : input) {
-    spacedInput.push_back(' ');
+    spacedInput.push_back('+');
     spacedInput.push_back(c);
   }
   spacedInput = spacedInput.substr(1, spacedInput.size());
