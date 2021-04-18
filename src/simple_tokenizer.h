@@ -26,7 +26,7 @@ enum class TokenCategory {
 
 class SimpleTokenizer {
  private:
-  static std::unique_ptr<PinYin> pinyin;
+  static PinYin *get_pinyin();
   bool enable_pinyin = true;
 
  public:
