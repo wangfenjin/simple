@@ -66,16 +66,24 @@ int main() {
   ms load_extension = Clock::now() - before;
   std::cout << "It took " << load_extension.count() << "ms to load extension" << std::endl;
 
-  // create fts table
+  // warm-up
   before = Clock::now();
-  string sql = "CREATE VIRTUAL TABLE t1 USING fts5(x, tokenize = 'simple')";
+  string sql = "select simple_query('拼音pinyin')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
-  ms create_table = Clock::now() - before;
-  std::cout << "It took " << create_table.count() << "ms to create table" << std::endl;
+  sql = "select jieba_query('拼音pinyin')";
+  rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+  handle_rc(db, rc);
+  ms warm_up = Clock::now() - before;
+  std::cout << "It took " << warm_up.count() << "ms to warm up" << std::endl;
+
+  before = Clock::now();
+  // create fts table
+  sql = "CREATE VIRTUAL TABLE t1 USING fts5(x, tokenize = 'simple')";
+  rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+  handle_rc(db, rc);
 
   // insert some data
-  before = Clock::now();
   sql = R"V0G0N(
           insert into t1(x) values ('周杰伦 Jay Chou:最美的不是下雨天，是曾与你躲过雨的屋檐'),
                          ('I love China! 我爱中国!'),
@@ -83,16 +91,11 @@ int main() {
           )V0G0N";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
-  ms insert_data = Clock::now() - before;
-  std::cout << "It took " << insert_data.count() << "ms to insert data" << std::endl;
 
-  before = Clock::now();
   // case 1: match pinyin
   sql = "select simple_highlight(t1, 0, '[', ']') as matched_pinyin from t1 where x match simple_query('zhoujiel')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
-  ms first_query = Clock::now() - before;
-  std::cout << "It took " << first_query.count() << "ms in first query" << std::endl;
   // case 2: match special chars
   sql =
       "select simple_highlight(t1, 0, '[', ']') as matched_no_single_quote_special_chars from t1 where x match "
@@ -119,9 +122,9 @@ int main() {
   sql = "select simple_highlight(t1, 0, '[', ']') as matched_jieba from t1 where x match jieba_query('中国')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
+#endif
   ms last_query = Clock::now() - before;
   std::cout << "It took " << last_query.count() << "ms for all query" << std::endl;
-#endif
 
   // Close the connection
   sqlite3_close(db);
