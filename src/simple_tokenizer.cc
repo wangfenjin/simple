@@ -15,7 +15,10 @@ SimpleTokenizer::SimpleTokenizer(const char **azArg, int nArg) {
   }
 }
 
-std::unique_ptr<PinYin> SimpleTokenizer::pinyin = std::make_unique<PinYin>();
+PinYin *SimpleTokenizer::get_pinyin() {
+  static PinYin *py = new PinYin();
+  return py;
+}
 
 class Token {
  public:
@@ -53,7 +56,7 @@ std::string SimpleTokenizer::tokenize_query(const char *text, int textLen, int f
     TokenCategory category = from_char(text[index]);
     switch (category) {
       case TokenCategory::OTHER:
-        index += pinyin->get_str_len(text[index]);
+        index += SimpleTokenizer::get_pinyin()->get_str_len(text[index]);
         break;
       default:
         while (++index < textLen && from_char(text[index]) == category) {
@@ -100,7 +103,7 @@ void SimpleTokenizer::append_result(std::string &result, std::string part, Token
       } else {
         result.append(" AND ( ");
       }
-      std::set<std::string> pys = pinyin->split_pinyin(tmp);
+      std::set<std::string> pys = SimpleTokenizer::get_pinyin()->split_pinyin(tmp);
       bool addOr = false;
       for (const std::string &s : pys) {
         if (addOr) {
@@ -140,7 +143,7 @@ int SimpleTokenizer::tokenize(void *pCtx, int flags, const char *text, int textL
     TokenCategory category = from_char(text[index]);
     switch (category) {
       case TokenCategory::OTHER:
-        index += pinyin->get_str_len(text[index]);
+        index += SimpleTokenizer::get_pinyin()->get_str_len(text[index]);
         break;
       default:
         while (++index < textLen && from_char(text[index]) == category) {
@@ -156,7 +159,7 @@ int SimpleTokenizer::tokenize(void *pCtx, int flags, const char *text, int textL
 
       rc = xToken(pCtx, 0, result.c_str(), result.length(), start, index);
       if (enable_pinyin && category == TokenCategory::OTHER && (flags & FTS5_TOKENIZE_DOCUMENT)) {
-        const std::vector<std::string> &pys = pinyin->get_pinyin(result);
+        const std::vector<std::string> &pys = SimpleTokenizer::get_pinyin()->get_pinyin(result);
         for (const std::string &s : pys) {
           rc = xToken(pCtx, FTS5_TOKEN_COLOCATED, s.c_str(), s.length(), start, index);
         }
