@@ -19,7 +19,7 @@
 
 export BashMatic="${HOME}/.bashmatic"
 [[ ! -f "${BashMatic}/init.sh" ]] && {
-  bash -c "$(curl -fsSL https://bashmatic.re1.re); bashmatic-install"
+  bash -c "$(curl -fsSL https://bashmatic.re1.re); bashmatic-install -l"
 }
 source "${BashMatic}/init.sh"
 
