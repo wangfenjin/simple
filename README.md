@@ -55,4 +55,4 @@ make install
 - [x] 添加使用的例子，参见 [cpp](https://github.com/wangfenjin/simple/blob/master/examples/cpp/main.cc) 
 - [x] 部分参数可配，比如拼音文件的路径(已经把文件打包到 so 中)
 - [x] 减少依赖，减小 so 的大小
-- [ ] 给出性能数据
+- [x] 给出性能数据：加载扩展时间2ms内；第一次使用拼音功能需要加载拼音文件，大概 500ms；第一次使用结巴分词功能需要加载结巴分词文件，大概 4s。
