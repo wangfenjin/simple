@@ -68,14 +68,17 @@ int main() {
 
   // warm-up
   before = Clock::now();
-  string sql = "select simple_query('拼音pinyin')";
+  string sql = "select simple_query('pinyin')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
-  sql = "select jieba_query('拼音pinyin')";
+  ms pinyin = Clock::now() - before;
+  std::cout << "It took " << pinyin.count() << "ms to init pinyin" << std::endl;
+  before = Clock::now();
+  sql = "select jieba_query('结巴')";
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
   ms warm_up = Clock::now() - before;
-  std::cout << "It took " << warm_up.count() << "ms to warm up" << std::endl;
+  std::cout << "It took " << warm_up.count() << "ms to init jieba" << std::endl;
 
   before = Clock::now();
   // create fts table

@@ -102,7 +102,6 @@ class PinYin {
   // clang-format on
   std::set<std::string> to_plain(const std::string &input);
   std::map<int, std::vector<std::string> > build_pinyin_map();
-  std::vector<std::string> toUtf8Array(const std::string &input);
   int codepoint(const std::string &u);
   std::vector<std::string> _split_pinyin(const std::string &input, int begin, int end);
 

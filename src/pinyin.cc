@@ -14,32 +14,27 @@ namespace simple_tokenizer {
 
 PinYin::PinYin() { pinyin = build_pinyin_map(); }
 
-std::vector<std::string> PinYin::toUtf8Array(const std::string &input) {
-  std::vector<std::string> result;
-  for (size_t i = 0, len = 0; i != input.length(); i += len) {
-    unsigned char byte = (unsigned char)input[i];
-    len = get_str_len(byte);
-    result.push_back(input.substr(i, len));
-  }
-  return result;
-}
-
 std::set<std::string> PinYin::to_plain(const std::string &input) {
   std::set<std::string> s;
   std::string value;
-  auto arr = toUtf8Array(input);
-  for (std::string c : arr) {
-    if (c == ",") {
+  for (size_t i = 0, len = 0; i != input.length(); i += len) {
+    unsigned char byte = (unsigned char)input[i];
+    if (byte == ',') {
       s.insert(value);
       s.insert(value.substr(0, 1));
       value.clear();
+      continue;
+    }
+    len = get_str_len(byte);
+    if (len == 1) {
+      value.push_back(byte);
+      continue;
+    }
+    auto it = tone_to_plain.find(input.substr(i, len));
+    if (it != tone_to_plain.end()) {
+      value.push_back(it->second);
     } else {
-      auto it = tone_to_plain.find(c);
-      if (it != tone_to_plain.end()) {
-        value += it->second;
-      } else {
-        value += c;
-      }
+      value.push_back(byte);
     }
   }
   s.insert(value);
@@ -55,16 +50,18 @@ std::map<int, std::vector<std::string> > PinYin::build_pinyin_map() {
   auto pinyin_data = fs.open("contrib/pinyin.txt");
   std::istringstream pinyin_file(std::string(pinyin_data.begin(), pinyin_data.end()));
   std::string line;
-  std::regex re{R"(U\+(\w+):\s+(\S+)\s+.*)"};
-  std::smatch match;
+  char delimiter = ' ';
+  std::string cp, py;
   while (std::getline(pinyin_file, line)) {
-    if (std::regex_match(line, match, re)) {
-      int codepoint = static_cast<int>(std::stoul(match[1], 0, 16l));
-      std::set<std::string> s = to_plain(match[2]);
-      std::vector<std::string> m(s.size());
-      std::copy(s.begin(), s.end(), m.begin());
-      pinyin[codepoint] = m;
-    }
+    if (line.length() == 0 || line[0] == '#') continue;
+    std::stringstream tokenStream(line);
+    std::getline(tokenStream, cp, delimiter);
+    std::getline(tokenStream, py, delimiter);
+    int codepoint = static_cast<int>(std::stoul(cp.substr(2, cp.length() - 3), 0, 16l));
+    std::set<std::string> s = to_plain(py);
+    std::vector<std::string> m(s.size());
+    std::copy(s.begin(), s.end(), m.begin());
+    pinyin[codepoint] = m;
   }
   return pinyin;
 }
