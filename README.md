@@ -18,6 +18,25 @@ select fts5(?1);
 ```
 然后就可以使用了，具体的例子可以参考 [example.sql](./example.sql) 和 [cpp](https://github.com/wangfenjin/simple/blob/master/examples/cpp/main.cc) 
 
+```
+$ ./sqlite3
+SQLite version 3.32.3 2020-06-18 14:00:33
+Enter ".help" for usage hints.
+Connected to a transient in-memory database.
+Use ".open FILENAME" to reopen on a persistent database.
+sqlite> .load libsimple
+sqlite> CREATE VIRTUAL TABLE t1 USING fts5(text, tokenize = 'simple');
+sqlite> INSERT INTO t1 VALUES ('中华人民共和国国歌');
+sqlite> select simple_highlight(t1, 0, '[', ']') as text from t1 where text match simple_query('中华国歌');
+[中华]人民共和[国国歌]
+sqlite> select simple_highlight(t1, 0, '[', ']') as text from t1 where text match jieba_query('中华国歌');
+[中华]人民共和国[国歌]
+sqlite> select simple_highlight(t1, 0, '[', ']') as text from t1 where text match simple_query('中华人民共和国');
+[中华人民共和国国]歌
+sqlite> select simple_highlight(t1, 0, '[', ']') as text from t1 where text match jieba_query('中华人民共和国');
+[中华人民共和国]国歌
+```
+
 ## 功能
 
 1. simple tokenizer 支持中文和拼音的分词，并且可通过开关控制是否需要支持拼音
