@@ -8,3 +8,8 @@ build/
 bin/
 output/
 output-no-jieba/
+
+# CLion
+.idea/
+cmake-build-debug/
+

@@ -20,7 +20,6 @@ int fts5_simple_xTokenize(Fts5Tokenizer *tokenizer_ptr, void *pCtx, int flags, c
 
 void fts5_simple_xDelete(Fts5Tokenizer *p) {
   simple_tokenizer::SimpleTokenizer *pST = (simple_tokenizer::SimpleTokenizer *)p;
-  pST->~SimpleTokenizer();
   delete (pST);
 }
 
