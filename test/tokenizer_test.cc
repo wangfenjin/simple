@@ -13,7 +13,7 @@ TEST(simple, tokenizer_with_pinyin) {
   std::vector<std::string> arr;
   std::vector<std::string> query;
   arr.push_back("english@\"''");
-  query.push_back(R"VAGON(( e+n+g+l+i+s+h* OR english* ) AND "@" AND """" AND "'" AND "'")VAGON");
+  query.push_back(R"VAGON(( e+n+g+l+i+s+h* OR eng+li+sh* OR english* ) AND "@" AND """" AND "'" AND "'")VAGON");
   arr.push_back("zhou杰伦");
   query.push_back(R"VAGON(( z+h+o+u* OR zhou* ) AND "杰" AND "伦")VAGON");
   arr.push_back("杰伦 zhou 123");
@@ -61,7 +61,7 @@ TEST(simple, jieba_tokenizer_with_pinyin) {
   std::vector<std::string> arr;
   std::vector<std::string> query;
   arr.push_back("english@\"''");
-  query.push_back(R"VAGON(( e+n+g+l+i+s+h* OR english* ) AND "@" AND """" AND "'" AND "'")VAGON");
+  query.push_back(R"VAGON(( e+n+g+l+i+s+h* OR eng+li+sh* OR english* ) AND "@" AND """" AND "'" AND "'")VAGON");
   arr.push_back("zhou杰伦");
   query.push_back(R"VAGON(( z+h+o+u* OR zhou* ) AND "杰伦")VAGON");
   arr.push_back("杰伦 zhou 123");
