@@ -42,7 +42,7 @@ std::string SimpleTokenizer::tokenize_query(const char *text, int textLen, int f
     TokenCategory category = from_char(text[index]);
     switch (category) {
       case TokenCategory::OTHER:
-        index += SimpleTokenizer::get_pinyin()->get_str_len(text[index]);
+        index += PinYin::get_str_len(text[index]);
         break;
       default:
         while (++index < textLen && from_char(text[index]) == category) {
@@ -129,7 +129,7 @@ int SimpleTokenizer::tokenize(void *pCtx, int flags, const char *text, int textL
     TokenCategory category = from_char(text[index]);
     switch (category) {
       case TokenCategory::OTHER:
-        index += SimpleTokenizer::get_pinyin()->get_str_len(text[index]);
+        index += PinYin::get_str_len(text[index]);
         break;
       default:
         while (++index < textLen && from_char(text[index]) == category) {

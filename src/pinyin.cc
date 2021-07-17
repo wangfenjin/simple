@@ -66,7 +66,7 @@ std::map<int, std::vector<std::string> > PinYin::build_pinyin_map() {
 }
 
 // Get UTF8 character encoding length(via first byte)
-size_t PinYin::get_str_len(unsigned char byte) {
+int PinYin::get_str_len(unsigned char byte) {
   if (byte >= 0xF0)
     return 4;
   else if (byte >= 0xE0)
@@ -78,7 +78,7 @@ size_t PinYin::get_str_len(unsigned char byte) {
 
 // get the first valid utf8 string's code point
 int PinYin::codepoint(const std::string &u) {
-  int l = u.length();
+  size_t l = u.length();
   if (l < 1) return -1;
   size_t len = get_str_len((unsigned char)u[0]);
   if (l < len) return -1;
