@@ -100,7 +100,7 @@ static void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal)
 int sqlite3_simple_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi) {
   (void)pzErrMsg;
   int rc = SQLITE_OK;
-  SQLITE_EXTENSION_INIT2(pApi);
+  SQLITE_EXTENSION_INIT2(pApi)
 
   rc = sqlite3_create_function(db, "simple_query", -1, SQLITE_UTF8 | SQLITE_DETERMINISTIC, NULL, &simple_query, NULL,
                                NULL);
