@@ -31,7 +31,7 @@ class SimpleTokenizer {
 
  public:
   SimpleTokenizer(const char **zaArg, int nArg);
-  int tokenize(void *pCtx, int flags, const char *text, int textLen, xTokenFn xToken);
+  int tokenize(void *pCtx, int flags, const char *text, int textLen, xTokenFn xToken) const;
   static std::string tokenize_query(const char *text, int textLen, int flags = 1);
 #ifdef USE_JIEBA
   static std::string tokenize_jieba_query(const char *text, int textLen, int flags = 1);
