@@ -5,6 +5,7 @@
 #include <regex>
 #include <set>
 #include <sstream>
+#include <stdexcept>
 #include <vector>
 
 CMRC_DECLARE(pinyin_text);
@@ -17,14 +18,14 @@ std::set<std::string> PinYin::to_plain(const std::string &input) {
   std::set<std::string> s;
   std::string value;
   for (size_t i = 0, len = 0; i != input.length(); i += len) {
-    unsigned char byte = (unsigned char)input[i];
+    auto byte = input[i];
     if (byte == ',') {
       s.insert(value);
       s.insert(value.substr(0, 1));
       value.clear();
       continue;
     }
-    len = get_str_len(byte);
+    len = get_str_len((unsigned char)byte);
     if (len == 1) {
       value.push_back(byte);
       continue;
@@ -43,7 +44,7 @@ std::set<std::string> PinYin::to_plain(const std::string &input) {
 
 // clang-format off
 std::map<int, std::vector<std::string> > PinYin::build_pinyin_map() {
-  std::map<int, std::vector<std::string> > pinyin;
+  std::map<int, std::vector<std::string> > map;
   // clang-format on
   auto fs = cmrc::pinyin_text::get_filesystem();
   auto pinyin_data = fs.open("contrib/pinyin.txt");
@@ -60,9 +61,9 @@ std::map<int, std::vector<std::string> > PinYin::build_pinyin_map() {
     std::set<std::string> s = to_plain(py);
     std::vector<std::string> m(s.size());
     std::copy(s.begin(), s.end(), m.begin());
-    pinyin[codepoint] = m;
+    map[codepoint] = m;
   }
-  return pinyin;
+  return map;
 }
 
 // Get UTF8 character encoding length(via first byte)
@@ -93,7 +94,7 @@ int PinYin::codepoint(const std::string &u) {
       return ((unsigned char)u[0] - 240) * 262144 + ((unsigned char)u[1] - 128) * 4096 +
              ((unsigned char)u[2] - 128) * 64 + ((unsigned char)u[3] - 128);
     default:
-      return -1;
+      throw std::runtime_error("should never happen");
   }
 }
 
@@ -119,7 +120,7 @@ std::vector<std::string> PinYin::_split_pinyin(const std::string &input, int beg
       continue;
     }
     std::vector<std::string> tmp = _split_pinyin(input, start, end);
-    for (auto s : tmp) {
+    for (const auto &s : tmp) {
       result.push_back(first + "+" + s);
     }
     ++start;
@@ -128,7 +129,7 @@ std::vector<std::string> PinYin::_split_pinyin(const std::string &input, int beg
 }
 
 std::set<std::string> PinYin::split_pinyin(const std::string &input) {
-  int slen = input.size();
+  int slen = (int)input.size();
   const int max_length = 20;
   if (slen > max_length || slen <= 1) {
     return {input};

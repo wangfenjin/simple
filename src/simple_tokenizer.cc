@@ -6,6 +6,7 @@
 #include <memory>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace simple_tokenizer {
@@ -16,7 +17,7 @@ SimpleTokenizer::SimpleTokenizer(const char **azArg, int nArg) {
 }
 
 PinYin *SimpleTokenizer::get_pinyin() {
-  static PinYin *py = new PinYin();
+  static auto *py = new PinYin();
   return py;
 }
 
@@ -78,7 +79,7 @@ std::string SimpleTokenizer::tokenize_jieba_query(const char *text, int textLen,
 void SimpleTokenizer::append_result(std::string &result, std::string part, TokenCategory category, int offset,
                                     int flags) {
   if (category != TokenCategory::SPACE) {
-    std::string tmp = part;
+    std::string tmp = std::move(part);
     if (category == TokenCategory::ASCII_ALPHABETIC) {
       std::transform(tmp.begin(), tmp.end(), tmp.begin(), [](unsigned char c) { return std::tolower(c); });
     }
@@ -120,7 +121,7 @@ void SimpleTokenizer::append_result(std::string &result, std::string part, Token
 }
 
 // https://cloud.tencent.com/developer/article/1198371
-int SimpleTokenizer::tokenize(void *pCtx, int flags, const char *text, int textLen, xTokenFn xToken) {
+int SimpleTokenizer::tokenize(void *pCtx, int flags, const char *text, int textLen, xTokenFn xToken) const {
   int rc = SQLITE_OK;
   int start = 0;
   int index = 0;
@@ -143,11 +144,11 @@ int SimpleTokenizer::tokenize(void *pCtx, int flags, const char *text, int textL
         std::transform(result.begin(), result.end(), result.begin(), [](unsigned char c) { return std::tolower(c); });
       }
 
-      rc = xToken(pCtx, 0, result.c_str(), result.length(), start, index);
+      rc = xToken(pCtx, 0, result.c_str(), (int)result.length(), start, index);
       if (enable_pinyin && category == TokenCategory::OTHER && (flags & FTS5_TOKENIZE_DOCUMENT)) {
         const std::vector<std::string> &pys = SimpleTokenizer::get_pinyin()->get_pinyin(result);
         for (const std::string &s : pys) {
-          rc = xToken(pCtx, FTS5_TOKEN_COLOCATED, s.c_str(), s.length(), start, index);
+          rc = xToken(pCtx, FTS5_TOKEN_COLOCATED, s.c_str(), (int)s.length(), start, index);
         }
       }
     }
