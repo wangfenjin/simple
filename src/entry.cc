@@ -6,10 +6,10 @@ SQLITE_EXTENSION_INIT1
 #include <new>
 
 int fts5_simple_xCreate(void *sqlite3, const char **azArg, int nArg, Fts5Tokenizer **ppOut) {
-  int rc = SQLITE_OK;
+  (void) sqlite3;
   simple_tokenizer::SimpleTokenizer *p = new simple_tokenizer::SimpleTokenizer(azArg, nArg);
   *ppOut = reinterpret_cast<Fts5Tokenizer *>(p);
-  return rc;
+  return SQLITE_OK;
 }
 
 int fts5_simple_xTokenize(Fts5Tokenizer *tokenizer_ptr, void *pCtx, int flags, const char *pText, int nText,
@@ -45,7 +45,6 @@ static int fts5_api_from_db(sqlite3 *db, fts5_api **ppApi) {
 
 #ifdef USE_JIEBA
 static void jieba_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
-  int rc;
   if (nVal >= 1) {
     const char *text = (const char *)sqlite3_value_text(apVal[0]);
     if (text) {
@@ -66,7 +65,6 @@ static void jieba_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
 }
 
 static void jieba_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
-  int rc;
   if (nVal >= 1) {
     const char *text = (const char *)sqlite3_value_text(apVal[0]);
     if (text) {
@@ -84,7 +82,6 @@ static void jieba_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) 
 #endif
 
 static void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
-  int rc;
   if (nVal >= 1) {
     const char *text = (const char *)sqlite3_value_text(apVal[0]);
     if (text) {
