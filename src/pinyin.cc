@@ -1,7 +1,6 @@
 #include "pinyin.h"
 
 #include <cmrc/cmrc.hpp>
-#include <iostream>
 #include <map>
 #include <regex>
 #include <set>

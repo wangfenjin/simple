@@ -20,20 +20,6 @@ PinYin *SimpleTokenizer::get_pinyin() {
   return py;
 }
 
-class Token {
- public:
-  int start;
-  int end;
-  TokenCategory category;
-
- public:
-  Token(int s, int e, TokenCategory c) : start(s), end(e), category(c) {}
-};
-
-std::ostream &operator<<(std::ostream &os, Token const &t) {
-  return os << t.start << " " << t.end << " " << static_cast<int>(t.category);
-}
-
 static TokenCategory from_char(char c) {
   if (std::isdigit(c)) {
     return TokenCategory::DIGIT;
