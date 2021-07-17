@@ -66,12 +66,9 @@ std::map<int, std::vector<std::string> > PinYin::build_pinyin_map() {
   return pinyin;
 }
 
+// Get UTF8 character encoding length(via first byte)
 size_t PinYin::get_str_len(unsigned char byte) {
-  if (byte >= 0xFC)
-    return 6;
-  else if (byte >= 0xF8)
-    return 5;
-  else if (byte >= 0xF0)
+  if (byte >= 0xF0)
     return 4;
   else if (byte >= 0xE0)
     return 3;
