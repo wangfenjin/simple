@@ -8,6 +8,7 @@ if (MSVC)
    # https://stackoverflow.com/a/65128497/1203241
    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
    set(BUILD_SHARED_LIBS TRUE)
+   add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 endif()
 
 set(SQLITE3_HEADERS_DIR ${PROJECT_SOURCE_DIR}/contrib/sqlite3)
