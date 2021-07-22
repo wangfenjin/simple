@@ -25,7 +25,7 @@ static TokenCategory from_char(char c) {
   if (std::isdigit(c)) {
     return TokenCategory::DIGIT;
   }
-  if (std::isspace(c)) {
+  if (std::isspace(c) || std::iscntrl(c)) {
     return TokenCategory::SPACE;
   }
   if (std::isalpha(c)) {
