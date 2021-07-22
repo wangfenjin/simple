@@ -9,11 +9,11 @@
 namespace simple_tokenizer {
 
 class PinYin {
- private:
-  std::map<int, std::vector<std::string> > pinyin;
-  const std::vector<std::string> empty_vector;
+private:
+    std::map<int, std::vector<std::string> > pinyin;
+    const std::vector<std::string> empty_vector;
 
-  // clang-format off
+    // clang-format off
   const std::map<std::string, char> tone_to_plain = {
       {"ā", 'a'}, {"á", 'a'}, {"ǎ", 'a'}, {"à", 'a'},
       {"ē", 'e'}, {"é", 'e'}, {"ě", 'e'}, {"è", 'e'},
@@ -104,17 +104,19 @@ class PinYin {
               "zhuan", "zhuang", "zhui", "zhun", "zhuo", "zi", "zong", "zou", "zu", "zuan",
         "zui", "zun", "zuo",
     };
-  // clang-format on
-  std::set<std::string> to_plain(const std::string &input);
-  std::map<int, std::vector<std::string> > build_pinyin_map();
-  static int codepoint(const std::string &u);
-  std::vector<std::string> _split_pinyin(const std::string &input, int begin, int end);
+    // clang-format on
+    std::set<std::string> to_plain(const std::string& input);
+    std::map<int, std::vector<std::string> > build_pinyin_map();
+    static int codepoint(const std::string& u);
+    std::vector<std::string> _split_pinyin(const std::string& input,
+                                           int begin,
+                                           int end);
 
- public:
-  const std::vector<std::string> &get_pinyin(const std::string &chinese);
-  static int get_str_len(unsigned char byte);
-  std::set<std::string> split_pinyin(const std::string &input);
-  PinYin();
+public:
+    const std::vector<std::string>& get_pinyin(const std::string& chinese);
+    static int get_str_len(unsigned char byte);
+    std::set<std::string> split_pinyin(const std::string& input);
+    PinYin();
 };
 
 }  // namespace simple_tokenizer
