@@ -8,6 +8,7 @@
 #endif
 #include "pinyin.h"
 #include "sqlite3ext.h"
+#include "simple_def.h"
 
 typedef int (*xTokenFn)(void *, int, const char *, int, int, int);
 
@@ -34,7 +35,7 @@ class SimpleTokenizer {
   int tokenize(void *pCtx, int flags, const char *text, int textLen, xTokenFn xToken) const;
   static std::string tokenize_query(const char *text, int textLen, int flags = 1);
 #ifdef USE_JIEBA
-  static std::string tokenize_jieba_query(const char *text, int textLen, int flags = 1);
+  static std::string tokenize_jieba_query(const char *text, int textLen, int flags = 1, QueryOption option = kJiebaCutWithoutHMM);
 #endif
 
  private:

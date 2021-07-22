@@ -1,7 +1,7 @@
 #include "simple_highlight.h"
 #include "simple_tokenizer.h"
+#include "simple_def.h"
 SQLITE_EXTENSION_INIT1
-
 #include <cstring>
 #include <new>
 
@@ -62,6 +62,54 @@ static void jieba_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
     }
   }
   sqlite3_result_null(pCtx);
+}
+
+static void query(sqlite3_context* pCtx, int nVal, sqlite3_value** apVal) {
+    if (nVal < 1) {
+        sqlite3_result_null(pCtx);
+        return;
+    }
+
+    // search keywords
+    auto keywords = (const char*)sqlite3_value_text(apVal[0]);
+
+    // query option
+    QueryOption query_option = kDefault;
+    if (nVal >= 2) {
+        auto argument = (const char*)sqlite3_value_text(apVal[1]);
+        query_option = (QueryOption)std::atoi(argument);
+    }
+
+    // pingyin option
+    bool using_pinyin = false;
+    if (nVal >= 3) {
+        auto argument = (const char*)sqlite3_value_text(apVal[2]);
+        using_pinyin = std::atoi(argument) > 0;
+    }
+
+    std::string result;
+
+    switch (query_option) {
+        case kDefault:
+            result = keywords;
+            break;
+        case kSimple:
+            result = simple_tokenizer::SimpleTokenizer::tokenize_query(
+                keywords, std::strlen(keywords), using_pinyin ? 1 : 0);
+            break;
+        case kJiebaCutWithHMM:
+        case kJiebaCutWithoutHMM:
+        case kJiebaCutAll:
+        case kJiebaCutForSearch:
+            result = simple_tokenizer::SimpleTokenizer::tokenize_jieba_query(
+                keywords, std::strlen(keywords), using_pinyin ? 1 : 0,
+                query_option);
+            break;
+        default:
+            break;
+    }
+
+    sqlite3_result_text(pCtx, result.c_str(), -1, SQLITE_TRANSIENT);
 }
 
 static void jieba_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {

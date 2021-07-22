@@ -60,18 +60,46 @@ std::string SimpleTokenizer::tokenize_query(const char *text, int textLen, int f
 
 #ifdef USE_JIEBA
 std::string jieba_dict_path = "./dict/";
-std::string SimpleTokenizer::tokenize_jieba_query(const char *text, int textLen, int flags) {
+std::string SimpleTokenizer::tokenize_jieba_query(
+    const char* text,
+    int textLen,
+    int flags,
+    QueryOption option /* = kJiebaCutWithoutHMM */) {
   (void)textLen;
-  static cppjieba::Jieba jieba(jieba_dict_path + "jieba.dict.utf8", jieba_dict_path + "hmm_model.utf8",
-                               jieba_dict_path + "user.dict.utf8", jieba_dict_path + "idf.utf8",
-                               jieba_dict_path + "stop_words.utf8");
+    static cppjieba::Jieba jieba(jieba_dict_path + "jieba.dict.utf8",
+                                jieba_dict_path + "hmm_model.utf8",
+                                jieba_dict_path + "user.dict.utf8",
+                                jieba_dict_path + "idf.utf8",
+                                jieba_dict_path + "stop_words.utf8");
   std::string tmp;
   std::string result;
   std::vector<cppjieba::Word> words;
-  jieba.Cut(text, words);
+  switch (option) {
+      case kJiebaCutWithHMM:
+          jieba.Cut(text, words);
+          break;
+      case kJiebaCutWithoutHMM:
+          jieba.Cut(text, words, false);
+          break;
+      case kJiebaCutAll:
+          jieba.CutAll(text, words);
+          break;
+      case kJiebaCutForSearch:
+          jieba.CutForSearch(text, words);
+          break;
+      case kJiebaCutHMM:
+          jieba.CutHMM(text, words);
+          break;
+      case kJiebaCutSmall:
+          // jieba.CutSmall(text, words);
+          break;
+      default:
+          break;
+  }
+
   for (auto word : words) {
-    TokenCategory category = from_char(text[word.offset]);
-    append_result(result, word.word, category, word.offset, flags);
+      TokenCategory category = from_char(text[word.offset]);
+      append_result(result, word.word, category, word.offset, flags);
   }
   return result;
 }
