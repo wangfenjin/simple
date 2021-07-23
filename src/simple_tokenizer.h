@@ -2,15 +2,14 @@
 #define SIMPLE_TOKENIZER_H_
 
 #include <memory>
-
+#include "pinyin.h"
+#include "simple_def.h"
+#include "sqlite3ext.h"
 #ifdef USE_JIEBA
 #include "cppjieba/Jieba.hpp"
 #endif
-#include "pinyin.h"
-#include "sqlite3ext.h"
-#include "simple_def.h"
 
-typedef int (*xTokenFn)(void *, int, const char *, int, int, int);
+typedef int (*xTokenFn)(void*, int, const char*, int, int, int);
 
 namespace simple_tokenizer {
 
@@ -19,36 +18,43 @@ extern std::string jieba_dict_path;
 #endif
 
 enum class TokenCategory {
-  SPACE,
-  ASCII_ALPHABETIC,
-  DIGIT,
-  OTHER,
+    SPACE,
+    ASCII_ALPHABETIC,
+    DIGIT,
+    OTHER,
 };
 
 class SimpleTokenizer {
- private:
-  static PinYin *get_pinyin();
-  bool enable_pinyin = true;
+private:
+    static PinYin* get_pinyin();
+    bool enable_pinyin = true;
 
- public:
-  SimpleTokenizer(const char **zaArg, int nArg);
-  int tokenize(void *pCtx, int flags, const char *text, int textLen, xTokenFn xToken) const;
-  static std::string tokenize_query(const char *text, int textLen, int flags = 1);
+public:
+    SimpleTokenizer(const char** zaArg, int nArg);
+    int tokenize(void* pCtx, int flags, const char* text, int textLen, xTokenFn xToken) const;
+    static std::string tokenize_query(const char* text, int textLen, int flags = 1);
 #ifdef USE_JIEBA
-  static std::string tokenize_jieba_query(const char *text, int textLen, int flags = 1, QueryOption option = kJiebaCutWithoutHMM);
+    static std::string tokenize_jieba_query(const char* text,
+                                            int textLen,
+                                            int flags = 1,
+                                            QueryOption option = kJiebaCutWithoutHMM);
 #endif
 
- private:
-  static void append_result(std::string &result, std::string part, TokenCategory category, int offset, int flags);
+private:
+    static void append_result(std::string& result, std::string part, TokenCategory category, int offset, int flags);
 };
 
 }  // namespace simple_tokenizer
 
-extern "C" int fts5_simple_xCreate(void *sqlite3, const char **azArg, int nArg, Fts5Tokenizer **ppOut);
-extern "C" int fts5_simple_xTokenize(Fts5Tokenizer *tokenizer_ptr, void *pCtx, int flags, const char *pText, int nText,
+extern "C" int fts5_simple_xCreate(void* sqlite3, const char** azArg, int nArg, Fts5Tokenizer** ppOut);
+extern "C" int fts5_simple_xTokenize(Fts5Tokenizer* tokenizer_ptr,
+                                     void* pCtx,
+                                     int flags,
+                                     const char* pText,
+                                     int nText,
                                      xTokenFn xToken);
-extern "C" void fts5_simple_xDelete(Fts5Tokenizer *tokenizer_ptr);
+extern "C" void fts5_simple_xDelete(Fts5Tokenizer* tokenizer_ptr);
 
-extern "C" int sqlite3_simple_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi);
+extern "C" int sqlite3_simple_init(sqlite3* db, char** pzErrMsg, const sqlite3_api_routines* pApi);
 
 #endif  // SIMPLE_TOKENIZER_H_
