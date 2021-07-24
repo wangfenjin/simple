@@ -77,8 +77,8 @@ jobs:
 
     - name: "Check file existence"
       uses: andstor/file-existence-action@v1
-      allow_failure: true
       with:
+        allow_failure: true
         files: "${{ github.workspace }}/../../_temp/windows/src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll, ${{ github.workspace }}/../../_temp/windows/test/dict/jieba.dict.utf8"
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
@@ -152,8 +152,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: "Check file existence"
       uses: andstor/file-existence-action@v1
-      allow_failure: true
       with:
+        allow_failure: true
         files: "${{ github.workspace }}/build/src/libsimple.so, ${{ github.workspace }}/build/test/dict/jieba.dict.utf8"
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
@@ -200,8 +200,8 @@ jobs:
 
     - name: "Check file existence"
       uses: andstor/file-existence-action@v1
-      allow_failure: true
       with:
+        allow_failure: true
         files: "${{ github.workspace }}/../../_temp/macos/src/libsimple.dylib, ${{ github.workspace }}/../../_temp/macos/test/dict/jieba.dict.utf8"
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
