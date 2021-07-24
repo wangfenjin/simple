@@ -61,10 +61,10 @@ jobs:
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
         buildDirectory: "${{ github.workspace }}/../../_temp/windows"
         useVcpkgToolchainFile: true
-        cmakeBuildType: $env:BUILD_TYPE
+        cmakeBuildType: ${{ env:BUILD_TYPE }}
         buildWithCMake: true
         cmakeGenerator: VS16Win64 
-        buildWithCMakeArgs: --config $env:BUILD_TYPE
+        buildWithCMakeArgs: --config ${{ env:BUILD_TYPE }}
         
     # - name: 'Run CTest'
     #   run: ctest -C ${{ env.BUILD_TYPE }}
@@ -76,12 +76,12 @@ jobs:
         mkdir libsimple-windows-${{ matrix.arch }}
         cp -r src/libsimple.dll test/dict/ libsimple-windows-${{ matrix.arch }}
         zip -r libsimple-windows-${{ matrix.arch }}.zip libsimple-windows-${{ matrix.arch }}
-      working-directory: "${{ github.workspace }}/../../_temp/windows"
+      working-directory: "${{ github.workspace }}/../../_temp/windows/${{ matrix.arch }}/${{ env:BUILD_TYPE }}"
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        file: ${{ github.workspace }}/../../_temp/windows/libsimple-windows-${{ matrix.arch }}.zip
+        file: ${{ github.workspace }}/../../_temp/windows/${{ matrix.arch }}/${{ env:BUILD_TYPE }}/libsimple-windows-${{ matrix.arch }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
