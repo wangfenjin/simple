@@ -13,6 +13,7 @@ on:
 jobs:
   Windows:
     runs-on: windows-latest 
+    needs: Linux
     strategy:
       fail-fast: false
       matrix:
@@ -74,18 +75,22 @@ jobs:
     #   run: ctest -C ${{ env.BUILD_TYPE }}
     #   working-directory: "${{ github.workspace }}/../../_temp/windows"
 
+    - name: "Check file existence"
+      uses: andstor/file-existence-action@v1
+      with:
+        files: "${{ github.workspace }}/../../_temp/windows/src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll ${{ github.workspace }}/../../_temp/windows/test/dict/jieba.dict.utf8"
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
         mkdir libsimple-windows-${{ matrix.arch }}
-        cp -r src/${{ steps.build_type.outputs.BUILD_TYPE }}/libsimple.dll test/dict/ libsimple-windows-${{ matrix.arch }}
+        cp -r src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll test/dict/ libsimple-windows-${{ matrix.arch }}
         zip -r libsimple-windows-${{ matrix.arch }}.zip libsimple-windows-${{ matrix.arch }}
       working-directory: "${{ github.workspace }}/../../_temp/windows/"
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        file: ${{ github.workspace }}/../../_temp/windows/libsimple-windows-${{ matrix.arch }}.zip
+        files: ${{ github.workspace }}/../../_temp/windows/libsimple-windows-${{ matrix.arch }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
@@ -144,6 +149,10 @@ jobs:
       uses: mikepenz/release-changelog-builder-action@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: "Check file existence"
+      uses: andstor/file-existence-action@v1
+      with:
+        files: "${{ github.workspace }}/build/src/libsimple.so ${{ github.workspace }}/build/test/dict/jieba.dict.utf8"
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
@@ -155,13 +164,14 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        file: ${{ github.workspace }}/build/libsimple-linux-amd64.zip
+        files: ${{ github.workspace }}/build/libsimple-linux-amd64.zip
         body: ${{steps.build_changelog.outputs.changelog}}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
   MacOS:
     runs-on: macos-latest
+    needs: Linux
     steps:
     - name: "Release Build Type"
       if: startsWith(github.ref, 'refs/tags/')
@@ -186,6 +196,10 @@ jobs:
       run: ctest -C ${{ env.BUILD_TYPE }}
       working-directory: "${{ github.workspace }}/../../_temp/macos"
 
+    - name: "Check file existence"
+      uses: andstor/file-existence-action@v1
+      with:
+        files: "${{ github.workspace }}/../../_temp/macos/src/libsimple.dylib ${{ github.workspace }}/../../_temp/macos/test/dict/jieba.dict.utf8"
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
@@ -197,6 +211,6 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        file: ${{ github.workspace }}/../../_temp/macos/libsimple-osx-amd64.zip
+        files: ${{ github.workspace }}/../../_temp/macos/libsimple-osx-amd64.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
