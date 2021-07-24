@@ -77,13 +77,14 @@ jobs:
 
     - name: "Check file existence"
       uses: andstor/file-existence-action@v1
+      allow_failure: true
       with:
-        files: "${{ github.workspace }}/../../_temp/windows/src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll ${{ github.workspace }}/../../_temp/windows/test/dict/jieba.dict.utf8"
+        files: "${{ github.workspace }}/../../_temp/windows/src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll, ${{ github.workspace }}/../../_temp/windows/test/dict/jieba.dict.utf8"
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
         mkdir libsimple-windows-${{ matrix.arch }}
-        cp -r src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll test/dict/ libsimple-windows-${{ matrix.arch }}
+        Copy-Item src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll test/dict/ -destination libsimple-windows-${{ matrix.arch }}/ -recursive
         zip -r libsimple-windows-${{ matrix.arch }}.zip libsimple-windows-${{ matrix.arch }}
       working-directory: "${{ github.workspace }}/../../_temp/windows/"
     - name: Release
@@ -151,8 +152,9 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: "Check file existence"
       uses: andstor/file-existence-action@v1
+      allow_failure: true
       with:
-        files: "${{ github.workspace }}/build/src/libsimple.so ${{ github.workspace }}/build/test/dict/jieba.dict.utf8"
+        files: "${{ github.workspace }}/build/src/libsimple.so, ${{ github.workspace }}/build/test/dict/jieba.dict.utf8"
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
@@ -198,8 +200,9 @@ jobs:
 
     - name: "Check file existence"
       uses: andstor/file-existence-action@v1
+      allow_failure: true
       with:
-        files: "${{ github.workspace }}/../../_temp/macos/src/libsimple.dylib ${{ github.workspace }}/../../_temp/macos/test/dict/jieba.dict.utf8"
+        files: "${{ github.workspace }}/../../_temp/macos/src/libsimple.dylib, ${{ github.workspace }}/../../_temp/macos/test/dict/jieba.dict.utf8"
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
