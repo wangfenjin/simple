@@ -24,7 +24,7 @@ jobs:
     - name: "Set Build Type"
       id: build_type
       run: |
-        if (${{ github.ref }}.StartsWith("refs/tags/")) {
+        if ("${{ github.ref }}".StartsWith("refs/tags/")) {
           echo "BUILD_TYPE::Release";
           echo "::set-output name=BUILD_TYPE::Release";
         } else {
