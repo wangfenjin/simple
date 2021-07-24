@@ -91,10 +91,10 @@ jobs:
     steps:
     - name: "Release Build Type"
       if: startsWith(github.ref, 'refs/tags/')
-      run: echo "BUILD_TYPE=Release" >> $GITHUB_ENV
+      run: echo "BUILD_TYPE=Release" >> $env:GITHUB_ENV
     - name: "Debug Build Type"
       if: startsWith(github.ref, 'refs/tags/') != true
-      run: echo "BUILD_TYPE=Debug" >> $GITHUB_ENV
+      run: echo "BUILD_TYPE=Debug" >> $env:GITHUB_ENV
 
     - uses: actions/checkout@v2
 
@@ -113,14 +113,14 @@ jobs:
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        cmakeBuildType: ${{ env.BUILD_TYPE }}  
+        cmakeBuildType: $env:BUILD_TYPE
         buildDirectory: "${{ github.workspace }}/build"
         buildWithCMake: true
-        buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }} 
+        buildWithCMakeArgs: --config $env:BUILD_TYPE
         cmakeAppendedArgs: " -DCODE_COVERAGE=ON "
         
     - name: 'Run CTest'
-      run: ctest -V -C ${{ env.BUILD_TYPE }}
+      run: ctest -V -C $env:BUILD_TYPE
       working-directory: "${{ github.workspace }}/build"
 
     # CODE COVERAGE
