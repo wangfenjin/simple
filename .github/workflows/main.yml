@@ -23,10 +23,10 @@ jobs:
     steps:
     - name: "Release Build Type"
       if: startsWith(github.ref, 'refs/tags/')
-      run: echo "BUILD_TYPE=Release" >> $GITHUB_ENV
+      run: echo "BUILD_TYPE=Release" >> $env:GITHUB_ENV
     - name: "Debug Build Type"
       if: startsWith(github.ref, 'refs/tags/') != true
-      run: echo "BUILD_TYPE=Debug" >> $GITHUB_ENV
+      run: echo "BUILD_TYPE=Debug" >> $env:GITHUB_ENV
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
@@ -61,10 +61,10 @@ jobs:
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
         buildDirectory: "${{ github.workspace }}/../../_temp/windows"
         useVcpkgToolchainFile: true
-        cmakeBuildType: ${{ env.BUILD_TYPE }}   
+        cmakeBuildType: $env:BUILD_TYPE
         buildWithCMake: true
         cmakeGenerator: VS16Win64 
-        buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }}  
+        buildWithCMakeArgs: --config $env:BUILD_TYPE
         
     # - name: 'Run CTest'
     #   run: ctest -C ${{ env.BUILD_TYPE }}
