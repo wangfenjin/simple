@@ -81,10 +81,9 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        file: libsimple-windows-${{ matrix.arch }}.zip
+        file: ${{ github.workspace }}/../../_temp/windows/libsimple-windows-${{ matrix.arch }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      working-directory: "${{ github.workspace }}/../../_temp/windows"
         
   
   Linux:
@@ -152,11 +151,10 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        file: libsimple-linux-amd64.zip
+        file: ${{ github.workspace }}/build/libsimple-linux-amd64.zip
         body: ${{steps.build_changelog.outputs.changelog}}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      working-directory: "${{ github.workspace }}/build"
   
   MacOS:
     runs-on: macos-latest
@@ -195,8 +193,6 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
-        file: libsimple-osx-amd64.zip
+        file: ${{ github.workspace }}/../../_temp/macos/libsimple-osx-amd64.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      working-directory: "${{ github.workspace }}/../../_temp/macos"
-        
