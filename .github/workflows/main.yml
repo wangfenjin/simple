@@ -84,7 +84,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       run: |
         mkdir libsimple-windows-${{ matrix.arch }}
-        Copy-Item -Path src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll,cppjieba/src/cppjieba/dict/ -Destination libsimple-windows-${{ matrix.arch }}/ -Recursive
+        Copy-Item -Path src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll,cppjieba/src/cppjieba/dict/ -Destination libsimple-windows-${{ matrix.arch }}/ -Recurse
         zip -r libsimple-windows-${{ matrix.arch }}.zip libsimple-windows-${{ matrix.arch }}
       working-directory: "${{ github.workspace }}/../../_temp/windows/"
     - name: Release
