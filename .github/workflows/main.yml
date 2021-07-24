@@ -24,13 +24,13 @@ jobs:
     - name: "Set Build Type"
       id: build_type
       run: |
-        if [[ ${{ github.ref }} == refs/tags/* ]]; then
+        if (${{ github.ref }}.StartsWith("refs/tags/")) {
           echo "BUILD_TYPE::Release";
           echo "::set-output name=BUILD_TYPE::Release";
-        else:
+        } else {
           echo "BUILD_TYPE::Debug";
           echo "::set-output name=BUILD_TYPE::Debug";
-        fi
+        }
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
