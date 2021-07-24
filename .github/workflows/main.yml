@@ -5,6 +5,7 @@ name: CI
 on:
   push:
     branches: [ master ]
+    tags: [ '*' ]
   pull_request:
     branches: [ master ]
 
@@ -12,6 +13,7 @@ on:
 jobs:
   Windows:
     runs-on: windows-latest 
+    needs: Linux
     strategy:
       fail-fast: false
       matrix:
@@ -20,6 +22,17 @@ jobs:
         - arch: x64
 
     steps:
+    - name: "Set Build Type"
+      id: build_type
+      run: |
+        if ("${{ github.ref }}".StartsWith("refs/tags/")) {
+          echo "BUILD_TYPE::Release";
+          echo "::set-output name=BUILD_TYPE::Release";
+        } else {
+          echo "BUILD_TYPE::Debug";
+          echo "::set-output name=BUILD_TYPE::Debug";
+        }
+
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
@@ -53,18 +66,47 @@ jobs:
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
         buildDirectory: "${{ github.workspace }}/../../_temp/windows"
         useVcpkgToolchainFile: true
-        cmakeBuildType: Debug   
+        cmakeBuildType: ${{ steps.build_type.outputs.BUILD_TYPE }}
         buildWithCMake: true
         cmakeGenerator: VS16Win64 
-        buildWithCMakeArgs: --config Debug  
+        buildWithCMakeArgs: --config ${{ steps.build_type.outputs.BUILD_TYPE }}
         
     # - name: 'Run CTest'
-    #   run: ctest -C Debug
+    #   run: ctest -C ${{ env.BUILD_TYPE }}
     #   working-directory: "${{ github.workspace }}/../../_temp/windows"
+
+    - name: "Check file existence"
+      uses: andstor/file-existence-action@v1
+      with:
+        allow_failure: true
+        files: "${{ github.workspace }}/../../_temp/windows/src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll, ${{ github.workspace }}/../../_temp/windows/cppjieba/src/cppjieba/dict/jieba.dict.utf8"
+    - name: Package
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        mkdir libsimple-windows-${{ matrix.arch }}
+        Copy-Item -Path src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll,cppjieba/src/cppjieba/dict/ -Destination libsimple-windows-${{ matrix.arch }}/ -Recurse
+        Compress-Archive -Path libsimple-windows-${{ matrix.arch }} -DestinationPath libsimple-windows-${{ matrix.arch }}.zip
+      working-directory: "${{ github.workspace }}/../../_temp/windows/"
+    - name: Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        draft: true
+        files: ${{ github.workspace }}/../../_temp/windows/libsimple-windows-${{ matrix.arch }}.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
   
   Linux:
     runs-on: ubuntu-latest
     steps:
+    - name: "Release Build Type"
+      if: startsWith(github.ref, 'refs/tags/')
+      run: echo "BUILD_TYPE=Release" >> $GITHUB_ENV
+    - name: "Debug Build Type"
+      if: startsWith(github.ref, 'refs/tags/') != true
+      run: echo "BUILD_TYPE=Debug" >> $GITHUB_ENV
+
     - uses: actions/checkout@v2
 
     - name: Update apt-get
@@ -82,14 +124,14 @@ jobs:
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        cmakeBuildType: Debug  
+        cmakeBuildType: ${{ env.BUILD_TYPE }}  
         buildDirectory: "${{ github.workspace }}/build"
         buildWithCMake: true
-        buildWithCMakeArgs: --config Debug 
+        buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }} 
         cmakeAppendedArgs: " -DCODE_COVERAGE=ON "
         
     - name: 'Run CTest'
-      run: ctest -V -C Debug
+      run: ctest -V -C ${{ env.BUILD_TYPE }}
       working-directory: "${{ github.workspace }}/build"
 
     # CODE COVERAGE
@@ -101,23 +143,80 @@ jobs:
       run: lcov --list coverage_filter.info
     - name: Code coverage - Upload to CodeCov
       run:  bash <(curl -s https://codecov.io/bash) -f coverage_filter.info || echo "Codecov did not collect coverage reports"
+
+    # create release
+    - name: "Build Changelog"
+      id: build_changelog
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: mikepenz/release-changelog-builder-action@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    - name: "Check file existence"
+      uses: andstor/file-existence-action@v1
+      with:
+        allow_failure: true
+        files: "${{ github.workspace }}/build/src/libsimple.so, ${{ github.workspace }}/build/test/dict/jieba.dict.utf8"
+    - name: Package
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        mkdir libsimple-linux-amd64
+        cp -r src/libsimple.so test/dict/ libsimple-linux-amd64/
+        zip -r libsimple-linux-amd64.zip libsimple-linux-amd64
+      working-directory: "${{ github.workspace }}/build"
+    - name: Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        draft: true
+        files: ${{ github.workspace }}/build/libsimple-linux-amd64.zip
+        body: ${{steps.build_changelog.outputs.changelog}}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   
   MacOS:
     runs-on: macos-latest
+    needs: Linux
     steps:
+    - name: "Release Build Type"
+      if: startsWith(github.ref, 'refs/tags/')
+      run: echo "BUILD_TYPE=Release" >> $GITHUB_ENV
+    - name: "Debug Build Type"
+      if: startsWith(github.ref, 'refs/tags/') != true
+      run: echo "BUILD_TYPE=Debug" >> $GITHUB_ENV
+
     - uses: actions/checkout@v2
     - name: 'Run CMake'
       uses: lukka/run-cmake@v3
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        cmakeBuildType: Debug  
+        cmakeBuildType: ${{ env.BUILD_TYPE }}  
         buildDirectory: "${{ github.workspace }}/../../_temp/macos"
         buildWithCMake: true
         cmakeAppendedArgs: -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/../../_temp/macos/install"
-        buildWithCMakeArgs: --config Debug
+        buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }}
         
     - name: 'Run CTest'
-      run: ctest -C Debug
+      run: ctest -C ${{ env.BUILD_TYPE }}
       working-directory: "${{ github.workspace }}/../../_temp/macos"
-        
+
+    - name: "Check file existence"
+      uses: andstor/file-existence-action@v1
+      with:
+        allow_failure: true
+        files: "${{ github.workspace }}/../../_temp/macos/src/libsimple.dylib, ${{ github.workspace }}/../../_temp/macos/test/dict/jieba.dict.utf8"
+    - name: Package
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        mkdir libsimple-osx-amd64
+        cp -r src/libsimple.dylib test/dict/ libsimple-osx-amd64/
+        zip -r libsimple-osx-amd64.zip libsimple-osx-amd64
+      working-directory: "${{ github.workspace }}/../../_temp/macos"
+    - name: Release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v1
+      with:
+        draft: true
+        files: ${{ github.workspace }}/../../_temp/macos/libsimple-osx-amd64.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
