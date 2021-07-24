@@ -84,13 +84,14 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       run: |
         mkdir libsimple-windows-${{ matrix.arch }}
-        Copy-Item src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll cppjieba/src/cppjieba/dict/ -destination libsimple-windows-${{ matrix.arch }}/ -recursive
+        Copy-Item -Path src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll,cppjieba/src/cppjieba/dict/ -Destination libsimple-windows-${{ matrix.arch }}/ -Recursive
         zip -r libsimple-windows-${{ matrix.arch }}.zip libsimple-windows-${{ matrix.arch }}
       working-directory: "${{ github.workspace }}/../../_temp/windows/"
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
+        draft: true
         files: ${{ github.workspace }}/../../_temp/windows/libsimple-windows-${{ matrix.arch }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -166,6 +167,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
+        draft: true
         files: ${{ github.workspace }}/build/libsimple-linux-amd64.zip
         body: ${{steps.build_changelog.outputs.changelog}}
       env:
@@ -214,6 +216,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
+        draft: true
         files: ${{ github.workspace }}/../../_temp/macos/libsimple-osx-amd64.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
