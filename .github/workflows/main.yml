@@ -21,14 +21,16 @@ jobs:
         - arch: x64
 
     steps:
-    - name: "Release Build Type"
+    - name: "Set Build Type"
       id: build_type
-      if: startsWith(github.ref, 'refs/tags/')
-      run: echo "::set-output name=BUILD_TYPE::Release"
-    - name: "Debug Build Type"
-      id: build_type
-      if: startsWith(github.ref, 'refs/tags/') != true
-      run: echo "::set-output name=BUILD_TYPE::Debug"
+      run: |
+        if [[ ${{ github.ref }} == refs/tags/* ]]; then
+          echo "BUILD_TYPE::Release";
+          echo "::set-output name=BUILD_TYPE::Release";
+        else:
+          echo "BUILD_TYPE::Debug";
+          echo "::set-output name=BUILD_TYPE::Debug";
+        fi
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
