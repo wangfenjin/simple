@@ -76,15 +76,15 @@ jobs:
         mkdir libsimple-windows-${{ matrix.arch }}
         cp -r src/libsimple.dll test/dict/ libsimple-windows-${{ matrix.arch }}
         zip -r libsimple-windows-${{ matrix.arch }}.zip libsimple-windows-${{ matrix.arch }}
-      working-directory: "${{ github.workspace }}/build"
+      working-directory: "${{ github.workspace }}/../../_temp/windows"
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
       with:
         file: libsimple-windows-${{ matrix.arch }}.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      working-directory: "${{ github.workspace }}/../../_temp/windows"
         
   
   Linux:
@@ -151,12 +151,12 @@ jobs:
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
       with:
         file: libsimple-linux-amd64.zip
         body: ${{steps.build_changelog.outputs.changelog}}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      working-directory: "${{ github.workspace }}/build"
   
   MacOS:
     runs-on: macos-latest
@@ -190,13 +190,13 @@ jobs:
         mkdir libsimple-osx-amd64
         cp -r src/libsimple.dylib test/dict/ libsimple-osx-amd64/
         zip -r libsimple-osx-amd64.zip libsimple-osx-amd64
-      working-directory: "${{ github.workspace }}/build"
+      working-directory: "${{ github.workspace }}/../../_temp/macos"
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
-      if: startsWith(github.ref, 'refs/tags/')
       with:
         file: libsimple-osx-amd64.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      working-directory: "${{ github.workspace }}/../../_temp/macos"
         
