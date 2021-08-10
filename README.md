@@ -8,7 +8,7 @@ simple 是一个支持中文和拼音的 [sqlite3 fts5](https://www.sqlite.org/f
 
 实现相关介绍：https://www.wangfenjin.com/posts/simple-tokenizer/
 
-在此基础上，我们还支持通过 [cppjieba](https://github.com/yanyiwu/cppjieba) 实现更精准的词组匹配，介绍文章见 https://www.wangfenjin.com/posts/simple-jieba-tokenizer/。
+在此基础上，我们还支持通过 [cppjieba](https://github.com/yanyiwu/cppjieba) 实现更精准的词组匹配，介绍文章见 https://www.wangfenjin.com/posts/simple-jieba-tokenizer/
 
 ## 用法
 
