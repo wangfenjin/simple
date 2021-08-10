@@ -8,7 +8,7 @@ simple 是一个支持中文和拼音的 [sqlite3 fts5](https://www.sqlite.org/f
 
 实现相关介绍：https://www.wangfenjin.com/posts/simple-tokenizer/
 
-在此基础上，我们还支持通过 [cppjieba](https://github.com/yanyiwu/cppjieba) 实现更精准的词组匹配，介绍文章见 [Simple: SQLite3 结巴分词插件](https://www.wangfenjin.com/posts/simple-jieba-tokenizer/)。
+在此基础上，我们还支持通过 [cppjieba](https://github.com/yanyiwu/cppjieba) 实现更精准的词组匹配，介绍文章见 https://www.wangfenjin.com/posts/simple-jieba-tokenizer/。
 
 ## 用法
 
@@ -69,9 +69,8 @@ make install
 
 ## TODO
 
-- [ ] 加一些代码注释
 - [x] 添加 CI/CD 
-- [x] 添加使用的例子，参见 [cpp](https://github.com/wangfenjin/simple/blob/master/examples/cpp/main.cc) 
+- [x] 添加使用的例子，参见 [cpp](https://github.com/wangfenjin/simple/blob/master/examples/cpp/main.cc) [python3](https://github.com/wangfenjin/simple/blob/master/examples/python3/db_connector.py)
 - [x] 部分参数可配，比如拼音文件的路径(已经把文件打包到 so 中)
 - [x] 减少依赖，减小 so 的大小
 - [x] 给出性能数据：加载扩展时间2ms内；第一次使用拼音功能需要加载拼音文件，大概 500ms；第一次使用结巴分词功能需要加载结巴分词文件，大概 4s。
