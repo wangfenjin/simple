@@ -33,9 +33,9 @@ jobs:
           echo "::set-output name=BUILD_TYPE::Debug";
         }
 
-        if ("${{ matrix.arch }}" -eq "x86") {
-          echo "Arch:x86";
-          echo "::set-output name=BUILD_ARCH::x86";
+        if ("${{ matrix.arch }}" -eq "x64") {
+          echo "Arch:x64";
+          echo "::set-output name=BUILD_ARCH::x64";
         } else {
           echo "Arch:Win32";
           echo "::set-output name=BUILD_ARCH::Win32";
