@@ -77,7 +77,8 @@ jobs:
         cmakeBuildType: ${{ steps.build_type.outputs.BUILD_TYPE }}
         buildWithCMake: true
         cmakeGenerator: VS16Win64 
-        buildWithCMakeArgs: --config ${{ steps.build_type.outputs.BUILD_TYPE }} -A ${{steps.build_type.outputs.BUILD_ARCH  }}
+        cmakeAppendedArgs: -A ${{steps.build_type.outputs.BUILD_ARCH  }}
+        buildWithCMakeArgs: --config ${{ steps.build_type.outputs.BUILD_TYPE }}
         
     # - name: 'Run CTest'
     #   run: ctest -C ${{ env.BUILD_TYPE }}
