@@ -33,6 +33,14 @@ jobs:
           echo "::set-output name=BUILD_TYPE::Debug";
         }
 
+        if ("${{ matrix.arch }}" -eq "x86") {
+          echo "Arch:x86";
+          echo "::set-output name=BUILD_ARCH::x86";
+        } else {
+          echo "Arch:Win32";
+          echo "::set-output name=BUILD_ARCH::Win32";
+        }
+
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
 
@@ -69,7 +77,7 @@ jobs:
         cmakeBuildType: ${{ steps.build_type.outputs.BUILD_TYPE }}
         buildWithCMake: true
         cmakeGenerator: VS16Win64 
-        buildWithCMakeArgs: --config ${{ steps.build_type.outputs.BUILD_TYPE }}
+        buildWithCMakeArgs: --config ${{ steps.build_type.outputs.BUILD_TYPE }} -A ${{steps.build_type.outputs.BUILD_ARCH  }}
         
     # - name: 'Run CTest'
     #   run: ctest -C ${{ env.BUILD_TYPE }}
