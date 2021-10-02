@@ -11,17 +11,25 @@ if (MSVC)
    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 endif()
 
+if (IOS)
+  list(APPEND CMAKE_ARGS
+    "-DPLATFORM=${PLATFORM}"
+  )
+endif()
+
 set(SQLITE3_HEADERS_DIR ${PROJECT_SOURCE_DIR}/contrib/sqlite3)
 set(SIMPLE_HEADERS_DIR ${PROJECT_SOURCE_DIR}/src)
 
 # setup sqlite
-option(SQLITE_ENABLE_FTS5         "enables full text searches version 5"         ON)
-option(BUILD_SHELL "build SQLite3 shell application" ON)
 set(SQLITE_ROOT ${PROJECT_SOURCE_DIR}/build/sqlite)
 set(SQLITE_INSTALL_DIR ${SQLITE_ROOT})
 set(SQLITE_INCLUDE_DIR ${SQLITE_INSTALL_DIR}/include)
 set(SQLITE_LIB_DIR ${SQLITE_INSTALL_DIR}/lib)
-add_subdirectory(contrib/sqlite3)
+if (NOT IOS)
+  option(SQLITE_ENABLE_FTS5         "enables full text searches version 5"         ON)
+  option(BUILD_SHELL "build SQLite3 shell application" ON)
+  add_subdirectory(contrib/sqlite3)
+endif()
 
 include(contrib/CMakeRC.cmake)
 cmrc_add_resource_library(PINYIN_TEXT NAMESPACE pinyin_text contrib/pinyin.txt)
@@ -57,7 +65,9 @@ endif()
 
 add_subdirectory(src)
 
-add_subdirectory(examples/cpp)
-enable_testing()
-add_subdirectory(test)
+if (NOT IOS)
+  add_subdirectory(examples/cpp)
+  enable_testing()
+  add_subdirectory(test)
+endif()
 
