@@ -130,6 +130,7 @@ jobs:
 
     - name: 'Run CMake'
       uses: lukka/run-cmake@v3
+      if: ! startsWith(github.ref, 'refs/tags/')
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
@@ -139,18 +140,35 @@ jobs:
         buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }} 
         cmakeAppendedArgs: " -DCODE_COVERAGE=ON "
         
+    - name: 'Run CMake without coverage'
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: lukka/run-cmake@v3
+      with:
+        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
+        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+        cmakeBuildType: ${{ env.BUILD_TYPE }}  
+        buildDirectory: "${{ github.workspace }}/build"
+        buildWithCMake: true
+        buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }} 
+        cmakeAppendedArgs: " -DCODE_COVERAGE=OFF "
+
     - name: 'Run CTest'
+      if: ! startsWith(github.ref, 'refs/tags/')
       run: ctest -V -C ${{ env.BUILD_TYPE }}
       working-directory: "${{ github.workspace }}/build"
 
     # CODE COVERAGE
     - name: Code coverage - Capture coverage info
+      if: ! startsWith(github.ref, 'refs/tags/')
       run: lcov --directory . --capture --output-file coverage.info 
     - name: Code coverage - Filter out system, external, and unit test source files
+      if: ! startsWith(github.ref, 'refs/tags/')
       run: lcov --remove coverage.info --output-file coverage_filter.info '/Library/*' '/usr/*' '*/test/*' '*/cmrc/*' '*/entry.cc' '*/simple_highlight.*'
     - name: Code coverage - Output coverage data for debugging
+      if: ! startsWith(github.ref, 'refs/tags/')
       run: lcov --list coverage_filter.info
     - name: Code coverage - Upload to CodeCov
+      if: ! startsWith(github.ref, 'refs/tags/')
       run:  bash <(curl -s https://codecov.io/bash) -f coverage_filter.info || echo "Codecov did not collect coverage reports"
 
     # create release
