@@ -7,6 +7,7 @@
 #include "cppjieba/Jieba.hpp"
 #endif
 #include "pinyin.h"
+#include "sqlite3ext.h"
 
 typedef int (*xTokenFn)(void *, int, const char *, int, int, int);
 
