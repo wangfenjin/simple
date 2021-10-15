@@ -1,4 +1,5 @@
 #include "simple_tokenizer.h"
+#include "sqlite3ext.h"
 
 #include <algorithm>
 #include <cctype>
