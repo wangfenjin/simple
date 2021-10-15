@@ -8,7 +8,7 @@ db.serialize(function() {
     // load extension
     var platform = process.env.npm_config_target_platform || process.platform
     if (platform === 'win32') {
-      db.loadExtension(path.join(extension_path, "simple.dll"));
+      db.loadExtension(path.join(extension_path, "simple"));
     } else {
       db.loadExtension(path.join(extension_path, "libsimple"));
     }
