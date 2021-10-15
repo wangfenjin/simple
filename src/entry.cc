@@ -5,6 +5,15 @@ SQLITE_EXTENSION_INIT1
 #include <cstring>
 #include <new>
 
+// Add this before the function
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef _WIN32
+__declspec(dllexport)
+#endif
+
 int fts5_simple_xCreate(void *sqlite3, const char **azArg, int nArg, Fts5Tokenizer **ppOut) {
   (void)sqlite3;
   auto *p = new simple_tokenizer::SimpleTokenizer(azArg, nArg);
@@ -28,7 +37,7 @@ void fts5_simple_xDelete(Fts5Tokenizer *p) {
 ** If an error occurs, return NULL and leave an error in the database
 ** handle (accessible using sqlite3_errcode()/errmsg()).
 */
-static int fts5_api_from_db(sqlite3 *db, fts5_api **ppApi) {
+int fts5_api_from_db(sqlite3 *db, fts5_api **ppApi) {
   sqlite3_stmt *pStmt = 0;
   int rc;
 
@@ -44,7 +53,7 @@ static int fts5_api_from_db(sqlite3 *db, fts5_api **ppApi) {
 }
 
 #ifdef USE_JIEBA
-static void jieba_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
+void jieba_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
   if (nVal >= 1) {
     const char *text = (const char *)sqlite3_value_text(apVal[0]);
     if (text) {
@@ -81,7 +90,7 @@ static void jieba_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) 
 }
 #endif
 
-static void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
+void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
   if (nVal >= 1) {
     const char *text = (const char *)sqlite3_value_text(apVal[0]);
     if (text) {
@@ -97,15 +106,6 @@ static void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal)
   sqlite3_result_null(pCtx);
 }
 
-// Add this before the function
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef _WIN32
-__declspec(dllexport)
-#endif
-
 int sqlite3_simple_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi) {
   (void)pzErrMsg;
   int rc = SQLITE_OK;
@@ -119,7 +119,6 @@ int sqlite3_simple_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines
   rc = sqlite3_create_function(db, "jieba_dict", 1, SQLITE_UTF8 | SQLITE_DETERMINISTIC, NULL, &jieba_dict, NULL, NULL);
 #endif
 
-  // fts5_tokenizer tokenizer = {fts5AsciiCreate, fts5AsciiDelete, fts5AsciiTokenize };
   fts5_tokenizer tokenizer = {fts5_simple_xCreate, fts5_simple_xDelete, fts5_simple_xTokenize};
   fts5_api *fts5api;
   rc = fts5_api_from_db(db, &fts5api);
