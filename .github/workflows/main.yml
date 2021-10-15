@@ -153,6 +153,17 @@ jobs:
     - name: Code coverage - Upload to CodeCov
       run:  bash <(curl -s https://codecov.io/bash) -f coverage_filter.info || echo "Codecov did not collect coverage reports"
 
+
+    # npm run
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+    - name: run node example
+      working-directory: ./examples/node/
+      run: |
+        npm install
+        npm run p
+
     # create release
     - name: "Build Changelog"
       id: build_changelog
