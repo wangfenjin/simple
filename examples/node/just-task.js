@@ -14,10 +14,8 @@ task('install', () => {
     }
     var arch = process.env.npm_config_target_arch || process.arch
     logger.info(`[install] Target arch: ${arch}`)
-    if (arch === 'x64') {
+    if (platform !== 'windows' && arch === 'x64') {
       arch = 'amd64';
-    } else if (arch === 'amd64') {
-      arch = 'x64';
     }
     const downloadUrl = `https://github.com/wangfenjin/simple/releases/download/v0.0.4/libsimple-${platform}-${arch}.zip`
     logger.info(`[install] Download prebuilt binaries from ${downloadUrl}`)
