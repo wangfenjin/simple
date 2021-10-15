@@ -1,3 +1,4 @@
+#include "entry.h"
 #include "simple_highlight.h"
 #include "simple_tokenizer.h"
 SQLITE_EXTENSION_INIT1
@@ -5,23 +6,14 @@ SQLITE_EXTENSION_INIT1
 #include <cstring>
 #include <new>
 
-// Add this before the function
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef _WIN32
-__declspec(dllexport)
-#endif
-
-int fts5_simple_xCreate(void *sqlite3, const char **azArg, int nArg, Fts5Tokenizer **ppOut) {
+static int fts5_simple_xCreate(void *sqlite3, const char **azArg, int nArg, Fts5Tokenizer **ppOut) {
   (void)sqlite3;
   auto *p = new simple_tokenizer::SimpleTokenizer(azArg, nArg);
   *ppOut = reinterpret_cast<Fts5Tokenizer *>(p);
   return SQLITE_OK;
 }
 
-int fts5_simple_xTokenize(Fts5Tokenizer *tokenizer_ptr, void *pCtx, int flags, const char *pText, int nText,
+static int fts5_simple_xTokenize(Fts5Tokenizer *tokenizer_ptr, void *pCtx, int flags, const char *pText, int nText,
                           xTokenFn xToken) {
   auto *p = (simple_tokenizer::SimpleTokenizer *)tokenizer_ptr;
   return p->tokenize(pCtx, flags, pText, nText, xToken);
@@ -37,7 +29,7 @@ void fts5_simple_xDelete(Fts5Tokenizer *p) {
 ** If an error occurs, return NULL and leave an error in the database
 ** handle (accessible using sqlite3_errcode()/errmsg()).
 */
-int fts5_api_from_db(sqlite3 *db, fts5_api **ppApi) {
+static int fts5_api_from_db(sqlite3 *db, fts5_api **ppApi) {
   sqlite3_stmt *pStmt = 0;
   int rc;
 
@@ -53,7 +45,7 @@ int fts5_api_from_db(sqlite3 *db, fts5_api **ppApi) {
 }
 
 #ifdef USE_JIEBA
-void jieba_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
+static void jieba_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
   if (nVal >= 1) {
     const char *text = (const char *)sqlite3_value_text(apVal[0]);
     if (text) {
@@ -90,7 +82,7 @@ static void jieba_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) 
 }
 #endif
 
-void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
+static void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
   if (nVal >= 1) {
     const char *text = (const char *)sqlite3_value_text(apVal[0]);
     if (text) {
@@ -105,6 +97,15 @@ void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
   }
   sqlite3_result_null(pCtx);
 }
+
+// Add this before the function
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef _WIN32
+__declspec(dllexport)
+#endif
 
 int sqlite3_simple_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi) {
   (void)pzErrMsg;

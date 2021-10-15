@@ -22,6 +22,7 @@ set(SOURCE_FILES
     pinyin.cc
     simple_highlight.cc
     simple_tokenizer.cc
+    entry.h
     entry.cc
 )
 

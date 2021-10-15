@@ -7,7 +7,6 @@
 #include "cppjieba/Jieba.hpp"
 #endif
 #include "pinyin.h"
-#include "sqlite3ext.h"
 
 typedef int (*xTokenFn)(void *, int, const char *, int, int, int);
 
@@ -42,12 +41,5 @@ class SimpleTokenizer {
 };
 
 }  // namespace simple_tokenizer
-
-// extern "C" int fts5_simple_xCreate(void *sqlite3, const char **azArg, int nArg, Fts5Tokenizer **ppOut);
-// extern "C" int fts5_simple_xTokenize(Fts5Tokenizer *tokenizer_ptr, void *pCtx, int flags, const char *pText, int nText,
-//                                      xTokenFn xToken);
-// extern "C" void fts5_simple_xDelete(Fts5Tokenizer *tokenizer_ptr);
-
-// extern "C" int sqlite3_simple_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi);
 
 #endif  // SIMPLE_TOKENIZER_H_
