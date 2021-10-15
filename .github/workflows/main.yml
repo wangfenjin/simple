@@ -80,6 +80,16 @@ jobs:
         cmakeAppendedArgs: -A ${{steps.build_type.outputs.BUILD_ARCH  }}
         buildWithCMakeArgs: --config ${{ steps.build_type.outputs.BUILD_TYPE }}
         
+    # npm run
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+    - name: run node example
+      working-directory: ./examples/node/
+      run: |
+        npm install
+        npm run p
+
     # - name: 'Run CTest'
     #   run: ctest -C ${{ env.BUILD_TYPE }}
     #   working-directory: "${{ github.workspace }}/../../_temp/windows"
@@ -153,7 +163,6 @@ jobs:
     - name: Code coverage - Upload to CodeCov
       run:  bash <(curl -s https://codecov.io/bash) -f coverage_filter.info || echo "Codecov did not collect coverage reports"
 
-
     # npm run
     - uses: actions/setup-node@v2
       with:
@@ -219,6 +228,16 @@ jobs:
     - name: 'Run CTest'
       run: ctest -C ${{ env.BUILD_TYPE }}
       working-directory: "${{ github.workspace }}/../../_temp/macos"
+
+    # npm run
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+    - name: run node example
+      working-directory: ./examples/node/
+      run: |
+        npm install
+        npm run p
 
     - name: "Check file existence"
       uses: andstor/file-existence-action@v1
