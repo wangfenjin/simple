@@ -8,7 +8,7 @@ db.serialize(function() {
     // load extension
     db.loadExtension(path.join(extension_path, "libsimple"));
     // set the jieba dict file path
-    db.run("select jieba_dict(?)", extension_path);
+    db.run("select jieba_dict(?)", path.join(extension_path, "dict"));
     // create table
     db.run("CREATE VIRTUAL TABLE t1 USING fts5(x, tokenize = 'simple')");
     // insert some data

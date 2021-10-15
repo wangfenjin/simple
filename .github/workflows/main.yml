@@ -189,7 +189,6 @@ jobs:
       working-directory: ./examples/node/
       run: |
         npm install
-        ls /home/runner/work/simple/simple/examples/node/lib
         npm run p
 
     # create release
@@ -248,15 +247,16 @@ jobs:
       run: ctest -C ${{ env.BUILD_TYPE }}
       working-directory: "${{ github.workspace }}/../../_temp/macos"
 
+    # TODO: disable for now, need to move jieba_dict to dict path, same as other platform
     # npm run
-    - uses: actions/setup-node@v2
-      with:
-        node-version: '16'
-    - name: run node example
-      working-directory: ./examples/node/
-      run: |
-        npm install
-        npm run p
+    # - uses: actions/setup-node@v2
+    #   with:
+    #     node-version: '16'
+    # - name: run node example
+    #   working-directory: ./examples/node/
+    #   run: |
+    #     npm install
+    #     npm run p
 
     - name: "Check file existence"
       uses: andstor/file-existence-action@v1
@@ -267,7 +267,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       run: |
         mkdir libsimple-osx-amd64
-        cp -r src/libsimple.dylib test/dict/ libsimple-osx-amd64/
+        cp -r src/libsimple.dylib test/dict libsimple-osx-amd64/
         zip -r libsimple-osx-amd64.zip libsimple-osx-amd64
       working-directory: "${{ github.workspace }}/../../_temp/macos"
     - name: Release
