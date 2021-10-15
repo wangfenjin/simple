@@ -5,15 +5,6 @@ SQLITE_EXTENSION_INIT1
 #include <cstring>
 #include <new>
 
-// Add this before the function
-#ifdef __cplusplus
-extern "C" {
-#endif
-
-#ifdef _WIN32
-__declspec(dllexport)
-#endif
-
 int fts5_simple_xCreate(void *sqlite3, const char **azArg, int nArg, Fts5Tokenizer **ppOut) {
   (void)sqlite3;
   auto *p = new simple_tokenizer::SimpleTokenizer(azArg, nArg);
@@ -105,6 +96,15 @@ static void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal)
   }
   sqlite3_result_null(pCtx);
 }
+
+// Add this before the function
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef _WIN32
+__declspec(dllexport)
+#endif
 
 int sqlite3_simple_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi) {
   (void)pzErrMsg;
