@@ -171,6 +171,7 @@ jobs:
       working-directory: ./examples/node/
       run: |
         npm install
+        ls /home/runner/work/simple/simple/examples/node/lib
         npm run p
 
     # create release
