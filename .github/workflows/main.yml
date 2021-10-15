@@ -88,6 +88,7 @@ jobs:
       working-directory: ./examples/node/
       run: |
         npm install
+        Get-ChildItem -Path D:\a\simple\simple\examples\node\lib
         npm run p
 
     # - name: 'Run CTest'
