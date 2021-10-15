@@ -88,7 +88,9 @@ jobs:
       working-directory: ./examples/node/
       run: |
         npm install
+        Copy-Item D:\a\_temp\windows\src\Debug\simple.dll -Destination D:\a\simple\simple\examples\node\lib
         Get-ChildItem -Path D:\a\simple\simple\examples\node\lib
+
         npm run p
 
     # - name: 'Run CTest'

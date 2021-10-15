@@ -1,3 +1,12 @@
+// Add this before the function
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#ifdef _WIN32
+__declspec(dllexport)
+#endif
+
 #include "simple_highlight.h"
 #include "simple_tokenizer.h"
 SQLITE_EXTENSION_INIT1
@@ -126,3 +135,8 @@ int sqlite3_simple_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines
   rc = fts5api->xCreateFunction(fts5api, "simple_snippet", reinterpret_cast<void *>(fts5api), &simple_snippet, NULL);
   return rc;
 }
+
+// Add this after it
+#ifdef __cplusplus
+}
+#endif
