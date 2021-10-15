@@ -1,5 +1,4 @@
-const { task, option, logger, argv } = require('just-scripts')
-const fs = require('fs')
+const { task, logger } = require('just-scripts')
 const download = require('download')
 const path = require('path')
 
@@ -23,7 +22,7 @@ task('install', () => {
     }).then(() => {
       resolve()
     }).catch(err => {
-      logger.warn(`[install] Failed to download package from: ${downloadUrl}`)
+      logger.warn(`[install] Failed to download package from: ${downloadUrl}, err: ${err}`)
       reject()
     })
   })
