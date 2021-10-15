@@ -6,7 +6,12 @@ db.serialize(function() {
     const extension_path = path.resolve("./lib/");
     console.log("extension path: " + extension_path);
     // load extension
-    db.loadExtension(path.join(extension_path, "libsimple"));
+    var platform = process.env.npm_config_target_platform || process.platform
+    if (platform === 'win32') {
+      db.loadExtension(path.join(extension_path, "simple.dll"));
+    } else {
+      db.loadExtension(path.join(extension_path, "libsimple"));
+    }
     // set the jieba dict file path
     db.run("select jieba_dict(?)", path.join(extension_path, "dict"));
     // create table
