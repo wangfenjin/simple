@@ -61,6 +61,11 @@ make -j 12
 make install
 ```
 
+支持 iOS 编译：
+```
+cmake ../.. -G Xcode -DCMAKE_TOOLCHAIN_FILE=../../contrib/ios.toolchain.cmake -DPLATFORM=OS64COMBINED -DENABLE_BITCODE=0
+```
+
 ### 代码
 - `src/entry` 入口文件，注册 sqlite tokenizer 和函数
 - `src/simple_tokenizer` 分词器实现
