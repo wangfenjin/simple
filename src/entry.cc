@@ -1,13 +1,13 @@
-#ifdef _WIN32
-__declspec(dllexport)
-#endif
-
 #include "simple_highlight.h"
 #include "simple_tokenizer.h"
 SQLITE_EXTENSION_INIT1
 
 #include <cstring>
 #include <new>
+
+#ifdef _WIN32
+__declspec(dllexport)
+#endif
 
 int fts5_simple_xCreate(void *sqlite3, const char **azArg, int nArg, Fts5Tokenizer **ppOut) {
   (void)sqlite3;
