@@ -9,6 +9,8 @@ bin/
 output/
 output-no-jieba/
 chat.db
+examples/node/node_modules/
+examples/node/lib/
 
 # CLion
 .idea/
