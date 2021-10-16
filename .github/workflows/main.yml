@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - arch: ia32
+        - arch: x86
         - arch: x64
 
     steps:
@@ -248,16 +248,15 @@ jobs:
       run: ctest -C ${{ env.BUILD_TYPE }}
       working-directory: "${{ github.workspace }}/../../_temp/macos"
 
-    # TODO: disable for now, need to move jieba_dict to dict path, same as other platform
     # npm run
-    # - uses: actions/setup-node@v2
-    #   with:
-    #     node-version: '16'
-    # - name: run node example
-    #   working-directory: ./examples/node/
-    #   run: |
-    #     npm install
-    #     npm run p
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+    - name: run node example
+      working-directory: ./examples/node/
+      run: |
+        npm install
+        npm run p
 
     - name: "Check file existence"
       uses: andstor/file-existence-action@v1
