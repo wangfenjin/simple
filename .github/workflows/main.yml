@@ -18,7 +18,7 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        - arch: ia32
+        - arch: x86
         - arch: x64
 
     steps:
