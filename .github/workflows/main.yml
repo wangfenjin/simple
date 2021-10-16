@@ -80,6 +80,12 @@ jobs:
         cmakeAppendedArgs: -A ${{steps.build_type.outputs.BUILD_ARCH  }}
         buildWithCMakeArgs: --config ${{ steps.build_type.outputs.BUILD_TYPE }}
         
+    - name: "Check file existence"
+      uses: andstor/file-existence-action@v1
+      with:
+        allow_failure: true
+        files: "${{ github.workspace }}/../../_temp/windows/src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll, ${{ github.workspace }}/../../_temp/windows/cppjieba/src/cppjieba/dict/jieba.dict.utf8"
+
     # can't build
     # npm run
     # - uses: actions/setup-node@v2
@@ -89,17 +95,20 @@ jobs:
     #   working-directory: ./examples/node/
     #   run: |
     #     npm install
-    #     npm run p
+    #     npm run p -- --ext_path="${{ github.workspace }}/../../_temp/windows/src/${{ steps.build_type.outputs.BUILD_TYPE }}/" --dict_path="${{ github.workspace }}/../../_temp/windows/cppjieba/src/cppjieba/dict/"
 
     # - name: 'Run CTest'
     #   run: ctest -C ${{ env.BUILD_TYPE }}
     #   working-directory: "${{ github.workspace }}/../../_temp/windows"
 
-    - name: "Check file existence"
-      uses: andstor/file-existence-action@v1
-      with:
-        allow_failure: true
-        files: "${{ github.workspace }}/../../_temp/windows/src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll, ${{ github.workspace }}/../../_temp/windows/cppjieba/src/cppjieba/dict/jieba.dict.utf8"
+    # python run
+    # - uses: actions/setup-python@v2
+    #   with:
+    #     python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+    # - name: run python example
+    #   working-directory: ./examples/python3/
+    #   run: python db_connector.py "${{ github.workspace }}/../../_temp/windows/src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple"
+
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
@@ -182,6 +191,12 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/') != true
       run:  bash <(curl -s https://codecov.io/bash) -f coverage_filter.info || echo "Codecov did not collect coverage reports"
 
+    - name: "Check file existence"
+      uses: andstor/file-existence-action@v1
+      with:
+        allow_failure: true
+        files: "${{ github.workspace }}/build/src/libsimple.so, ${{ github.workspace }}/build/test/dict/jieba.dict.utf8"
+
     # npm run
     - uses: actions/setup-node@v2
       with:
@@ -190,7 +205,15 @@ jobs:
       working-directory: ./examples/node/
       run: |
         npm install
-        npm run p
+        npm run p -- --ext_path="${{ github.workspace }}/build/src/" --dict_path="${{ github.workspace }}/build/test/dict/"
+
+    # python run
+    - uses: actions/setup-python@v2
+      with:
+        python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+    - name: run python example
+      working-directory: ./examples/python3/
+      run: python db_connector.py "${{ github.workspace }}/build/src/libsimple"
 
     # create release
     - name: "Build Changelog"
@@ -199,11 +222,6 @@ jobs:
       uses: mikepenz/release-changelog-builder-action@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    - name: "Check file existence"
-      uses: andstor/file-existence-action@v1
-      with:
-        allow_failure: true
-        files: "${{ github.workspace }}/build/src/libsimple.so, ${{ github.workspace }}/build/test/dict/jieba.dict.utf8"
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
@@ -248,6 +266,11 @@ jobs:
       run: ctest -C ${{ env.BUILD_TYPE }}
       working-directory: "${{ github.workspace }}/../../_temp/macos"
 
+    - name: "Check file existence"
+      uses: andstor/file-existence-action@v1
+      with:
+        allow_failure: true
+        files: "${{ github.workspace }}/../../_temp/macos/src/libsimple.dylib, ${{ github.workspace }}/../../_temp/macos/test/dict/jieba.dict.utf8"
     # npm run
     - uses: actions/setup-node@v2
       with:
@@ -256,13 +279,16 @@ jobs:
       working-directory: ./examples/node/
       run: |
         npm install
-        npm run p
+        npm run p -- --ext_path="${{ github.workspace }}/../../_temp/macos/src/" --dict_path="${{ github.workspace }}/../../_temp/macos/test/dict/"
 
-    - name: "Check file existence"
-      uses: andstor/file-existence-action@v1
+    # python run
+    - uses: actions/setup-python@v2
       with:
-        allow_failure: true
-        files: "${{ github.workspace }}/../../_temp/macos/src/libsimple.dylib, ${{ github.workspace }}/../../_temp/macos/test/dict/jieba.dict.utf8"
+        python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+    - name: run python example
+      working-directory: ./examples/python3/
+      run: python db_connector.py "${{ github.workspace }}/../../_temp/macos/src/libsimple"
+
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |

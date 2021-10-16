@@ -28,7 +28,7 @@ SEARCH_SQL = "SELECT rowid,sender_nickname,data FROM chat_fts where chat_fts mat
 
 class ftsDB:
     # NOTE: you need to set the ext_path
-    def __init__(self, path, ext_path='./output/bin/libsimple.dylib') -> None:
+    def __init__(self, path, ext_path) -> None:
         # create database file if not exist
         self.db = sqlite3.connect(path)
         # create table if table not exist
@@ -84,9 +84,12 @@ class ftsDB:
                 offset = f.tell()
 
 if __name__ == '__main__':
-    import os
+    import os, sys
 
-    db = ftsDB(':memory:')
+    assert(len(sys.argv) == 2)
+    # sys.argv[1] should be the extension's path, `/path/to/libsimple`
+    # without file extension such as so, dylib or dll
+    db = ftsDB(':memory:', sys.argv[1])
     db.process_journal(os.path.dirname(os.path.abspath(__file__)) + "/journal.txt")
     matched_row_count = 0
     for r in db.search('不'):
