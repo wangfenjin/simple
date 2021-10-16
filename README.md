@@ -12,6 +12,14 @@ simple 是一个支持中文和拼音的 [sqlite3 fts5](https://www.sqlite.org/f
 
 ## 用法
 
+可以下载已经编译好的插件：https://github.com/wangfenjin/simple/releases
+
+### 代码使用
+
+参考 examples 目录，目前已经有 c++, python 和 node-sqlite3 的例子。
+
+### 命令行使用
+
 首先需要确认你用到的 sqlite 版本支持 fts5 拓展，确认方法是：
 ```sql
 select fts5(?1);
