@@ -1,7 +1,7 @@
 {
   "scripts": {
     "clean": "rm -rf ./node_modules ./lib",
-    "install": "just install",
+    "download": "just install",
     "p": "node node-sqlite3.js"
   },
   "dependencies": {
