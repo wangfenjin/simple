@@ -109,6 +109,16 @@ jobs:
     #   working-directory: ./examples/python3/
     #   run: python db_connector.py "${{ github.workspace }}/../../_temp/windows/src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple"
 
+    - name: run sqlite3.exe
+      if: startsWith(github.ref, 'refs/tags/') != true
+      run: |
+        mkdir sqlite-run
+        Copy-Item -Path example.sql,example-jieba.sql,contrib/sqlite3/${{ steps.build_type.outputs.BUILD_TYPE }}/sqlite3.exe,src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll,cppjieba/src/cppjieba/dict/ -Destination sqlite-run/ -Recurse
+        cd sqlite-run
+        ./sqlite3.exe simple.db ".read example.sql"
+        ./sqlite3.exe simple.db ".read example-jieba.sql"
+      working-directory: "${{ github.workspace }}/../../_temp/windows/"
+
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
