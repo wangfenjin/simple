@@ -113,8 +113,9 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/') != true
       run: |
         mkdir sqlite-run
-        Copy-Item -Path example.sql,example-jieba.sql,contrib/sqlite3/${{ steps.build_type.outputs.BUILD_TYPE }}/sqlite3.exe,src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll,cppjieba/src/cppjieba/dict/ -Destination sqlite-run/ -Recurse
+        Copy-Item -Path ${{ github.workspace }}/example.sql,${{ github.workspace }}/example-jieba.sql,contrib/sqlite3/${{ steps.build_type.outputs.BUILD_TYPE }}/sqlite3.exe,src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll,cppjieba/src/cppjieba/dict/ -Destination sqlite-run/ -Recurse
         cd sqlite-run
+        ((Get-Content -path example.sql -Raw) -replace '.load libsimple','.load simple') | Set-Content -Path example.sql
         ./sqlite3.exe simple.db ".read example.sql"
         ./sqlite3.exe simple.db ".read example-jieba.sql"
       working-directory: "${{ github.workspace }}/../../_temp/windows/"
