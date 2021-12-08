@@ -25,7 +25,12 @@ set(SOURCE_FILES
     entry.cc
 )
 
+if (IOS)
+# iOS only support static library.
+add_library(simple STATIC ${SOURCE_FILES})
+else()
 add_library(simple SHARED ${SOURCE_FILES})
+endif()
 
 if(SIMPLE_WITH_JIEBA)
   add_dependencies(simple cppjieba)
@@ -44,3 +49,9 @@ endif()
 target_link_libraries(simple PUBLIC coverage_config PRIVATE PINYIN_TEXT SQLite3)
 
 install(TARGETS simple DESTINATION bin)
+
+if (IOS)
+# iOS build as static library. so we need install PINYIN_TEXT too.
+install(TARGETS PINYIN_TEXT DESTINATION bin)
+endif()
+

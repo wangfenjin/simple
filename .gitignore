@@ -4,6 +4,7 @@ a.out
 compile_commands.json
 libsimple.*
 build/
+build-ios/
 *.gch
 bin/
 output/
