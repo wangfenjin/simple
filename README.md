@@ -71,7 +71,7 @@ make install
 
 支持 iOS 编译：
 ```
-cmake ../.. -G Xcode -DCMAKE_TOOLCHAIN_FILE=../../contrib/ios.toolchain.cmake -DPLATFORM=OS64COMBINED -DENABLE_BITCODE=0
+./build-ios.sh
 ```
 
 ### 代码
