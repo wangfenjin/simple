@@ -12,11 +12,11 @@ simple 是一个支持中文和拼音的 [sqlite3 fts5](https://www.sqlite.org/f
 
 ## 用法
 
-可以下载已经编译好的插件：https://github.com/wangfenjin/simple/releases
-
 ### 代码使用
 
-参考 examples 目录，目前已经有 c++, python 和 node-sqlite3 的例子。
+
+* 下载已经编译好的插件：https://github.com/wangfenjin/simple/releases 参考 examples 目录，目前已经有 c++, python 和 node-sqlite3 的例子。
+* iOS 可以参考这个例子 https://github.com/wangfenjin/simple/pull/73
 
 ### 命令行使用
 
