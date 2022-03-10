@@ -1,10 +1,12 @@
 # node example
 
 ```
+# update dependency
+ncu -u
 # install dependency
 npm install
 # download lib from github
-npm download
+npm run download
 # run example using downloaded lib
 npm run p
 # run example and set the ext_path and dict_path

@@ -6,10 +6,10 @@
   },
   "dependencies": {
     "download": "^8.0.0",
-    "just-scripts": "^1.5.8",
-    "sqlite3": "^4.2.0"
+    "sqlite3": "^5.0.2",
+    "validator": ">=13.7.0"
   },
   "devDependencies": {
-    "just-scripts": "^1.5.8"
+    "just-scripts": "^1.8.0"
   }
 }
