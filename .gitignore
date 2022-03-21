@@ -12,8 +12,11 @@ output-no-jieba/
 chat.db
 examples/node/node_modules/
 examples/node/lib/
+examples/go/gosimple
+examples/go/libsimple-osx-x64/
 
 # CLion
 .idea/
 cmake-build-debug/
+
 
