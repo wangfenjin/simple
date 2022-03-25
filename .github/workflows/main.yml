@@ -174,12 +174,22 @@ jobs:
         buildDirectory: "${{ github.workspace }}/build"
         buildWithCMake: true
         buildWithCMakeArgs: --config Release
-        cmakeAppendedArgs: " -DCODE_COVERAGE=OFF -DBUILD_SHELL=OFF"
+        # cmakeAppendedArgs: " -DCODE_COVERAGE=OFF -DBUILD_SHELL=OFF -DBUILD_TEST_EXAMPLE=OFF -DBUILD_STATIC"
+        cmakeAppendedArgs: " -DCODE_COVERAGE=OFF -DBUILD_SHELL=OFF -DBUILD_TEST_EXAMPLE=OFF"
     - name: "Check file existence"
       uses: andstor/file-existence-action@v1
       with:
         allow_failure: true
+        # files: "${{ github.workspace }}/build/src/libsimple.a, ${{ github.workspace }}/build/src/libPINYIN_TEXT.a, ${{ github.workspace }}/build/test/dict/jieba.dict.utf8"
         files: "${{ github.workspace }}/build/src/libsimple.so, ${{ github.workspace }}/build/test/dict/jieba.dict.utf8"
+    - name: Package
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        mkdir libsimple-linux-${{ matrix.xcc }}
+        # cp -r src/libsimple.a src/libPINYIN_TEXT.a test/dict/ libsimple-linux-${{ matrix.xcc }}/
+        cp -r src/libsimple.so test/dict/ libsimple-linux-${{ matrix.xcc }}/
+        zip -r libsimple-linux-${{ matrix.xcc }}.zip libsimple-linux-${{ matrix.xcc }}
+      working-directory: "${{ github.workspace }}/build"
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
@@ -242,22 +252,22 @@ jobs:
         cmakeAppendedArgs: " -DCODE_COVERAGE=OFF "
 
     - name: 'Run CTest'
-      if: startsWith(github.ref, 'refs/tags/') != true && ${{ matrix.os }} == 'ubuntu-latest'
+      if: ${{ startsWith(github.ref, 'refs/tags/') != true && matrix.os == 'ubuntu-latest' }}
       run: ctest -V -C ${{ env.BUILD_TYPE }}
       working-directory: "${{ github.workspace }}/build"
 
     # CODE COVERAGE
     - name: Code coverage - Capture coverage info
-      if: startsWith(github.ref, 'refs/tags/') != true && ${{ matrix.os }} == 'ubuntu-latest'
+      if: ${{ startsWith(github.ref, 'refs/tags/') != true && matrix.os == 'ubuntu-latest' }}
       run: lcov --directory . --capture --output-file coverage.info 
     - name: Code coverage - Filter out system, external, and unit test source files
-      if: startsWith(github.ref, 'refs/tags/') != true && ${{ matrix.os }} == 'ubuntu-latest'
+      if: ${{ startsWith(github.ref, 'refs/tags/') != true && matrix.os == 'ubuntu-latest' }}
       run: lcov --remove coverage.info --output-file coverage_filter.info '/Library/*' '/usr/*' '*/test/*' '*/cmrc/*' '*/entry.cc' '*/simple_highlight.*'
     - name: Code coverage - Output coverage data for debugging
-      if: startsWith(github.ref, 'refs/tags/') != true && ${{ matrix.os }} == 'ubuntu-latest'
+      if: ${{ startsWith(github.ref, 'refs/tags/') != true && matrix.os == 'ubuntu-latest' }}
       run: lcov --list coverage_filter.info
     - name: Code coverage - Upload to CodeCov
-      if: startsWith(github.ref, 'refs/tags/') != true && ${{ matrix.os }} == 'ubuntu-latest'
+      if: ${{ startsWith(github.ref, 'refs/tags/') != true && matrix.os == 'ubuntu-latest' }}
       run:  bash <(curl -s https://codecov.io/bash) -f coverage_filter.info || echo "Codecov did not collect coverage reports"
 
     - name: "Check file existence"

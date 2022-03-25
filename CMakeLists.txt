@@ -73,7 +73,8 @@ endif()
 
 add_subdirectory(src)
 
-if (NOT IOS)
+OPTION(BUILD_TEST_EXAMPLE "Option to build tests and examples" ON)
+if (NOT IOS AND BUILD_TEST_EXAMPLE)
   add_subdirectory(examples/cpp)
   enable_testing()
   add_subdirectory(test)
