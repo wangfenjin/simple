@@ -135,7 +135,7 @@ jobs:
     needs: Linux
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: true  # 'false' means Don't stop matrix workflows even if some matrix failed.
+      fail-fast: false  # 'false' means Don't stop matrix workflows even if some matrix failed.
       matrix:
         include: [
           { name: 'ARM64',           xcc_pkg: gcc-aarch64-linux-gnu,        xcc: aarch64-linux-gnu-gcc,        xemu_pkg: qemu-system-arm,   xemu: qemu-aarch64-static, os: ubuntu-latest, },
@@ -176,7 +176,7 @@ jobs:
         buildDirectory: "${{ github.workspace }}/build"
         buildWithCMake: true
         buildWithCMakeArgs: --config Release
-        cmakeAppendedArgs: " -DCODE_COVERAGE=OFF "
+        cmakeAppendedArgs: " -DCODE_COVERAGE=OFF -DBUILD_SQLITE3=OFF"
     - name: "Check file existence"
       uses: andstor/file-existence-action@v1
       with:
