@@ -15,7 +15,7 @@ jobs:
     runs-on: windows-latest 
     needs: Linux
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         include:
         - arch: x86
@@ -135,7 +135,7 @@ jobs:
     needs: Linux
     runs-on: ${{ matrix.os }}
     strategy:
-      fail-fast: false  # 'false' means Don't stop matrix workflows even if some matrix failed.
+      fail-fast: true  # 'false' means Don't stop matrix workflows even if some matrix failed.
       matrix:
         include: [
           { name: 'ARM64',           xcc_pkg: gcc-aarch64-linux-gnu,        xcc: aarch64-linux-gnu-gcc,        xemu_pkg: qemu-system-arm,   xemu: qemu-aarch64-static, os: ubuntu-latest, },
@@ -176,7 +176,7 @@ jobs:
         buildDirectory: "${{ github.workspace }}/build"
         buildWithCMake: true
         buildWithCMakeArgs: --config Release
-        cmakeAppendedArgs: " -DCODE_COVERAGE=OFF -DBUILD_SQLITE3=OFF"
+        cmakeAppendedArgs: " -DCODE_COVERAGE=OFF -DBUILD_SHELL=OFF"
     - name: "Check file existence"
       uses: andstor/file-existence-action@v1
       with:
@@ -192,7 +192,13 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   Linux:
-    runs-on: ubuntu-18.04
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - os: ubuntu-18.04
+        - os: ubuntu-latest
     steps:
     - name: "Release Build Type"
       if: startsWith(github.ref, 'refs/tags/')
@@ -290,16 +296,16 @@ jobs:
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
-        mkdir libsimple-linux-x64
-        cp -r src/libsimple.so test/dict/ libsimple-linux-x64/
-        zip -r libsimple-linux-x64.zip libsimple-linux-x64
+        mkdir libsimple-linux-${{ matrix.os }}
+        cp -r src/libsimple.so test/dict/ libsimple-linux-${{ matrix.os }}/
+        zip -r libsimple-linux-${{ matrix.os }}.zip libsimple-linux-${{ matrix.os }}
       working-directory: "${{ github.workspace }}/build"
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
         draft: true
-        files: ${{ github.workspace }}/build/libsimple-linux-x64.zip
+        files: ${{ github.workspace }}/build/libsimple-linux-${{ matrix.os }}.zip
         body: ${{steps.build_changelog.outputs.changelog}}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
