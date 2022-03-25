@@ -127,7 +127,7 @@ jobs:
         
   
   Linux:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     steps:
     - name: "Release Build Type"
       if: startsWith(github.ref, 'refs/tags/')
