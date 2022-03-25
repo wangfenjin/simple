@@ -185,10 +185,10 @@ jobs:
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
-        mkdir libsimple-linux-${{ matrix.xcc }}
+        mkdir libsimple-${{ matrix.xcc }}
         # cp -r src/libsimple.a src/libPINYIN_TEXT.a test/dict/ libsimple-linux-${{ matrix.xcc }}/
-        cp -r src/libsimple.so test/dict/ libsimple-linux-${{ matrix.xcc }}/
-        zip -r libsimple-linux-${{ matrix.xcc }}.zip libsimple-linux-${{ matrix.xcc }}
+        cp -r src/libsimple.so test/dict/ libsimple-${{ matrix.xcc }}/
+        zip -r libsimple-${{ matrix.xcc }}.zip libsimple-${{ matrix.xcc }}
       working-directory: "${{ github.workspace }}/build"
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
@@ -221,9 +221,11 @@ jobs:
       run: sudo apt-get update
 
     - name: Install lcov
+      if: startsWith(github.ref, 'refs/tags/') != true
       run: sudo apt-get install lcov
     
     - name: Install codecov
+      if: startsWith(github.ref, 'refs/tags/') != true
       shell: bash
       run: sudo pip install codecov
 
@@ -249,7 +251,7 @@ jobs:
         buildDirectory: "${{ github.workspace }}/build"
         buildWithCMake: true
         buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }} 
-        cmakeAppendedArgs: " -DCODE_COVERAGE=OFF "
+        cmakeAppendedArgs: " -DCODE_COVERAGE=OFF -DBUILD_SHELL=OFF -DBUILD_TEST_EXAMPLE=OFF"
 
     - name: 'Run CTest'
       if: ${{ startsWith(github.ref, 'refs/tags/') != true && matrix.os == 'ubuntu-latest' }}
@@ -278,9 +280,11 @@ jobs:
 
     # npm run
     - uses: actions/setup-node@v2
+      if: startsWith(github.ref, 'refs/tags/') != true
       with:
         node-version: '16'
     - name: run node example
+      if: startsWith(github.ref, 'refs/tags/') != true
       working-directory: ./examples/node/
       run: |
         npm install
@@ -288,9 +292,11 @@ jobs:
 
     # python run
     - uses: actions/setup-python@v2
+      if: startsWith(github.ref, 'refs/tags/') != true
       with:
         python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
     - name: run python example
+      if: startsWith(github.ref, 'refs/tags/') != true
       working-directory: ./examples/python3/
       run: python db_connector.py "${{ github.workspace }}/build/src/libsimple"
 
