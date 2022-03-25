@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.19)
 project(simple-tokenizer)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -9,6 +9,11 @@ if (MSVC)
    set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
    set(BUILD_SHARED_LIBS TRUE)
    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
+endif()
+
+if (APPLE)
+   set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
+   set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "Minimum OS X deployment version")
 endif()
 
 if (IOS)
