@@ -2,10 +2,13 @@
   "scripts": {
     "clean": "rm -rf ./node_modules ./lib",
     "download": "just install",
-    "p": "node node-sqlite3.js"
+    "p": "node node-sqlite3.js",
+    "b": "node better-sqlite3.js"
   },
   "dependencies": {
+    "better-sqlite3": "^7.5.0",
     "download": "^8.0.0",
+    "just": "^0.1.8",
     "sqlite3": "^5.0.2",
     "validator": ">=13.7.0"
   },
