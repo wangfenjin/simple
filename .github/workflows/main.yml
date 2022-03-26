@@ -281,7 +281,8 @@ jobs:
       run: |
         npm install
         npm run p -- --ext_path="${{ github.workspace }}/../../_temp/macos/src/" --dict_path="${{ github.workspace }}/../../_temp/macos/test/dict/"
-        npm run b -- --ext_path="${{ github.workspace }}/../../_temp/macos/src/" --dict_path="${{ github.workspace }}/../../_temp/macos/test/dict/"
+        # don't run this as it's toooo slow
+        # npm run b -- --ext_path="${{ github.workspace }}/../../_temp/macos/src/" --dict_path="${{ github.workspace }}/../../_temp/macos/test/dict/"
 
     # python run
     - uses: actions/setup-python@v2
