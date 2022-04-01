@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.19)
 project(simple-tokenizer)
 
 set(CMAKE_CXX_STANDARD 14)
@@ -11,6 +11,11 @@ if (MSVC)
    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 endif()
 
+if (APPLE)
+   set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
+   set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "Minimum OS X deployment version")
+endif()
+
 if (IOS)
   list(APPEND CMAKE_ARGS
     "-DPLATFORM=${PLATFORM}"
@@ -21,14 +26,17 @@ set(SQLITE3_HEADERS_DIR ${PROJECT_SOURCE_DIR}/contrib/sqlite3)
 set(SIMPLE_HEADERS_DIR ${PROJECT_SOURCE_DIR}/src)
 
 # setup sqlite
-set(SQLITE_ROOT ${PROJECT_SOURCE_DIR}/build/sqlite)
-set(SQLITE_INSTALL_DIR ${SQLITE_ROOT})
-set(SQLITE_INCLUDE_DIR ${SQLITE_INSTALL_DIR}/include)
-set(SQLITE_LIB_DIR ${SQLITE_INSTALL_DIR}/lib)
-if (NOT IOS)
-  option(SQLITE_ENABLE_FTS5         "enables full text searches version 5"         ON)
-  option(BUILD_SHELL "build SQLite3 shell application" ON)
-  add_subdirectory(contrib/sqlite3)
+option(BUILD_SQLITE3 "Enable build SQLite3" ON)
+if(BUILD_SQLITE3)
+  set(SQLITE_ROOT ${PROJECT_SOURCE_DIR}/build/sqlite)
+  set(SQLITE_INSTALL_DIR ${SQLITE_ROOT})
+  set(SQLITE_INCLUDE_DIR ${SQLITE_INSTALL_DIR}/include)
+  set(SQLITE_LIB_DIR ${SQLITE_INSTALL_DIR}/lib)
+  if (NOT IOS)
+    option(SQLITE_ENABLE_FTS5         "enables full text searches version 5"         ON)
+    option(BUILD_SHELL "build SQLite3 shell application" ON)
+    add_subdirectory(contrib/sqlite3)
+  endif()
 endif()
 
 include(contrib/CMakeRC.cmake)
@@ -65,7 +73,8 @@ endif()
 
 add_subdirectory(src)
 
-if (NOT IOS)
+OPTION(BUILD_TEST_EXAMPLE "Option to build tests and examples" ON)
+if (NOT IOS AND BUILD_TEST_EXAMPLE)
   add_subdirectory(examples/cpp)
   enable_testing()
   add_subdirectory(test)

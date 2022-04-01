@@ -25,7 +25,8 @@ set(SOURCE_FILES
     entry.cc
 )
 
-if (IOS)
+OPTION(BUILD_STATIC "Option to build static lib" OFF)
+if (IOS OR BUILD_STATIC)
 # iOS only support static library.
 add_library(simple STATIC ${SOURCE_FILES})
 else()
@@ -50,7 +51,7 @@ target_link_libraries(simple PUBLIC coverage_config PRIVATE PINYIN_TEXT SQLite3)
 
 install(TARGETS simple DESTINATION bin)
 
-if (IOS)
+if (IOS OR BUILD_STATIC)
 # iOS build as static library. so we need install PINYIN_TEXT too.
 install(TARGETS PINYIN_TEXT DESTINATION bin)
 endif()
