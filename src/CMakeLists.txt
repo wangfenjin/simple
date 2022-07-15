@@ -6,7 +6,7 @@ if(SIMPLE_WITH_JIEBA)
   ExternalProject_Add(
       cppjieba
       PREFIX ${CMAKE_BINARY_DIR}/cppjieba
-      GIT_REPOSITORY https://github.com/byronhe/cppjieba.git
+      GIT_REPOSITORY https://github.com/wangfenjin/cppjieba.git
       CONFIGURE_COMMAND ""
       BUILD_COMMAND cmake -E echo "Skipping build cppjieba."
       INSTALL_COMMAND cmake -E echo "Skipping install cppjieba."
