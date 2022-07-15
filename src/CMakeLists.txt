@@ -37,6 +37,8 @@ if(SIMPLE_WITH_JIEBA)
   add_dependencies(simple cppjieba)
   include_directories(${SQLITE3_HEADERS_DIR} ${source_dir}/include ${source_dir}/deps)
   target_include_directories(simple INTERFACE ${SQLITE3_HEADERS_DIR} ${source_dir}/include ${source_dir}/deps)
+  set_source_files_properties(${source_dir}/deps/limonp/Md5.cpp PROPERTIES GENERATED TRUE)
+  target_sources(simple PRIVATE ${source_dir}/deps/limonp/Md5.cpp)
   # for tests only
   add_custom_command(TARGET simple PRE_BUILD
                      COMMAND ${CMAKE_COMMAND} -E copy_directory
