@@ -8,6 +8,7 @@ if(SIMPLE_WITH_JIEBA)
       PREFIX ${CMAKE_BINARY_DIR}/cppjieba
       GIT_REPOSITORY https://github.com/yanyiwu/cppjieba.git
       CONFIGURE_COMMAND ""
+      GIT_TAG 194c144d8b5ed1baf3190d07c5226e804454ab47
       BUILD_COMMAND cmake -E echo "Skipping build cppjieba."
       INSTALL_COMMAND cmake -E echo "Skipping install cppjieba."
       LOG_DOWNLOAD ON
