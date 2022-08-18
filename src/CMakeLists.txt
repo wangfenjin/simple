@@ -51,9 +51,3 @@ endif()
 target_link_libraries(simple PUBLIC coverage_config PRIVATE PINYIN_TEXT SQLite3)
 
 install(TARGETS simple DESTINATION bin)
-
-if (IOS OR BUILD_STATIC)
-# iOS build as static library. so we need install PINYIN_TEXT too.
-install(TARGETS PINYIN_TEXT DESTINATION bin)
-endif()
-

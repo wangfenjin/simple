@@ -400,3 +400,6 @@ jobs:
         files: ${{ github.workspace }}/../../_temp/macos/libsimple-osx-x64.zip
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: build-iOS
+      run: ./build-ios.sh
