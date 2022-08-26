@@ -389,6 +389,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/')
       run: |
         mkdir libsimple-osx-x64
+        sudo xattr -r -d com.apple.quarantine src/libsimple.dylib
         cp -r src/libsimple.dylib test/dict libsimple-osx-x64/
         zip -r libsimple-osx-x64.zip libsimple-osx-x64
       working-directory: "${{ github.workspace }}/../../_temp/macos"
