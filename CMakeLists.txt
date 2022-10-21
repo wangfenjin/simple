@@ -21,7 +21,7 @@ if (IOS)
   )
 endif()
 
-// put project after CMAKE_OSX_DEPLOYMENT_TARGET
+# put project after CMAKE_OSX_DEPLOYMENT_TARGET
 project(simple-tokenizer)
 
 set(SQLITE3_HEADERS_DIR ${PROJECT_SOURCE_DIR}/contrib/sqlite3)
