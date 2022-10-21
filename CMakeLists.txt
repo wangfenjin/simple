@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.19)
-project(simple-tokenizer)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CXX_STANDARD_REQUIRED)
@@ -21,6 +20,9 @@ if (IOS)
     "-DPLATFORM=${PLATFORM}"
   )
 endif()
+
+// put project after CMAKE_OSX_DEPLOYMENT_TARGET
+project(simple-tokenizer)
 
 set(SQLITE3_HEADERS_DIR ${PROJECT_SOURCE_DIR}/contrib/sqlite3)
 set(SIMPLE_HEADERS_DIR ${PROJECT_SOURCE_DIR}/src)
