@@ -18,7 +18,7 @@ db.serialize(function() {
     if (argv('ext_path')) {
         ext_path = argv('ext_path');
     }
-    var dict_path = path.join(ext_path, "dict");
+    var dict_path = "./lib/dict";
     if (argv('dict_path')) {
         dict_path = argv('dict_path');
     }
