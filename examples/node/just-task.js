@@ -7,15 +7,16 @@ task("install", () => {
     var platform = process.env.npm_config_target_platform || process.platform;
     var arch = process.env.npm_config_target_arch || process.arch;
 
-    let downloadUrl = `https://github.com/wangfenjin/simple/releases/download/v0.2.0-alpha/libsimple-linux-ubuntu-18.04.zip`;
+    let downloadUrl = `https://github.com/wangfenjin/simple/releases/latest/download/libsimple-linux-ubuntu-18.04.zip`;
     if (platform === "darwin") {
       platform = "osx";
+      downloadUrl = `https://github.com/wangfenjin/simple/releases/latest/download/libsimple-osx-x64.zip`;
     } else if (platform === "win32") {
       platform = "windows";
       if (arch === "x64") {
-        downloadUrl = `https://github.com/wangfenjin/simple/releases/download/v0.2.0-alpha/libsimple-windows-x64.zip`;
+        downloadUrl = `https://github.com/wangfenjin/simple/releases/latest/download/libsimple-windows-x64.zip`;
       } else {
-        downloadUrl = `https://github.com/wangfenjin/simple/releases/download/v0.2.0-alpha/libsimple-windows-x86.zip`;
+        downloadUrl = `https://github.com/wangfenjin/simple/releases/latest/download/libsimple-windows-x86.zip`;
       }
     }
 
