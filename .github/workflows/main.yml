@@ -102,7 +102,7 @@ jobs:
     #   working-directory: "${{ github.workspace }}/../../_temp/windows"
 
     # python run
-    # - uses: actions/setup-python@v2
+    # - uses: actions/setup-python@v4
     #   with:
     #     python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
     # - name: run python example
@@ -292,7 +292,7 @@ jobs:
         npm run b -- --ext_path="${{ github.workspace }}/build/src/" --dict_path="${{ github.workspace }}/build/test/dict/"
 
     # python run
-    - uses: actions/setup-python@v2
+    - uses: actions/setup-python@v4
       if: startsWith(github.ref, 'refs/tags/') != true
       with:
         python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
@@ -378,7 +378,7 @@ jobs:
         # npm run b -- --ext_path="${{ github.workspace }}/../../_temp/macos/src/" --dict_path="${{ github.workspace }}/../../_temp/macos/test/dict/"
 
     # python run
-    - uses: actions/setup-python@v2
+    - uses: actions/setup-python@v4
       with:
         python-version: '3.x' # Version range or exact version of a Python version to use, using SemVer's version range syntax
     - name: run python example
