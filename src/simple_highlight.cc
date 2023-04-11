@@ -294,6 +294,49 @@ static void fts5HighlightPosAppendEnd(int *pRc, HighlightPosContext *p, int end)
 }
 
 /*
+** Tokenizer callback used by implementation of highlight_pos() function.
+*/
+static int fts5HighlightPosCb(void *pContext,     /* Pointer to HighlightContext object */
+                              int tflags,         /* Mask of FTS5_TOKEN_* flags */
+                              const char *pToken, /* Buffer containing token */
+                              int nToken,         /* Size of token in bytes */
+                              int iStartOff,      /* Start offset of token */
+                              int iEndOff         /* End offset of token */
+) {
+  HighlightPosContext *p = (HighlightPosContext *)pContext;
+  int rc = SQLITE_OK;
+  int iPos;
+
+  if (tflags & FTS5_TOKEN_COLOCATED) return SQLITE_OK;
+  iPos = p->iPos++;
+
+  if (p->iRangeEnd > 0) {
+    if (iPos < p->iRangeStart || iPos > p->iRangeEnd) return SQLITE_OK;
+    if (p->iRangeStart && iPos == p->iRangeStart) p->iOff = iStartOff;
+  }
+
+  if (iPos == p->iter.iStart) {
+    fts5HighlightPosAppendStart(&rc, p, iStartOff);
+    p->iOff = iStartOff;
+  }
+
+  if (iPos == p->iter.iEnd) {
+    fts5HighlightPosAppendEnd(&rc, p, iEndOff);
+    p->iOff = iEndOff;
+    if (rc == SQLITE_OK) {
+      rc = fts5CInstIterNext(&p->iter);
+    }
+  }
+
+  if (p->iRangeEnd > 0 && iPos == p->iRangeEnd) {
+    fts5HighlightPosAppendEnd(&rc, p, iEndOff);
+    p->iOff = iEndOff;
+  }
+
+  return rc;
+}
+
+/*
 ** Implementation of simple_highlight_pos() function.
 */
 void simple_highlight_pos(const Fts5ExtensionApi *pApi, /* API offered by current FTS version */
@@ -321,14 +364,8 @@ void simple_highlight_pos(const Fts5ExtensionApi *pApi, /* API offered by curren
       rc = fts5CInstIterInit(pApi, pFts, iCol, &ctx.iter);
     }
 
-    while (rc == SQLITE_OK) {
-      if (ctx.iter.iStart >= 0 && ctx.iter.iEnd >= 0) {
-        fts5HighlightPosAppendStart(&rc, &ctx, ctx.iter.iStart);
-        fts5HighlightPosAppendEnd(&rc, &ctx, ctx.iter.iEnd + 1);
-        rc = fts5CInstIterNext(&ctx.iter);
-      } else {
-        break;
-      }
+    if (rc == SQLITE_OK) {
+      rc = pApi->xTokenize(pFts, ctx.zIn, ctx.nIn, (void *)&ctx, fts5HighlightPosCb);
     }
 
     if (rc == SQLITE_OK) {
@@ -340,6 +377,7 @@ void simple_highlight_pos(const Fts5ExtensionApi *pApi, /* API offered by curren
     sqlite3_result_error_code(pCtx, rc);
   }
 }
+
 /*
 ** End of highlight_pos() implementation.
 **************************************************************************/

@@ -1,4 +1,4 @@
-#!/bin/zsh
+#!/bin/sh
 
 current_dir=$(pwd)/$(dirname "$0")
 build_dir="${current_dir}/build-ios"

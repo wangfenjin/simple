@@ -1,16 +1,8 @@
 cmake_minimum_required(VERSION 3.19)
-project(simple-tokenizer)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CXX_STANDARD_REQUIRED)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-if (MSVC)
-   # https://stackoverflow.com/a/65128497/1203241
-   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
-   set(BUILD_SHARED_LIBS TRUE)
-   add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
-endif()
-
 if (APPLE)
    set(CMAKE_OSX_ARCHITECTURES "x86_64;arm64" CACHE STRING "")
    set(CMAKE_OSX_DEPLOYMENT_TARGET "10.11" CACHE STRING "Minimum OS X deployment version")
@@ -20,6 +12,16 @@ if (IOS)
   list(APPEND CMAKE_ARGS
     "-DPLATFORM=${PLATFORM}"
   )
+endif()
+
+# put project after CMAKE_OSX_DEPLOYMENT_TARGET
+project(simple-tokenizer)
+
+if (MSVC)
+   # https://stackoverflow.com/a/65128497/1203241
+   set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS TRUE)
+   set(BUILD_SHARED_LIBS TRUE)
+   add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 endif()
 
 set(SQLITE3_HEADERS_DIR ${PROJECT_SOURCE_DIR}/contrib/sqlite3)
@@ -40,7 +42,7 @@ if(BUILD_SQLITE3)
 endif()
 
 include(contrib/CMakeRC.cmake)
-cmrc_add_resource_library(PINYIN_TEXT NAMESPACE pinyin_text contrib/pinyin.txt)
+cmrc_add_resource_library(PINYIN_TEXT TYPE OBJECT NAMESPACE pinyin_text contrib/pinyin.txt)
 # https://github.com/vector-of-bool/cmrc/issues/17#issuecomment-659501280
 set_property(TARGET PINYIN_TEXT PROPERTY POSITION_INDEPENDENT_CODE ON)
 

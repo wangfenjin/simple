@@ -127,6 +127,18 @@ int main() {
   rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
   handle_rc(db, rc);
 #endif
+  // case 6: use highlight_pos
+  sql =
+      "select simple_highlight_pos(t1, 0) as matched_simple_query_special_chars from t1 where x match "
+      "simple_query('shi')";
+  rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+  handle_rc(db, rc);
+  sql =
+      "select simple_highlight_pos(t1, 0) as matched_simple_query_special_chars from t1 where x match "
+      "simple_query('special')";
+  rc = sqlite3_exec(db, sql.c_str(), callback, 0, &zErrMsg);
+  handle_rc(db, rc);
+
   ms last_query = Clock::now() - before;
   std::cout << "It took " << last_query.count() << "ms for all query" << std::endl;
 

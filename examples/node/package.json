@@ -6,13 +6,13 @@
     "b": "node better-sqlite3.js"
   },
   "dependencies": {
-    "better-sqlite3": "^7.5.0",
+    "better-sqlite3": "^7.6.2",
     "download": "^8.0.0",
     "just": "^0.1.8",
-    "sqlite3": "^5.0.2",
+    "sqlite3": "^5.1.2",
     "validator": ">=13.7.0"
   },
   "devDependencies": {
-    "just-scripts": "^1.8.0"
+    "just-scripts": "^2.0.5"
   }
 }
