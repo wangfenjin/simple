@@ -12,7 +12,7 @@ func main() {
 	sql.Register("sqlite3_simple",
 		&sqlite3.SQLiteDriver{
 			Extensions: []string{
-				"libsimple-osx-x64/libsimple",
+				"libsimple-linux-ubuntu-latest/libsimple",
 			},
 		})
 
