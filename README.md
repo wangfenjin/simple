@@ -18,7 +18,10 @@ simple 是一个支持中文和拼音的 [sqlite3 fts5](https://www.sqlite.org/f
 
 
 * 下载已经编译好的插件：https://github.com/wangfenjin/simple/releases 参考 examples 目录，目前已经有 c++, python, go 和 node-sqlite3 的例子。
-* iOS 可以参考这个例子 https://github.com/wangfenjin/simple/pull/73 和 [@hxicoder](https://github.com/hxicoder) 提供的 [demo](https://github.com/hxicoder/DBDemo) .
+* iOS可以参考:
+  - [#73](https://github.com/wangfenjin/simple/pull/73)
+  - [@hxicoder](https://github.com/hxicoder) 提供的 [demo](https://github.com/hxicoder/DBDemo)
+  - [@pipi32167](https://github.com/pipi32167)提供的[demo](https://github.com/pipi32167/SQLiteSwiftDemo)
 * 在 Rust 中使用的例子 https://github.com/wangfenjin/simple/issues/89 https://github.com/fundon/tiny-docs-se
 * Java 例子 https://github.com/wangfenjin/sqlite-java-connect
 
