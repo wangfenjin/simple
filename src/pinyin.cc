@@ -23,6 +23,7 @@ std::set<std::string> PinYin::to_plain(const std::string &input) {
       s.insert(value);
       s.insert(value.substr(0, 1));
       value.clear();
+      len = 1;
       continue;
     }
     len = get_str_len((unsigned char)byte);
