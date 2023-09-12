@@ -12,7 +12,7 @@ on:
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   Windows:
-    runs-on: windows-latest 
+    runs-on: windows-latest
     needs: Linux
     strategy:
       fail-fast: true
@@ -121,7 +121,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         draft: true
-        files: ${{ github.workspace }}/../../_temp/windows/libsimple-windows-${{ matrix.arch }}.zip
+        files: "D:\a\_temp\windows\libsimple-windows-${{ matrix.arch }}.zip"
+        # files: "${{ github.workspace }}/../../_temp/windows/libsimple-windows-${{ matrix.arch }}.zip"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         
