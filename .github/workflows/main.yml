@@ -121,7 +121,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         draft: true
-        files: "D:\a\_temp\windows\libsimple-windows-${{ matrix.arch }}.zip"
+        files: "D:/a/_temp/windows/libsimple-windows-${{ matrix.arch }}.zip"
         # files: "${{ github.workspace }}/../../_temp/windows/libsimple-windows-${{ matrix.arch }}.zip"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
