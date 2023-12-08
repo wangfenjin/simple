@@ -24,6 +24,7 @@ simple 是一个支持中文和拼音的 [sqlite3 fts5](https://www.sqlite.org/f
   - [@pipi32167](https://github.com/pipi32167)提供的[demo](https://github.com/pipi32167/SQLiteSwiftDemo)
 * 在 Rust 中使用的例子 https://github.com/wangfenjin/simple/issues/89 https://github.com/fundon/tiny-docs-se
 * Java 例子 https://github.com/wangfenjin/sqlite-java-connect
+* C# 例子 https://github.com/dudylan/SqliteCheck/
 
 ### 命令行使用
 
