@@ -28,6 +28,8 @@ std::set<std::string> PinYin::to_plain(const std::string &input) {
     }
     len = get_str_len((unsigned char)byte);
     if (len == 1) {
+      // Skip invisible byte
+      // Fix the issue in Windows https://github.com/wangfenjin/simple/pull/143
       if (std::isspace(byte) || std::iscntrl(byte)) {
         continue;
       }
