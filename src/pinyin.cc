@@ -28,6 +28,9 @@ std::set<std::string> PinYin::to_plain(const std::string &input) {
     }
     len = get_str_len((unsigned char)byte);
     if (len == 1) {
+      if (std::isspace(byte) || std::iscntrl(byte)) {
+        continue;
+      }
       value.push_back(byte);
       continue;
     }
