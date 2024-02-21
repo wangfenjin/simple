@@ -77,7 +77,7 @@ simple.example() {
   run "./sqlite3 < ${ProjectRoot}/example.sql"
   run "./simple_cpp_example"
   run "cd ${ProjectRoot}"
-  run "python3 examples/python3/db_connector.py"
+  run "python3 examples/python3/db_connector.py './output/bin/libsimple'"
 }
 
 main() {
