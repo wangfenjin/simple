@@ -48,6 +48,10 @@ else()
   target_include_directories(simple INTERFACE ${SQLITE3_HEADERS_DIR})
 endif()
 
-target_link_libraries(simple PUBLIC coverage_config PRIVATE PINYIN_TEXT SQLite3)
+if(BUILD_SQLITE3)
+  target_link_libraries(simple PUBLIC coverage_config PRIVATE PINYIN_TEXT SQLite3)
+else()
+  target_link_libraries(simple PUBLIC coverage_config PRIVATE PINYIN_TEXT)
+endif()
 
 install(TARGETS simple DESTINATION bin)
