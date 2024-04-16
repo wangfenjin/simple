@@ -1,3 +1,6 @@
+> [!TIP]
+> 新增：[Rust Crate](https://github.com/wangfenjin/simple/issues/148) ! 感谢 [xuxiaocheng0201](https://github.com/xuxiaocheng0201/libsimple/)
+
 [![Downloads](https://img.shields.io/github/downloads/wangfenjin/simple/total)](https://img.shields.io/github/downloads/wangfenjin/simple/total)
 [![build](https://github.com/wangfenjin/simple/workflows/CI/badge.svg)](https://github.com/wangfenjin/simple/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/wangfenjin/simple/branch/master/graph/badge.svg?token=8SHLFZ3RB4)](https://codecov.io/gh/wangfenjin/simple)
@@ -16,7 +19,6 @@ simple 是一个支持中文和拼音的 [sqlite3 fts5](https://www.sqlite.org/f
 
 ### 代码使用
 
-
 * 下载已经编译好的插件：https://github.com/wangfenjin/simple/releases 参考 examples 目录，目前已经有 c++, python, go 和 node-sqlite3 的例子。
 * iOS可以参考:
   - [#73](https://github.com/wangfenjin/simple/pull/73)
@@ -25,6 +27,7 @@ simple 是一个支持中文和拼音的 [sqlite3 fts5](https://www.sqlite.org/f
 * 在 Rust 中使用的例子 https://github.com/wangfenjin/simple/issues/89 https://github.com/fundon/tiny-docs-se
 * Java 例子 https://github.com/wangfenjin/sqlite-java-connect
 * C# 例子 https://github.com/dudylan/SqliteCheck/
+* Rust 例子 https://github.com/xuxiaocheng0201/libsimple/
 
 ### 命令行使用
 
