@@ -366,10 +366,12 @@ jobs:
       with:
         allow_failure: true
         files: "${{ github.workspace }}/../../_temp/macos/src/libsimple.dylib, ${{ github.workspace }}/../../_temp/macos/test/dict/jieba.dict.utf8"
+    - name: "Install distutils"
+      run: pip install --upgrade setuptools
     # npm run
     - uses: actions/setup-node@v2
       with:
-        node-version: '16'
+        node-version: '20'
     - name: run node example
       working-directory: ./examples/node/
       run: |
@@ -379,9 +381,9 @@ jobs:
         # npm run b -- --ext_path="${{ github.workspace }}/../../_temp/macos/src/" --dict_path="${{ github.workspace }}/../../_temp/macos/test/dict/"
 
     # python run
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.10' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+    # - uses: actions/setup-python@v4
+    #   with:
+    #     python-version: '3.10' # Version range or exact version of a Python version to use, using SemVer's version range syntax
     - name: run python example
       working-directory: ./examples/python3/
       run: python db_connector.py "${{ github.workspace }}/../../_temp/macos/src/libsimple"
