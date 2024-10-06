@@ -6,9 +6,9 @@ if(SIMPLE_WITH_JIEBA)
   ExternalProject_Add(
       cppjieba
       PREFIX ${CMAKE_BINARY_DIR}/cppjieba
-      GIT_REPOSITORY https://github.com/yanyiwu/cppjieba.git
+      GIT_REPOSITORY https://github.com/wangfenjin/cppjieba.git
       CONFIGURE_COMMAND ""
-      GIT_TAG 194c144d8b5ed1baf3190d07c5226e804454ab47
+      GIT_TAG master
       BUILD_COMMAND cmake -E echo "Skipping build cppjieba."
       INSTALL_COMMAND cmake -E echo "Skipping install cppjieba."
       LOG_DOWNLOAD ON
@@ -38,6 +38,8 @@ if(SIMPLE_WITH_JIEBA)
   add_dependencies(simple cppjieba)
   include_directories(${SQLITE3_HEADERS_DIR} ${source_dir}/include ${source_dir}/deps)
   target_include_directories(simple INTERFACE ${SQLITE3_HEADERS_DIR} ${source_dir}/include ${source_dir}/deps)
+  set_source_files_properties(${source_dir}/deps/limonp/Md5.cpp PROPERTIES GENERATED TRUE)
+  target_sources(simple PRIVATE ${source_dir}/deps/limonp/Md5.cpp)
   # for tests only
   add_custom_command(TARGET simple PRE_BUILD
                      COMMAND ${CMAKE_COMMAND} -E copy_directory
