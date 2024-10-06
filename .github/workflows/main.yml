@@ -366,8 +366,6 @@ jobs:
       with:
         allow_failure: true
         files: "${{ github.workspace }}/../../_temp/macos/src/libsimple.dylib, ${{ github.workspace }}/../../_temp/macos/test/dict/jieba.dict.utf8"
-    - name: "Install distutils"
-      run: brew install python-setuptools
     # npm run
     - uses: actions/setup-node@v2
       with:
@@ -375,6 +373,7 @@ jobs:
     - name: run node example
       working-directory: ./examples/node/
       run: |
+        brew install python-setuptools
         npm install
         npm run p -- --ext_path="${{ github.workspace }}/../../_temp/macos/src/" --dict_path="${{ github.workspace }}/../../_temp/macos/test/dict/"
         # don't run this as it's toooo slow
@@ -386,7 +385,12 @@ jobs:
     #     python-version: '3.10' # Version range or exact version of a Python version to use, using SemVer's version range syntax
     - name: run python example
       working-directory: ./examples/python3/
-      run: python db_connector.py "${{ github.workspace }}/../../_temp/macos/src/libsimple"
+      run: |
+        export PYTHON_CONFIGURE_OPTS="--enable-loadable-sqlite-extensions"
+        brew install sqlite3
+        export LDFLAGS="-L/opt/homebrew/opt/sqlite/lib"
+        export CPPFLAGS="-I/opt/homebrew/opt/sqlite/include"
+        python db_connector.py "${{ github.workspace }}/../../_temp/macos/src/libsimple"
 
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
