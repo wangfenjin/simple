@@ -367,7 +367,7 @@ jobs:
         allow_failure: true
         files: "${{ github.workspace }}/../../_temp/macos/src/libsimple.dylib, ${{ github.workspace }}/../../_temp/macos/test/dict/jieba.dict.utf8"
     - name: "Install distutils"
-      run: pip install --upgrade setuptools
+      run: brew install python-setuptools
     # npm run
     - uses: actions/setup-node@v2
       with:
