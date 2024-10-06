@@ -76,10 +76,10 @@ jobs:
         useVcpkgToolchainFile: true
         cmakeBuildType: ${{ steps.build_type.outputs.BUILD_TYPE }}
         buildWithCMake: true
-        cmakeGenerator: VS16Win64 
+        cmakeGenerator: VS16Win64
         cmakeAppendedArgs: -A ${{steps.build_type.outputs.BUILD_ARCH  }}
         buildWithCMakeArgs: --config ${{ steps.build_type.outputs.BUILD_TYPE }}
-        
+
     - name: "Check file existence"
       uses: andstor/file-existence-action@v1
       with:
@@ -125,8 +125,7 @@ jobs:
         # files: "${{ github.workspace }}/../../_temp/windows/libsimple-windows-${{ matrix.arch }}.zip"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        
-  
+
   # copy from https://github.com/Cyan4973/xxHash/blob/dev/.github/workflows/ci.yml
   # Linux ARM64
   # All tests are using QEMU and gcc cross compiler.
@@ -224,7 +223,7 @@ jobs:
     - name: Install lcov
       if: startsWith(github.ref, 'refs/tags/') != true
       run: sudo apt-get install lcov
-    
+
     - name: Install codecov
       if: startsWith(github.ref, 'refs/tags/') != true
       shell: bash
@@ -236,22 +235,22 @@ jobs:
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        cmakeBuildType: ${{ env.BUILD_TYPE }}  
+        cmakeBuildType: ${{ env.BUILD_TYPE }}
         buildDirectory: "${{ github.workspace }}/build"
         buildWithCMake: true
-        buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }} 
+        buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }}
         cmakeAppendedArgs: " -DCODE_COVERAGE=ON "
-        
+
     - name: 'Run CMake without coverage'
       if: startsWith(github.ref, 'refs/tags/')
       uses: lukka/run-cmake@v3
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        cmakeBuildType: ${{ env.BUILD_TYPE }}  
+        cmakeBuildType: ${{ env.BUILD_TYPE }}
         buildDirectory: "${{ github.workspace }}/build"
         buildWithCMake: true
-        buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }} 
+        buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }}
         cmakeAppendedArgs: " -DCODE_COVERAGE=OFF -DBUILD_SHELL=OFF -DBUILD_TEST_EXAMPLE=OFF"
 
     - name: 'Run CTest'
@@ -262,7 +261,7 @@ jobs:
     # CODE COVERAGE
     - name: Code coverage - Capture coverage info
       if: ${{ startsWith(github.ref, 'refs/tags/') != true && matrix.os == 'ubuntu-latest' }}
-      run: lcov --directory . --capture --output-file coverage.info 
+      run: lcov --directory . --capture --output-file coverage.info
     - name: Code coverage - Filter out system, external, and unit test source files
       if: ${{ startsWith(github.ref, 'refs/tags/') != true && matrix.os == 'ubuntu-latest' }}
       run: lcov --remove coverage.info --output-file coverage_filter.info '/Library/*' '/usr/*' '*/test/*' '*/cmrc/*' '*/entry.cc' '*/simple_highlight.*'
@@ -283,7 +282,7 @@ jobs:
     - uses: actions/setup-node@v2
       if: startsWith(github.ref, 'refs/tags/') != true
       with:
-        node-version: '16'
+        node-version: '20'
     - name: run node example
       if: startsWith(github.ref, 'refs/tags/') != true
       working-directory: ./examples/node/
@@ -333,7 +332,7 @@ jobs:
         body: ${{steps.build_changelog.outputs.changelog}}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  
+
   MacOS:
     runs-on: macos-latest
     needs: Linux
@@ -351,12 +350,12 @@ jobs:
       with:
         cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
         cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        cmakeBuildType: ${{ env.BUILD_TYPE }}  
+        cmakeBuildType: ${{ env.BUILD_TYPE }}
         buildDirectory: "${{ github.workspace }}/../../_temp/macos"
         buildWithCMake: true
         cmakeAppendedArgs: -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/../../_temp/macos/install"
         buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }}
-        
+
     - name: 'Run CTest'
       run: ctest -C ${{ env.BUILD_TYPE }}
       working-directory: "${{ github.workspace }}/../../_temp/macos"
@@ -366,25 +365,27 @@ jobs:
       with:
         allow_failure: true
         files: "${{ github.workspace }}/../../_temp/macos/src/libsimple.dylib, ${{ github.workspace }}/../../_temp/macos/test/dict/jieba.dict.utf8"
-    # npm run
     - uses: actions/setup-node@v2
       with:
-        node-version: '16'
+        node-version: '20'
+    # - uses: actions/setup-python@v5
+    #   with:
+    #     python-version: '3.12' # Version range or exact version of a Python version to use, using SemVer's version range syntax
+    # npm run
     - name: run node example
       working-directory: ./examples/node/
       run: |
+        brew install python-setuptools
         npm install
         npm run p -- --ext_path="${{ github.workspace }}/../../_temp/macos/src/" --dict_path="${{ github.workspace }}/../../_temp/macos/test/dict/"
         # don't run this as it's toooo slow
         # npm run b -- --ext_path="${{ github.workspace }}/../../_temp/macos/src/" --dict_path="${{ github.workspace }}/../../_temp/macos/test/dict/"
 
     # python run
-    - uses: actions/setup-python@v4
-      with:
-        python-version: '3.10' # Version range or exact version of a Python version to use, using SemVer's version range syntax
-    - name: run python example
-      working-directory: ./examples/python3/
-      run: python db_connector.py "${{ github.workspace }}/../../_temp/macos/src/libsimple"
+    # - name: run python example
+    #   working-directory: ./examples/python3/
+    #   run: |
+    #     python db_connector.py "${{ github.workspace }}/../../_temp/macos/src/libsimple"
 
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')

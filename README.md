@@ -28,6 +28,7 @@ simple 是一个支持中文和拼音的 [sqlite3 fts5](https://www.sqlite.org/f
 * Java 例子 https://github.com/wangfenjin/sqlite-java-connect
 * C# 例子 https://github.com/dudylan/SqliteCheck/
 * Rust 例子 https://github.com/xuxiaocheng0201/libsimple/
+* Android Flutter 的例子 https://github.com/SageMik/sqlite3_simple
 
 ### 命令行使用
 
