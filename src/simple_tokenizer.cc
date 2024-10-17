@@ -21,7 +21,7 @@ PinYin *SimpleTokenizer::get_pinyin() {
   return py;
 }
 
-static TokenCategory from_char(char c) {
+static TokenCategory from_char(unsigned char c) {
   if (std::isdigit(c)) {
     return TokenCategory::DIGIT;
   }
