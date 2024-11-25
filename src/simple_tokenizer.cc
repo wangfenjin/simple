@@ -2,11 +2,9 @@
 
 #include <algorithm>
 #include <cctype>
-#include <iostream>
-#include <memory>
-#include <sstream>
+#include <cstdlib>
+#include <set>
 #include <string>
-#include <utility>
 #include <vector>
 
 namespace simple_tokenizer {
@@ -22,13 +20,18 @@ PinYin *SimpleTokenizer::get_pinyin() {
 }
 
 static TokenCategory from_char(char c) {
-  if (std::isdigit(c)) {
+  auto uc = static_cast<unsigned char>(c);
+  // ASCII should in 0..127
+  if (uc > 127) {
+    return TokenCategory::OTHER;
+  }
+  if (std::isdigit(uc)) {
     return TokenCategory::DIGIT;
   }
-  if (std::isspace(c) || std::iscntrl(c)) {
+  if (std::isspace(uc) || std::iscntrl(uc)) {
     return TokenCategory::SPACE;
   }
-  if (std::isalpha(c)) {
+  if (std::isalpha(uc)) {
     return TokenCategory::ASCII_ALPHABETIC;
   }
   return TokenCategory::OTHER;
