@@ -1,6 +1,3 @@
-> [!TIP]
-> 新增：[Rust Crate](https://github.com/wangfenjin/simple/issues/148) ! 感谢 [xuxiaocheng0201](https://github.com/xuxiaocheng0201/libsimple/)
-
 [![Downloads](https://img.shields.io/github/downloads/wangfenjin/simple/total)](https://img.shields.io/github/downloads/wangfenjin/simple/total)
 [![build](https://github.com/wangfenjin/simple/workflows/CI/badge.svg)](https://github.com/wangfenjin/simple/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/wangfenjin/simple/branch/master/graph/badge.svg?token=8SHLFZ3RB4)](https://codecov.io/gh/wangfenjin/simple)
