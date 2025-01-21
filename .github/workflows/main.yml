@@ -126,79 +126,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  # copy from https://github.com/Cyan4973/xxHash/blob/dev/.github/workflows/ci.yml
-  # Linux ARM64
-  # All tests are using QEMU and gcc cross compiler.
-
-  qemu-consistency:
-    name: QEMU ${{ matrix.name }}
-    needs: Linux
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: true  # 'false' means Don't stop matrix workflows even if some matrix failed.
-      matrix:
-        include: [
-          { name: 'ARM64',           xcc_pkg: gcc-aarch64-linux-gnu,        xcc: aarch64-linux-gnu-gcc,        xemu_pkg: qemu-system-arm,   xemu: qemu-aarch64-static, os: ubuntu-latest, },
-
-          { name: 'ARM64, gcc-9',    xcc_pkg: gcc-9-aarch64-linux-gnu,      xcc: aarch64-linux-gnu-gcc-9,      xemu_pkg: qemu-system-arm,   xemu: qemu-aarch64-static, os: ubuntu-20.04, },
-        ]
-    env:                        # Set environment variables
-      CC: ${{ matrix.xcc }}
-      XEMU: ${{ matrix.xemu }}
-      # LDFLAGS: -static
-    steps:
-    - uses: actions/checkout@v2 # https://github.com/actions/checkout
-    - name: apt update & install (1)
-      run: |
-        sudo apt-get update
-        sudo apt-get install gcc-multilib g++-multilib qemu-utils qemu-user-static
-    - name: Environment info (1)
-      run: |
-        echo && apt-cache search "^gcc-" | grep "linux" | sort
-    - name: apt update & install (2)
-      run: |
-        sudo apt-get install ${{ matrix.xcc_pkg }} ${{ matrix.xemu_pkg }}
-    - name: Environment info (2)
-      run: |
-        echo && which $CC
-        echo && $CC --version
-        echo && $CC -v  # Show built-in specs
-        echo && which $XEMU
-        echo && $XEMU --version
-    - name: ARM64
-      uses: lukka/run-cmake@v3
-      with:
-        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        cmakeBuildType: 'Release'
-        buildDirectory: "${{ github.workspace }}/build"
-        buildWithCMake: true
-        buildWithCMakeArgs: --config Release
-        # cmakeAppendedArgs: " -DCODE_COVERAGE=OFF -DBUILD_SHELL=OFF -DBUILD_TEST_EXAMPLE=OFF -DBUILD_STATIC"
-        cmakeAppendedArgs: " -DCODE_COVERAGE=OFF -DBUILD_SHELL=OFF -DBUILD_TEST_EXAMPLE=OFF"
-    - name: "Check file existence"
-      uses: andstor/file-existence-action@v1
-      with:
-        allow_failure: true
-        # files: "${{ github.workspace }}/build/src/libsimple.a, ${{ github.workspace }}/build/src/libPINYIN_TEXT.a, ${{ github.workspace }}/build/test/dict/jieba.dict.utf8"
-        files: "${{ github.workspace }}/build/src/libsimple.so, ${{ github.workspace }}/build/test/dict/jieba.dict.utf8"
-    - name: Package
-      if: startsWith(github.ref, 'refs/tags/')
-      run: |
-        mkdir libsimple-${{ matrix.xcc }}
-        # cp -r src/libsimple.a src/libPINYIN_TEXT.a test/dict/ libsimple-linux-${{ matrix.xcc }}/
-        cp -r src/libsimple.so test/dict/ libsimple-${{ matrix.xcc }}/
-        zip -r libsimple-${{ matrix.xcc }}.zip libsimple-${{ matrix.xcc }}
-      working-directory: "${{ github.workspace }}/build"
-    - name: Release
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v1
-      with:
-        draft: true
-        files: ${{ github.workspace }}/build/libsimple-${{ matrix.xcc }}.zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
   Linux:
     runs-on: ${{ matrix.os }}
     strategy:
@@ -206,6 +133,7 @@ jobs:
       matrix:
         include:
         - os: ubuntu-20.04
+        - os: ubuntu-22.04-arm
         - os: ubuntu-latest
     steps:
     - name: "Release Build Type"
