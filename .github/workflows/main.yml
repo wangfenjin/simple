@@ -189,10 +189,10 @@ jobs:
     # CODE COVERAGE
     - name: Code coverage - Capture coverage info
       if: ${{ startsWith(github.ref, 'refs/tags/') != true && matrix.os == 'ubuntu-latest' }}
-      run: lcov --directory . --capture --output-file coverage.info
+      run: lcov --directory . --capture --output-file coverage.info --ignore-errors mismatch
     - name: Code coverage - Filter out system, external, and unit test source files
       if: ${{ startsWith(github.ref, 'refs/tags/') != true && matrix.os == 'ubuntu-latest' }}
-      run: lcov --remove coverage.info --output-file coverage_filter.info '/Library/*' '/usr/*' '*/test/*' '*/cmrc/*' '*/entry.cc' '*/simple_highlight.*'
+      run: lcov --remove coverage.info --output-file coverage_filter.info '/Library/*' '/usr/*' '*/test/*' '*/cmrc/*' '*/entry.cc' '*/simple_highlight.*' --ignore-errors unused
     - name: Code coverage - Output coverage data for debugging
       if: ${{ startsWith(github.ref, 'refs/tags/') != true && matrix.os == 'ubuntu-latest' }}
       run: lcov --list coverage_filter.info
