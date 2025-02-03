@@ -2,7 +2,7 @@
 [![build](https://github.com/wangfenjin/simple/workflows/CI/badge.svg)](https://github.com/wangfenjin/simple/actions?query=workflow%3ACI)
 [![codecov](https://codecov.io/gh/wangfenjin/simple/branch/master/graph/badge.svg?token=8SHLFZ3RB4)](https://codecov.io/gh/wangfenjin/simple)
 [![CodeFactor](https://www.codefactor.io/repository/github/wangfenjin/simple/badge)](https://www.codefactor.io/repository/github/wangfenjin/simple)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/wangfenjin/simple/blob/master/LICENSE)
+[![License: MIT](https://img.shields.io/badge/Dual_License-MIT_or_GPL_v3_later-blue.svg)](https://github.com/wangfenjin/simple/blob/master/LICENSE)
 
 # Simple tokenizer
 
