@@ -43,43 +43,32 @@ jobs:
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v4
-
-    # https://github.com/OpenTTD/OpenTTD/blob/master/.github/workflows/ci-build.yml
-    # "restore-cache" which is done by "run-vcpkg" uses Windows tar.
-    # A git clone on windows marks a few files as read-only; when Windows tar
-    # tries to extract the cache over this folder, it fails, despite the files
-    # being identical. This failure shows up as an warning in the logs. We
-    # avoid this by simply removing the read-only mark from the git folder.
-    # In other words: this is a hack!
-    # See: https://github.com/lukka/run-vcpkg/issues/61
-    # - name: Remove read-only flag from vcpkg git folder
-    #   shell: powershell
-    #   run: |
-    #     attrib -r "c:\vcpkg\.git\*.*" /s
-    # - name: Prepare vcpkg (with cache)
-    #   uses: lukka/run-vcpkg@v6
-    #   with:
-    #     vcpkgDirectory: 'c:/vcpkg'
-    #     doNotUpdateVcpkg: true
-    #     vcpkgArguments: 'liblzma libpng lzo zlib'
-    #     vcpkgTriplet: '${{ matrix.arch }}-windows-static'
+      with:
+        submodules: true
 
     # - name: Install MSVC problem matcher
     #   uses: ammaraskar/msvc-problem-matcher@master
 
+    # Install latest CMake
     - uses: lukka/get-cmake@latest
-    - name: 'Run CMake with VS16'
-      uses: lukka/run-cmake@v9
+
+    # Restore from cache the previously built ports
+    - name: Restore artifacts, or setup vcpkg
+      uses: lukka/run-vcpkg@v10
       with:
-        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        buildDirectory: "${{ github.workspace }}/../../_temp/windows"
-        useVcpkgToolchainFile: true
-        cmakeBuildType: ${{ steps.build_type.outputs.BUILD_TYPE }}
-        buildWithCMake: true
-        cmakeGenerator: VS16Win64
-        cmakeAppendedArgs: -A ${{steps.build_type.outputs.BUILD_ARCH  }}
-        buildWithCMakeArgs: --config ${{ steps.build_type.outputs.BUILD_TYPE }}
+        vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+
+    # Add this to prevent storing partial cache in case of failure
+    - run: |
+        echo "RUNVCPKG_NO_CACHE=1" >> $GITHUB_ENV
+      if: ${{ failure() || cancelled() }}
+      shell: bash
+
+    - name: 'Run CMake'
+      uses: lukka/run-cmake@v10
+      with:
+        configurePreset: 'windows-msvc-vs17'
+        buildPreset: ${{ startsWith(github.ref, 'refs/tags/') && 'windows-msvc-vs17-release' || 'windows-msvc-vs17' }}
 
     - name: "Check file existence"
       uses: andstor/file-existence-action@v3
@@ -145,9 +134,22 @@ jobs:
       run: echo "BUILD_TYPE=Debug" >> $GITHUB_ENV
 
     - uses: actions/checkout@v4
+      with:
+        submodules: true
 
     - name: Update apt-get
       run: sudo apt-get update
+
+    - name: Install build tools
+      run: |
+        sudo apt-get install -y ninja-build
+        sudo apt-get install -y build-essential
+        sudo apt-get install -y gcc g++
+
+    - name: Restore artifacts, or setup vcpkg
+      uses: lukka/run-vcpkg@v10
+      with:
+        vcpkgDirectory: '${{ github.workspace }}/vcpkg'
 
     - name: Install lcov
       if: startsWith(github.ref, 'refs/tags/') != true
@@ -158,29 +160,24 @@ jobs:
       shell: bash
       run: sudo pip install codecov
 
+    - run: |
+        echo "RUNVCPKG_NO_CACHE=1" >> $GITHUB_ENV
+      if: ${{ failure() || cancelled() }}
+      shell: bash
+
     - name: 'Run CMake'
-      uses: lukka/run-cmake@v9
+      uses: lukka/run-cmake@v10
       if: startsWith(github.ref, 'refs/tags/') != true
       with:
-        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        cmakeBuildType: ${{ env.BUILD_TYPE }}
-        buildDirectory: "${{ github.workspace }}/build"
-        buildWithCMake: true
-        buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }}
-        cmakeAppendedArgs: " -DCODE_COVERAGE=ON "
+        configurePreset: 'ninja-vcpkg-coverage'
+        buildPreset: 'ninja-vcpkg-coverage'
 
     - name: 'Run CMake without coverage'
       if: startsWith(github.ref, 'refs/tags/')
-      uses: lukka/run-cmake@v9
+      uses: lukka/run-cmake@v10
       with:
-        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        cmakeBuildType: ${{ env.BUILD_TYPE }}
-        buildDirectory: "${{ github.workspace }}/build"
-        buildWithCMake: true
-        buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }}
-        cmakeAppendedArgs: " -DCODE_COVERAGE=OFF -DBUILD_SHELL=OFF -DBUILD_TEST_EXAMPLE=OFF"
+        configurePreset: 'ninja-vcpkg-release'
+        buildPreset: 'ninja-vcpkg-release'
 
     - name: 'Run CTest'
       if: ${{ startsWith(github.ref, 'refs/tags/') != true && matrix.os == 'ubuntu-latest' }}
@@ -274,16 +271,30 @@ jobs:
       run: echo "BUILD_TYPE=Debug" >> $GITHUB_ENV
 
     - uses: actions/checkout@v4
-    - name: 'Run CMake'
-      uses: lukka/run-cmake@v9
       with:
-        cmakeListsOrSettingsJson: CMakeListsTxtAdvanced
-        cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
-        cmakeBuildType: ${{ env.BUILD_TYPE }}
-        buildDirectory: "${{ github.workspace }}/../../_temp/macos"
-        buildWithCMake: true
-        cmakeAppendedArgs: -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/../../_temp/macos/install"
-        buildWithCMakeArgs: --config ${{ env.BUILD_TYPE }}
+        submodules: true
+
+    # Install build tools
+    - name: Install Ninja
+      run: brew install ninja
+
+    # Restore from cache the previously built ports
+    - name: Restore artifacts, or setup vcpkg
+      uses: lukka/run-vcpkg@v10
+      with:
+        vcpkgDirectory: '${{ github.workspace }}/vcpkg'
+
+    # Add this to prevent storing partial cache in case of failure
+    - run: |
+        echo "RUNVCPKG_NO_CACHE=1" >> $GITHUB_ENV
+      if: ${{ failure() || cancelled() }}
+      shell: bash
+
+    - name: 'Run CMake'
+      uses: lukka/run-cmake@v10
+      with:
+        configurePreset: 'macos-ninja'
+        buildPreset: ${{ startsWith(github.ref, 'refs/tags/') && 'macos-ninja-release' || 'macos-ninja' }}
 
     - name: 'Run CTest'
       run: ctest -C ${{ env.BUILD_TYPE }}
@@ -294,9 +305,11 @@ jobs:
       with:
         allow_failure: true
         files: "${{ github.workspace }}/../../_temp/macos/src/libsimple.dylib, ${{ github.workspace }}/../../_temp/macos/test/dict/jieba.dict.utf8"
+    
     - uses: actions/setup-node@v4
       with:
         node-version: '20'
+    
     # - uses: actions/setup-python@v5
     #   with:
     #     python-version: '3.12' # Version range or exact version of a Python version to use, using SemVer's version range syntax
@@ -315,7 +328,7 @@ jobs:
     #   working-directory: ./examples/python3/
     #   run: |
     #     python db_connector.py "${{ github.workspace }}/../../_temp/macos/src/libsimple"
-
+  
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
@@ -324,12 +337,13 @@ jobs:
         cp -r src/libsimple.dylib test/dict libsimple-osx-x64/
         zip -r libsimple-osx-x64.zip libsimple-osx-x64
       working-directory: "${{ github.workspace }}/../../_temp/macos"
+
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v1
       with:
         draft: true
-        files: ${{ github.workspace }}/../../_temp/macos/libsimple-osx-x64.zip
+        files: "${{ github.workspace }}/../../_temp/macos/libsimple-osx-x64.zip"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
