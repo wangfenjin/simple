@@ -1,0 +1,137 @@
+{
+  "version": 8,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "ninja-vcpkg",
+      "displayName": "Ninja",
+      "description": "Configure with vcpkg toolchain",
+      "binaryDir": "${sourceDir}/build",
+      "generator": "Ninja",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "FILEPATH",
+          "value": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        }
+      }
+    },
+    {
+      "name": "ninja-vcpkg-coverage",
+      "inherits": "ninja-vcpkg",
+      "displayName": "Ninja Coverage",
+      "description": "Configure with code coverage enabled",
+      "cacheVariables": {
+        "CODE_COVERAGE": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "BUILD_TESTING": {
+          "type": "BOOL",
+          "value": "OFF"
+        }
+      }
+    },
+    {
+      "name": "ninja-vcpkg-release",
+      "inherits": "ninja-vcpkg",
+      "displayName": "Ninja Release",
+      "description": "Configure for release without tests",
+      "cacheVariables": {
+        "CODE_COVERAGE": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "BUILD_SHELL": {
+          "type": "BOOL",
+          "value": "OFF"
+        },
+        "BUILD_TEST_EXAMPLE": {
+          "type": "BOOL",
+          "value": "OFF"
+        }
+      }
+    },
+    {
+      "name": "macos-ninja",
+      "displayName": "macOS Ninja",
+      "description": "Configure for macOS build",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/../../_temp/macos",
+      "cacheVariables": {
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "PATH",
+          "value": "${sourceDir}/../../_temp/macos/install"
+        }
+      }
+    },
+    {
+      "name": "windows-msvc-vs17",
+      "displayName": "Visual Studio 17 2022",
+      "description": "Configure with VS17 and vcpkg toolchain",
+      "generator": "Visual Studio 17 2022",
+      "architecture": "x64",
+      "toolset": "v143",
+      "binaryDir": "${sourceDir}/../../_temp/windows",
+      "cacheVariables": {
+        "CMAKE_TOOLCHAIN_FILE": {
+          "type": "FILEPATH",
+          "value": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        },
+        "BUILD_TESTING": {
+          "type": "BOOL",
+          "value": "OFF"
+        }
+      },
+      "condition": {
+        "type": "equals",
+        "lhs": "${hostSystemName}",
+        "rhs": "Windows"
+      }
+    }
+  ],
+  "buildPresets": [
+    {
+      "name": "ninja-vcpkg-release",
+      "configurePreset": "ninja-vcpkg",
+      "displayName": "Build Release",
+      "description": "Build release version",
+      "configuration": "Release"
+    },
+    {
+      "name": "ninja-vcpkg-coverage",
+      "configurePreset": "ninja-vcpkg-coverage",
+      "displayName": "Build Coverage",
+      "description": "Build with coverage enabled"
+    },
+    {
+      "name": "macos-ninja",
+      "configurePreset": "macos-ninja",
+      "displayName": "Build macOS",
+      "description": "Build for macOS"
+    },
+    {
+      "name": "macos-ninja-release",
+      "configurePreset": "macos-ninja",
+      "displayName": "Build macOS (Release)",
+      "description": "Build for macOS (Release)",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-msvc-vs17",
+      "configurePreset": "windows-msvc-vs17",
+      "displayName": "Build Windows VS17",
+      "description": "Build with VS17"
+    },
+    {
+      "name": "windows-msvc-vs17-release",
+      "configurePreset": "windows-msvc-vs17",
+      "displayName": "Build Windows VS17 (Release)",
+      "description": "Build with VS17 (Release)",
+      "configuration": "Release"
+    }
+  ]
+}
