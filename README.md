@@ -99,5 +99,4 @@ make install
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=wangfenjin/simple&type=Date)](https://star-history.com/#wangfenjin/simple&Date)
-
+[![Star History Chart](https://api.star-history.com/svg?repos=wangfenjin/simple&type=Date)](https://www.star-history.com/#wangfenjin/simple&Date)
