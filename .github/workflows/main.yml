@@ -71,14 +71,6 @@ jobs:
       if: ${{ failure() || cancelled() }}
       shell: bash
 
-    - name: Cache vcpkg
-      uses: actions/cache@v3
-      with:
-        path: ${{ github.workspace }}/vcpkg
-        key: vcpkg-${{ runner.os }}-${{ hashFiles('**/vcpkg.json') }}
-        restore-keys: |
-          vcpkg-${{ runner.os }}-
-
     - name: 'Run CMake'
       uses: lukka/run-cmake@v10
       continue-on-error: false
