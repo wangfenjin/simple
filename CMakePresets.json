@@ -65,6 +65,10 @@
         "CMAKE_INSTALL_PREFIX": {
           "type": "PATH",
           "value": "${sourceDir}/../../_temp/macos/install"
+        },
+        "BUILD_SHELL": {
+          "type": "BOOL",
+          "value": "OFF"
         }
       }
     },
@@ -80,6 +84,10 @@
         "CMAKE_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
           "value": "${sourceDir}/vcpkg/scripts/buildsystems/vcpkg.cmake"
+        },
+        "BUILD_SHELL": {
+          "type": "BOOL",
+          "value": "OFF"
         },
         "BUILD_TESTING": {
           "type": "BOOL",
