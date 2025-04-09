@@ -10,7 +10,6 @@ set (CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/src)
 # Download and unpack googletest at configure time
 set(GTEST_CMAKE_ARGS
     "-DCMAKE_POLICY_DEFAULT_CMP0048=NEW"
-    "-DCMAKE_POLICY_VERSION_MINIMUM=3.5"
 )
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" ${GTEST_CMAKE_ARGS} .
@@ -19,6 +18,10 @@ execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" ${GTEST_CMAKE_A
 if(result)
   message(FATAL_ERROR "CMake step for googletest failed: ${result}")
 endif()
+
+# Set policy version minimum before adding googletest
+set(CMAKE_POLICY_VERSION_MINIMUM "3.5" CACHE STRING "Minimum CMake policy version" FORCE)
+
 execute_process(COMMAND ${CMAKE_COMMAND} --build .
   RESULT_VARIABLE result
   WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
