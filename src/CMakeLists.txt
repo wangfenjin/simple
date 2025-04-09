@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.19)
 project(simple CXX)
 
 if(SIMPLE_WITH_JIEBA)

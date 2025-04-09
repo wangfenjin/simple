@@ -9,6 +9,14 @@ on:
   pull_request:
     branches: [ master ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   Windows:
@@ -24,13 +32,12 @@ jobs:
     steps:
     - name: "Set Build Type"
       id: build_type
+      shell: pwsh
       run: |
         if ("${{ github.ref }}".StartsWith("refs/tags/")) {
-          echo "BUILD_TYPE::Release";
-          echo "::set-output name=BUILD_TYPE::Release";
+          echo "BUILD_TYPE=Release" >> $env:GITHUB_OUTPUT
         } else {
-          echo "BUILD_TYPE::Debug";
-          echo "::set-output name=BUILD_TYPE::Debug";
+          echo "BUILD_TYPE=Debug" >> $env:GITHUB_OUTPUT
         }
 
         if ("${{ matrix.arch }}" -eq "x64") {
@@ -50,7 +57,7 @@ jobs:
     #   uses: ammaraskar/msvc-problem-matcher@master
 
     # Install latest CMake
-    - uses: lukka/get-cmake@latest
+    - uses: lukka/get-cmake@v3.31.6
 
     # Restore from cache the previously built ports
     - name: Restore artifacts, or setup vcpkg
@@ -66,6 +73,7 @@ jobs:
 
     - name: 'Run CMake'
       uses: lukka/run-cmake@v10
+      continue-on-error: false
       with:
         configurePreset: 'windows-msvc-vs17'
         buildPreset: ${{ startsWith(github.ref, 'refs/tags/') && 'windows-msvc-vs17-release' || 'windows-msvc-vs17' }}
@@ -108,23 +116,21 @@ jobs:
       working-directory: "${{ github.workspace }}/../../_temp/windows/"
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         draft: true
-        files: "D:/a/_temp/windows/libsimple-windows-${{ matrix.arch }}.zip"
-        # files: "${{ github.workspace }}/../../_temp/windows/libsimple-windows-${{ matrix.arch }}.zip"
+        files: "${{ github.workspace }}/../../_temp/windows/libsimple-windows-${{ matrix.arch }}.zip"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        BUILD_TYPE: ${{ github.ref_type == 'tag' && 'Release' || 'Debug' }}
 
   Linux:
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: true
       matrix:
-        include:
-        - os: ubuntu-20.04
-        - os: ubuntu-22.04-arm
-        - os: ubuntu-latest
+        os: [ubuntu-20.04, ubuntu-22.04-arm, ubuntu-latest]
+    timeout-minutes: 60
     steps:
     - name: "Release Build Type"
       if: startsWith(github.ref, 'refs/tags/')
@@ -167,7 +173,7 @@ jobs:
 
     - name: 'Run CMake'
       uses: lukka/run-cmake@v10
-      if: startsWith(github.ref, 'refs/tags/') != true
+      continue-on-error: false
       with:
         configurePreset: 'ninja-vcpkg-coverage'
         buildPreset: 'ninja-vcpkg-coverage'
@@ -243,7 +249,7 @@ jobs:
       working-directory: "${{ github.workspace }}/build"
     - name: Release without changelog
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os != 'ubuntu-latest' }}
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         draft: true
         files: ${{ github.workspace }}/build/libsimple-linux-${{ matrix.os }}.zip
@@ -258,6 +264,13 @@ jobs:
         body: ${{steps.build_changelog.outputs.changelog}}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Build Summary
+      if: always()
+      run: |
+        echo "## Build Summary" >> $GITHUB_STEP_SUMMARY
+        echo "- Build Type: ${{ env.BUILD_TYPE }}" >> $GITHUB_STEP_SUMMARY
+        echo "- OS: ${{ runner.os }}" >> $GITHUB_STEP_SUMMARY
 
   MacOS:
     runs-on: macos-latest
@@ -348,4 +361,5 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: build-iOS
+      if: success()
       run: ./build-ios.sh
