@@ -24,6 +24,12 @@ if (MSVC)
    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 endif()
 
+# Make Readline optional
+option(USE_READLINE "Enable Readline support" OFF)
+if(USE_READLINE)
+    find_package(Readline)
+endif()
+
 set(SQLITE3_HEADERS_DIR ${PROJECT_SOURCE_DIR}/contrib/sqlite3)
 set(SIMPLE_HEADERS_DIR ${PROJECT_SOURCE_DIR}/src)
 
