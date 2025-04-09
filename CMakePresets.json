@@ -92,6 +92,14 @@
         "BUILD_TESTING": {
           "type": "BOOL",
           "value": "OFF"
+        },
+        "BUILD_SQLITE3": {
+          "type": "BOOL",
+          "value": "ON"
+        },
+        "SQLITE_ENABLE_FTS5": {
+          "type": "BOOL",
+          "value": "ON"
         }
       },
       "condition": {
