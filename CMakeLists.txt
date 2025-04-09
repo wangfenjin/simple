@@ -24,12 +24,6 @@ if (MSVC)
    add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 endif()
 
-# Make Readline optional
-option(USE_READLINE "Enable Readline support" OFF)
-if(USE_READLINE)
-    find_package(Readline)
-endif()
-
 set(SQLITE3_HEADERS_DIR ${PROJECT_SOURCE_DIR}/contrib/sqlite3)
 set(SIMPLE_HEADERS_DIR ${PROJECT_SOURCE_DIR}/src)
 
@@ -40,7 +34,7 @@ if(BUILD_SQLITE3)
   set(SQLITE_INSTALL_DIR ${SQLITE_ROOT})
   set(SQLITE_INCLUDE_DIR ${SQLITE_INSTALL_DIR}/include)
   set(SQLITE_LIB_DIR ${SQLITE_INSTALL_DIR}/lib)
-  if (NOT IOS)
+  if (Darwin)
     option(SQLITE_ENABLE_FTS5         "enables full text searches version 5"         ON)
     option(BUILD_SHELL "build SQLite3 shell application" ON)
     add_subdirectory(contrib/sqlite3)
