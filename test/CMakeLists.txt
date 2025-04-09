@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 3.19)
 project(simple_tests)
 
 # https://github.com/maps-gpu/MAPS/issues/7#issuecomment-418200278
