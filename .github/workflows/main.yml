@@ -57,7 +57,7 @@ jobs:
     #   uses: ammaraskar/msvc-problem-matcher@master
 
     # Install latest CMake
-    - uses: lukka/get-cmake@latest
+    - uses: lukka/get-cmake@3.31
 
     # Restore from cache the previously built ports
     - name: Restore artifacts, or setup vcpkg
