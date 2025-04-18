@@ -115,16 +115,18 @@ jobs:
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
+        $outputDir = "$env:GITHUB_WORKSPACE\artifacts"
+        New-Item -ItemType Directory -Path $outputDir -Force
         mkdir libsimple-windows-${{ matrix.arch }}
         Copy-Item -Path src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll,cppjieba/src/cppjieba/dict/ -Destination libsimple-windows-${{ matrix.arch }}/ -Recurse
-        Compress-Archive -Path libsimple-windows-${{ matrix.arch }} -DestinationPath libsimple-windows-${{ matrix.arch }}.zip
+        Compress-Archive -Path libsimple-windows-${{ matrix.arch }} -DestinationPath "$outputDir\libsimple-windows-${{ matrix.arch }}.zip"
       working-directory: "${{ github.workspace }}/../../_temp/windows/"
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v2
       with:
         draft: true
-        files: "${{ github.workspace }}/../../_temp/windows/libsimple-windows-${{ matrix.arch }}.zip"
+        files: "${{ github.workspace }}/artifacts/libsimple-windows-${{ matrix.arch }}.zip"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         BUILD_TYPE: ${{ github.ref_type == 'tag' && 'Release' || 'Debug' }}
