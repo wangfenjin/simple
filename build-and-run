@@ -76,8 +76,8 @@ simple.example() {
   run "cd output/bin/"
   run "cat ${ProjectRoot}/example.sql ${ProjectRoot}/example-jieba.sql | ./sqlite3"
   run "./simple_cpp_example"
-  run "cd ${ProjectRoot}"
-  run "python3 examples/python3/db_connector.py './output/bin/libsimple'"
+  # run "cd ${ProjectRoot}"
+  # run "python3 examples/python3/db_connector.py './output/bin/libsimple'"
 }
 
 main() {

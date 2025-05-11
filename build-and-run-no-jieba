@@ -76,8 +76,8 @@ simple.example() {
   run "cd output-no-jieba/bin/"
   run "./sqlite3 < ${ProjectRoot}/example.sql"
   run "./simple_cpp_example"
-  run "cd ${ProjectRoot}"
-  run "python3 examples/python3/db_connector.py"
+  # run "cd ${ProjectRoot}"
+  # run "python3 examples/python3/db_connector.py"
 }
 
 main() {
