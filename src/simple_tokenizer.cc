@@ -73,7 +73,16 @@ std::string SimpleTokenizer::tokenize_jieba_query(const char *text, int textLen,
   std::vector<cppjieba::Word> words;
   jieba.Cut(text, words);
   for (auto word : words) {
+    // if all char is the same category, then use that category
+    // otherwise use OTHER
+    // fix https://github.com/wangfenjin/simple/issues/176
     TokenCategory category = from_char(text[word.offset]);
+    for (auto c : word.word) {
+      if (from_char(c) != category) {
+        category = TokenCategory::OTHER;
+        break;
+      }
+    }
     append_result(result, word.word, category, word.offset, flags);
   }
   return result;
