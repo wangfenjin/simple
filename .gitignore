@@ -5,6 +5,7 @@ compile_commands.json
 libsimple.*
 build/
 build-ios/
+build-ohos/
 *.gch
 bin/
 output/
