@@ -83,6 +83,19 @@ make install
 ./build-ios.sh
 ```
 
+支持 ohos 编译：
+
+从 [官方发布渠道](https://gitcode.com/openharmony/docs/blob/master/en/release-notes/OpenHarmony-v5.0.1-release.md#acquiring-source-code-from-mirrors)下载适用于目标平台的SDK.
+```
+tar -zxvf ohos-sdk.tar.gz
+cd $OHOS_SDK/Linux
+for i in *.zip;do unzip ${i};done
+```
+开始编译
+```
+./build-ohos.sh
+```
+
 ### 代码
 - `src/entry` 入口文件，注册 sqlite tokenizer 和函数
 - `src/simple_tokenizer` 分词器实现
