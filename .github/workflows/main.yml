@@ -283,9 +283,9 @@ jobs:
       fail-fast: true
       matrix:
         include:
-        - os: macos-13
+        - os: macos-15-intel
           arch: x64
-        - os: macos-14
+        - os: macos-15
           arch: arm64
     env:
       BUILD_TYPE: ${{ startsWith(github.ref, 'refs/tags/') && 'Release' || 'Debug' }}
