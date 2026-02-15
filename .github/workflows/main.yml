@@ -138,7 +138,6 @@ jobs:
         files: "${{ github.workspace }}/artifacts/libsimple-windows-${{ matrix.arch }}.zip"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        BUILD_TYPE: ${{ github.ref_type == 'tag' && 'Release' || 'Debug' }}
 
   Linux:
     runs-on: ${{ matrix.os }}
@@ -147,14 +146,9 @@ jobs:
       matrix:
         os: [ubuntu-22.04, ubuntu-24.04-arm, ubuntu-latest]
     timeout-minutes: 60
+    env:
+      BUILD_TYPE: ${{ startsWith(github.ref, 'refs/tags/') && 'Release' || 'Debug' }}
     steps:
-    - name: "Release Build Type"
-      if: startsWith(github.ref, 'refs/tags/')
-      run: echo "BUILD_TYPE=Release" >> $GITHUB_ENV
-    - name: "Debug Build Type"
-      if: startsWith(github.ref, 'refs/tags/') != true
-      run: echo "BUILD_TYPE=Debug" >> $GITHUB_ENV
-
     - uses: actions/checkout@v6
       with:
         fetch-depth: 0
@@ -187,15 +181,8 @@ jobs:
       uses: lukka/run-cmake@v10
       continue-on-error: false
       with:
-        configurePreset: 'ninja-vcpkg-coverage'
-        buildPreset: 'ninja-vcpkg-coverage'
-
-    - name: 'Run CMake without coverage'
-      if: startsWith(github.ref, 'refs/tags/')
-      uses: lukka/run-cmake@v10
-      with:
-        configurePreset: 'ninja-vcpkg-release'
-        buildPreset: 'ninja-vcpkg-release'
+        configurePreset: ${{ startsWith(github.ref, 'refs/tags/') && 'ninja-vcpkg-release' || 'ninja-vcpkg-coverage' }}
+        buildPreset: ${{ startsWith(github.ref, 'refs/tags/') && 'ninja-vcpkg-release' || 'ninja-vcpkg-coverage' }}
 
     - name: 'Run CTest'
       if: ${{ startsWith(github.ref, 'refs/tags/') != true && matrix.os == 'ubuntu-latest' }}
@@ -292,14 +279,9 @@ jobs:
   MacOS:
     runs-on: macos-latest
     needs: Linux
+    env:
+      BUILD_TYPE: ${{ startsWith(github.ref, 'refs/tags/') && 'Release' || 'Debug' }}
     steps:
-    - name: "Release Build Type"
-      if: startsWith(github.ref, 'refs/tags/')
-      run: echo "BUILD_TYPE=Release" >> $GITHUB_ENV
-    - name: "Debug Build Type"
-      if: startsWith(github.ref, 'refs/tags/') != true
-      run: echo "BUILD_TYPE=Debug" >> $GITHUB_ENV
-
     - uses: actions/checkout@v6
       with:
         submodules: true
@@ -378,5 +360,75 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: build-iOS
-      if: success()
+      if: ${{ success() && startsWith(github.ref, 'refs/tags/') }}
       run: ./build-ios.sh
+
+    - name: Package iOS
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        mkdir libsimple-ios-xcframework
+        cp -r output/libsimple.xcframework output/dict libsimple-ios-xcframework/
+        zip -r libsimple-ios-xcframework.zip libsimple-ios-xcframework
+      working-directory: "${{ github.workspace }}"
+
+    - name: Release iOS
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v2
+      with:
+        draft: true
+        files: "${{ github.workspace }}/libsimple-ios-xcframework.zip"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  Android:
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    needs: Linux
+    strategy:
+      fail-fast: true
+      matrix:
+        abi: [arm64-v8a, x86_64]
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        submodules: true
+
+    - name: Resolve Android NDK
+      run: |
+        if [ -z "${ANDROID_NDK_LATEST_HOME:-}" ]; then
+          echo "ANDROID_NDK_LATEST_HOME is not available on this runner." >&2
+          exit 1
+        fi
+        echo "ANDROID_NDK_HOME=${ANDROID_NDK_LATEST_HOME}" >> "$GITHUB_ENV"
+
+    - name: Configure Android
+      run: |
+        cmake -S "${{ github.workspace }}" -B "${{ github.workspace }}/build-android-${{ matrix.abi }}" \
+          -DCMAKE_TOOLCHAIN_FILE="${ANDROID_NDK_HOME}/build/cmake/android.toolchain.cmake" \
+          -DANDROID_ABI="${{ matrix.abi }}" \
+          -DANDROID_PLATFORM=android-21 \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DCMAKE_INSTALL_PREFIX="${{ github.workspace }}/output-android-${{ matrix.abi }}" \
+          -DBUILD_TEST_EXAMPLE=OFF \
+          -DBUILD_SHELL=OFF
+
+    - name: Build Android
+      run: cmake --build "${{ github.workspace }}/build-android-${{ matrix.abi }}" --config Release --parallel
+
+    - name: Install Android
+      run: cmake --install "${{ github.workspace }}/build-android-${{ matrix.abi }}" --config Release
+
+    - name: Package Android
+      run: |
+        mkdir "libsimple-android-${{ matrix.abi }}"
+        cp -r "output-android-${{ matrix.abi }}/bin/libsimple.so" "output-android-${{ matrix.abi }}/bin/dict" "libsimple-android-${{ matrix.abi }}/"
+        zip -r "libsimple-android-${{ matrix.abi }}.zip" "libsimple-android-${{ matrix.abi }}"
+      working-directory: "${{ github.workspace }}"
+
+    - name: Release Android
+      uses: softprops/action-gh-release@v2
+      with:
+        draft: true
+        files: "${{ github.workspace }}/libsimple-android-${{ matrix.abi }}.zip"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
