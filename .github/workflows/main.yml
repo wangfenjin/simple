@@ -277,11 +277,48 @@ jobs:
         echo "- OS: ${{ runner.os }}" >> $GITHUB_STEP_SUMMARY
 
   MacOS:
-    runs-on: macos-latest
+    runs-on: ${{ matrix.os }}
     needs: Linux
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+        - os: macos-13
+          arch: x64
+        - os: macos-14
+          arch: arm64
     env:
       BUILD_TYPE: ${{ startsWith(github.ref, 'refs/tags/') && 'Release' || 'Debug' }}
     steps:
+    - name: "Set macOS Build Presets"
+      id: mac_build
+      shell: bash
+      run: |
+        case "${{ matrix.arch }}" in
+          x64)
+            configure_preset="macos-ninja-x64"
+            build_dir="${GITHUB_WORKSPACE}/../../_temp/macos-x64"
+            ;;
+          arm64)
+            configure_preset="macos-ninja-arm64"
+            build_dir="${GITHUB_WORKSPACE}/../../_temp/macos-arm64"
+            ;;
+          *)
+            echo "Unsupported matrix.arch: ${{ matrix.arch }}" >&2
+            exit 1
+            ;;
+        esac
+
+        if [[ "${{ github.ref }}" == refs/tags/* ]]; then
+          build_preset="${configure_preset}-release"
+        else
+          build_preset="${configure_preset}"
+        fi
+
+        echo "CONFIGURE_PRESET=${configure_preset}" >> "$GITHUB_OUTPUT"
+        echo "BUILD_PRESET=${build_preset}" >> "$GITHUB_OUTPUT"
+        echo "BUILD_DIR=${build_dir}" >> "$GITHUB_OUTPUT"
+
     - uses: actions/checkout@v6
       with:
         submodules: true
@@ -305,18 +342,18 @@ jobs:
     - name: 'Run CMake'
       uses: lukka/run-cmake@v10
       with:
-        configurePreset: 'macos-ninja'
-        buildPreset: ${{ startsWith(github.ref, 'refs/tags/') && 'macos-ninja-release' || 'macos-ninja' }}
+        configurePreset: ${{ steps.mac_build.outputs.CONFIGURE_PRESET }}
+        buildPreset: ${{ steps.mac_build.outputs.BUILD_PRESET }}
 
     - name: 'Run CTest'
       run: ctest -C ${{ env.BUILD_TYPE }}
-      working-directory: "${{ github.workspace }}/../../_temp/macos"
+      working-directory: "${{ steps.mac_build.outputs.BUILD_DIR }}"
 
     - name: "Check file existence"
       uses: andstor/file-existence-action@v3
       with:
         allow_failure: true
-        files: "${{ github.workspace }}/../../_temp/macos/src/libsimple.dylib, ${{ github.workspace }}/../../_temp/macos/test/dict/jieba.dict.utf8"
+        files: "${{ steps.mac_build.outputs.BUILD_DIR }}/src/libsimple.dylib, ${{ steps.mac_build.outputs.BUILD_DIR }}/test/dict/jieba.dict.utf8"
     
     - uses: actions/setup-node@v6
       with:
@@ -331,9 +368,9 @@ jobs:
       run: |
         brew install python-setuptools
         npm install
-        npm run p -- --ext_path="${{ github.workspace }}/../../_temp/macos/src/" --dict_path="${{ github.workspace }}/../../_temp/macos/test/dict/"
+        npm run p -- --ext_path="${{ steps.mac_build.outputs.BUILD_DIR }}/src/" --dict_path="${{ steps.mac_build.outputs.BUILD_DIR }}/test/dict/"
         # don't run this as it's toooo slow
-        # npm run b -- --ext_path="${{ github.workspace }}/../../_temp/macos/src/" --dict_path="${{ github.workspace }}/../../_temp/macos/test/dict/"
+        # npm run b -- --ext_path="${{ steps.mac_build.outputs.BUILD_DIR }}/src/" --dict_path="${{ steps.mac_build.outputs.BUILD_DIR }}/test/dict/"
 
     # python run
     # - name: run python example
@@ -344,27 +381,27 @@ jobs:
     - name: Package
       if: startsWith(github.ref, 'refs/tags/')
       run: |
-        mkdir libsimple-osx-x64
+        mkdir libsimple-osx-${{ matrix.arch }}
         sudo xattr -r -d com.apple.quarantine src/libsimple.dylib
-        cp -r src/libsimple.dylib test/dict libsimple-osx-x64/
-        zip -r libsimple-osx-x64.zip libsimple-osx-x64
-      working-directory: "${{ github.workspace }}/../../_temp/macos"
+        cp -r src/libsimple.dylib test/dict libsimple-osx-${{ matrix.arch }}/
+        zip -r libsimple-osx-${{ matrix.arch }}.zip libsimple-osx-${{ matrix.arch }}
+      working-directory: "${{ steps.mac_build.outputs.BUILD_DIR }}"
 
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v2
       with:
         draft: true
-        files: "${{ github.workspace }}/../../_temp/macos/libsimple-osx-x64.zip"
+        files: "${{ steps.mac_build.outputs.BUILD_DIR }}/libsimple-osx-${{ matrix.arch }}.zip"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: build-iOS
-      if: success()
+      if: ${{ success() && matrix.arch == 'arm64' }}
       run: ./build-ios.sh
 
     - name: Package iOS
-      if: startsWith(github.ref, 'refs/tags/')
+      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.arch == 'arm64' }}
       run: |
         mkdir libsimple-ios-xcframework
         cp -r output/libsimple.xcframework output/dict libsimple-ios-xcframework/
@@ -372,7 +409,7 @@ jobs:
       working-directory: "${{ github.workspace }}"
 
     - name: Release iOS
-      if: startsWith(github.ref, 'refs/tags/')
+      if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.arch == 'arm64' }}
       uses: softprops/action-gh-release@v2
       with:
         draft: true
