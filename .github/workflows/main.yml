@@ -506,22 +506,26 @@ jobs:
 
         tar -xzf "${sdk_archive}" -C "${sdk_root}"
 
-        linux_dir="$(find "${sdk_root}" -type d -name Linux | head -n 1)"
-        if [ -z "${linux_dir}" ]; then
-          echo "Failed to locate Linux directory in OHOS SDK archive." >&2
+        toolchain_file="$(find "${sdk_root}" -type f -path '*/native/build/cmake/ohos.toolchain.cmake' | head -n 1 || true)"
+        if [ -z "${toolchain_file}" ]; then
+          mapfile -t zips < <(find "${sdk_root}" -type f -name '*.zip')
+          if [ "${#zips[@]}" -eq 0 ]; then
+            echo "No SDK zip files found under ${sdk_root}." >&2
+            find "${sdk_root}" -maxdepth 4 -print
+            exit 1
+          fi
+          for f in "${zips[@]}"; do unzip -q -o "${f}" -d "$(dirname "${f}")"; done
+          toolchain_file="$(find "${sdk_root}" -type f -path '*/native/build/cmake/ohos.toolchain.cmake' | head -n 1 || true)"
+        fi
+
+        if [ -z "${toolchain_file}" ]; then
+          echo "Failed to locate OHOS toolchain after extraction." >&2
+          find "${sdk_root}" -maxdepth 5 -print
           exit 1
         fi
 
-        cd "${linux_dir}"
-        shopt -s nullglob
-        zips=( *.zip )
-        if [ "${#zips[@]}" -eq 0 ]; then
-          echo "No SDK zip files found under ${linux_dir}." >&2
-          exit 1
-        fi
-        for f in "${zips[@]}"; do unzip -q -o "${f}"; done
-
-        echo "OHOS_SDK=${linux_dir}" >> "${GITHUB_ENV}"
+        ohos_sdk="${toolchain_file%/native/build/cmake/ohos.toolchain.cmake}"
+        echo "OHOS_SDK=${ohos_sdk}" >> "${GITHUB_ENV}"
 
     - name: Build OHOS
       run: ./build-ohos.sh
