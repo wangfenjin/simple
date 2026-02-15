@@ -31,30 +31,39 @@ jobs:
         - arch: arm64
 
     steps:
-    - name: "Set Build Type"
+    - name: "Set Build Type and Presets"
       id: build_type
       shell: pwsh
       run: |
-        if ("${{ github.ref }}".StartsWith("refs/tags/")) {
-          echo "BUILD_TYPE=Release" >> $env:GITHUB_OUTPUT
-        } else {
-          echo "BUILD_TYPE=Debug" >> $env:GITHUB_OUTPUT
+        $buildType = if ("${{ github.ref }}".StartsWith("refs/tags/")) { "Release" } else { "Debug" }
+        echo "BUILD_TYPE=$buildType" >> $env:GITHUB_OUTPUT
+
+        $arch = "${{ matrix.arch }}"
+        switch ($arch) {
+          "x64" {
+            $configurePreset = "windows-msvc-vs17"
+            $buildDir = [System.IO.Path]::GetFullPath((Join-Path $env:GITHUB_WORKSPACE "..\..\_temp\windows-x64")).Replace('\', '/')
+          }
+          "x86" {
+            $configurePreset = "windows-msvc-vs17-x86"
+            $buildDir = [System.IO.Path]::GetFullPath((Join-Path $env:GITHUB_WORKSPACE "..\..\_temp\windows-x86")).Replace('\', '/')
+          }
+          "arm64" {
+            $configurePreset = "windows-msvc-vs17-arm64"
+            $buildDir = [System.IO.Path]::GetFullPath((Join-Path $env:GITHUB_WORKSPACE "..\..\_temp\windows-arm64")).Replace('\', '/')
+          }
+          default {
+            throw "Unsupported matrix.arch: $arch"
+          }
         }
 
-        if ("${{ matrix.arch }}" -eq "x64") {
-          echo "Arch:x64";
-          echo "::set-output name=BUILD_ARCH::x64";
-        } elseif ("${{ matrix.arch }}" -eq "arm64") {
-          echo "Arch:ARM64";
-          echo "::set-output name=BUILD_ARCH::ARM64";
-        } else {
-          echo "Arch:Win32";
-          echo "::set-output name=BUILD_ARCH::Win32";
-        }
-        
+        $buildPreset = if ($buildType -eq "Release") { "${configurePreset}-release" } else { $configurePreset }
+        echo "CONFIGURE_PRESET=$configurePreset" >> $env:GITHUB_OUTPUT
+        echo "BUILD_PRESET=$buildPreset" >> $env:GITHUB_OUTPUT
+        echo "BUILD_DIR=$buildDir" >> $env:GITHUB_OUTPUT
 
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         submodules: true
 
@@ -62,11 +71,11 @@ jobs:
     #   uses: ammaraskar/msvc-problem-matcher@master
 
     # Install latest CMake
-    - uses: lukka/get-cmake@v3.31.6
+    - uses: lukka/get-cmake@v4.2.0
 
     # Restore from cache the previously built ports
     - name: Restore artifacts, or setup vcpkg
-      uses: lukka/run-vcpkg@v10
+      uses: lukka/run-vcpkg@v11
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
 
@@ -80,14 +89,14 @@ jobs:
       uses: lukka/run-cmake@v10
       continue-on-error: false
       with:
-        configurePreset: 'windows-msvc-vs17'
-        buildPreset: ${{ startsWith(github.ref, 'refs/tags/') && 'windows-msvc-vs17-release' || 'windows-msvc-vs17' }}
+        configurePreset: ${{ steps.build_type.outputs.CONFIGURE_PRESET }}
+        buildPreset: ${{ steps.build_type.outputs.BUILD_PRESET }}
 
     - name: "Check file existence"
       uses: andstor/file-existence-action@v3
       with:
         allow_failure: true
-        files: "${{ github.workspace }}/../../_temp/windows/src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll, ${{ github.workspace }}/../../_temp/windows/cppjieba/src/cppjieba/dict/jieba.dict.utf8"
+        files: "${{ steps.build_type.outputs.BUILD_DIR }}/src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll, ${{ steps.build_type.outputs.BUILD_DIR }}/cppjieba/src/cppjieba/dict/jieba.dict.utf8"
 
     # can't build
     # npm run
@@ -120,7 +129,7 @@ jobs:
         mkdir libsimple-windows-${{ matrix.arch }}
         Copy-Item -Path src/${{ steps.build_type.outputs.BUILD_TYPE }}/simple.dll,cppjieba/src/cppjieba/dict/ -Destination libsimple-windows-${{ matrix.arch }}/ -Recurse
         Compress-Archive -Path libsimple-windows-${{ matrix.arch }} -DestinationPath "$outputDir\libsimple-windows-${{ matrix.arch }}.zip"
-      working-directory: "${{ github.workspace }}/../../_temp/windows/"
+      working-directory: "${{ steps.build_type.outputs.BUILD_DIR }}"
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
       uses: softprops/action-gh-release@v2
@@ -146,7 +155,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/') != true
       run: echo "BUILD_TYPE=Debug" >> $GITHUB_ENV
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         fetch-depth: 0
         submodules: true
@@ -161,18 +170,13 @@ jobs:
         sudo apt-get install -y gcc g++
 
     - name: Restore artifacts, or setup vcpkg
-      uses: lukka/run-vcpkg@v10
+      uses: lukka/run-vcpkg@v11
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
 
     - name: Install lcov
       if: startsWith(github.ref, 'refs/tags/') != true
       run: sudo apt-get install lcov
-
-    - name: Install codecov
-      if: startsWith(github.ref, 'refs/tags/') != true
-      shell: bash
-      run: sudo pip install codecov
 
     - run: |
         echo "RUNVCPKG_NO_CACHE=1" >> $GITHUB_ENV
@@ -210,7 +214,12 @@ jobs:
       run: lcov --list coverage_filter.info
     - name: Code coverage - Upload to CodeCov
       if: ${{ startsWith(github.ref, 'refs/tags/') != true && matrix.os == 'ubuntu-latest' }}
-      run:  bash <(curl -s https://codecov.io/bash) -f coverage_filter.info || echo "Codecov did not collect coverage reports"
+      uses: codecov/codecov-action@v5
+      with:
+        files: coverage_filter.info
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: false
+        verbose: true
 
     - name: "Check file existence"
       uses: andstor/file-existence-action@v3
@@ -219,7 +228,7 @@ jobs:
         files: "${{ github.workspace }}/build/src/libsimple.so, ${{ github.workspace }}/build/test/dict/jieba.dict.utf8"
 
     # npm run
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v6
       if: startsWith(github.ref, 'refs/tags/') != true
       with:
         node-version: '20'
@@ -232,7 +241,7 @@ jobs:
         npm run b -- --ext_path="${{ github.workspace }}/build/src/" --dict_path="${{ github.workspace }}/build/test/dict/"
 
     # python run
-    - uses: actions/setup-python@v5
+    - uses: actions/setup-python@v6
       if: startsWith(github.ref, 'refs/tags/') != true
       with:
         python-version: '3.13' # Version range or exact version of a Python version to use, using SemVer's version range syntax
@@ -245,7 +254,7 @@ jobs:
     - name: "Build Changelog"
       id: build_changelog
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-latest' }}
-      uses: mikepenz/release-changelog-builder-action@v1
+      uses: mikepenz/release-changelog-builder-action@v6
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Package
@@ -265,7 +274,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     - name: Release
       if: ${{ startsWith(github.ref, 'refs/tags/') && matrix.os == 'ubuntu-latest' }}
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         draft: true
         files: ${{ github.workspace }}/build/libsimple-linux-${{ matrix.os }}.zip
@@ -291,7 +300,7 @@ jobs:
       if: startsWith(github.ref, 'refs/tags/') != true
       run: echo "BUILD_TYPE=Debug" >> $GITHUB_ENV
 
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v6
       with:
         submodules: true
 
@@ -301,7 +310,7 @@ jobs:
 
     # Restore from cache the previously built ports
     - name: Restore artifacts, or setup vcpkg
-      uses: lukka/run-vcpkg@v10
+      uses: lukka/run-vcpkg@v11
       with:
         vcpkgDirectory: '${{ github.workspace }}/vcpkg'
 
@@ -327,11 +336,11 @@ jobs:
         allow_failure: true
         files: "${{ github.workspace }}/../../_temp/macos/src/libsimple.dylib, ${{ github.workspace }}/../../_temp/macos/test/dict/jieba.dict.utf8"
     
-    - uses: actions/setup-node@v4
+    - uses: actions/setup-node@v6
       with:
         node-version: '20'
     
-    # - uses: actions/setup-python@v5
+    # - uses: actions/setup-python@v6
     #   with:
     #     python-version: '3.12' # Version range or exact version of a Python version to use, using SemVer's version range syntax
     # npm run
@@ -361,7 +370,7 @@ jobs:
 
     - name: Release
       if: startsWith(github.ref, 'refs/tags/')
-      uses: softprops/action-gh-release@v1
+      uses: softprops/action-gh-release@v2
       with:
         draft: true
         files: "${{ github.workspace }}/../../_temp/macos/libsimple-osx-x64.zip"

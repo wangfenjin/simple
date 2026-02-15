@@ -2,7 +2,7 @@
   "version": 8,
   "cmakeMinimumRequired": {
     "major": 3,
-    "minor": 21,
+    "minor": 28,
     "patch": 0
   },
   "configurePresets": [
@@ -73,13 +73,10 @@
       }
     },
     {
-      "name": "windows-msvc-vs17",
-      "displayName": "Visual Studio 17 2022",
-      "description": "Configure with VS17 and vcpkg toolchain",
+      "name": "windows-msvc-vs17-base",
+      "hidden": true,
       "generator": "Visual Studio 17 2022",
-      "architecture": "x64",
       "toolset": "v143",
-      "binaryDir": "${sourceDir}/../../_temp/windows",
       "cacheVariables": {
         "CMAKE_TOOLCHAIN_FILE": {
           "type": "FILEPATH",
@@ -106,6 +103,39 @@
         "type": "equals",
         "lhs": "${hostSystemName}",
         "rhs": "Windows"
+      }
+    },
+    {
+      "name": "windows-msvc-vs17",
+      "displayName": "Visual Studio 17 2022 (x64)",
+      "description": "Configure with VS17 and vcpkg toolchain (x64)",
+      "inherits": "windows-msvc-vs17-base",
+      "architecture": "x64",
+      "binaryDir": "${sourceDir}/../../_temp/windows-x64",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x64-windows"
+      }
+    },
+    {
+      "name": "windows-msvc-vs17-x86",
+      "displayName": "Visual Studio 17 2022 (Win32)",
+      "description": "Configure with VS17 and vcpkg toolchain (Win32)",
+      "inherits": "windows-msvc-vs17-base",
+      "architecture": "Win32",
+      "binaryDir": "${sourceDir}/../../_temp/windows-x86",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "x86-windows"
+      }
+    },
+    {
+      "name": "windows-msvc-vs17-arm64",
+      "displayName": "Visual Studio 17 2022 (ARM64)",
+      "description": "Configure with VS17 and vcpkg toolchain (ARM64)",
+      "inherits": "windows-msvc-vs17-base",
+      "architecture": "ARM64",
+      "binaryDir": "${sourceDir}/../../_temp/windows-arm64",
+      "cacheVariables": {
+        "VCPKG_TARGET_TRIPLET": "arm64-windows"
       }
     }
   ],
@@ -147,6 +177,32 @@
       "configurePreset": "windows-msvc-vs17",
       "displayName": "Build Windows VS17 (Release)",
       "description": "Build with VS17 (Release)",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-msvc-vs17-x86",
+      "configurePreset": "windows-msvc-vs17-x86",
+      "displayName": "Build Windows VS17 (Win32)",
+      "description": "Build with VS17 (Win32)"
+    },
+    {
+      "name": "windows-msvc-vs17-x86-release",
+      "configurePreset": "windows-msvc-vs17-x86",
+      "displayName": "Build Windows VS17 (Win32, Release)",
+      "description": "Build with VS17 (Win32, Release)",
+      "configuration": "Release"
+    },
+    {
+      "name": "windows-msvc-vs17-arm64",
+      "configurePreset": "windows-msvc-vs17-arm64",
+      "displayName": "Build Windows VS17 (ARM64)",
+      "description": "Build with VS17 (ARM64)"
+    },
+    {
+      "name": "windows-msvc-vs17-arm64-release",
+      "configurePreset": "windows-msvc-vs17-arm64",
+      "displayName": "Build Windows VS17 (ARM64, Release)",
+      "description": "Build with VS17 (ARM64, Release)",
       "configuration": "Release"
     }
   ]
