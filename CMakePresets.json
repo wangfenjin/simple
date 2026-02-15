@@ -73,6 +73,34 @@
       }
     },
     {
+      "name": "macos-ninja-x64",
+      "displayName": "macOS Ninja (x64)",
+      "description": "Configure for macOS x64 build",
+      "inherits": "macos-ninja",
+      "binaryDir": "${sourceDir}/../../_temp/macos-x64",
+      "cacheVariables": {
+        "CMAKE_OSX_ARCHITECTURES": "x86_64",
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "PATH",
+          "value": "${sourceDir}/../../_temp/macos-x64/install"
+        }
+      }
+    },
+    {
+      "name": "macos-ninja-arm64",
+      "displayName": "macOS Ninja (arm64)",
+      "description": "Configure for macOS arm64 build",
+      "inherits": "macos-ninja",
+      "binaryDir": "${sourceDir}/../../_temp/macos-arm64",
+      "cacheVariables": {
+        "CMAKE_OSX_ARCHITECTURES": "arm64",
+        "CMAKE_INSTALL_PREFIX": {
+          "type": "PATH",
+          "value": "${sourceDir}/../../_temp/macos-arm64/install"
+        }
+      }
+    },
+    {
       "name": "windows-msvc-vs17-base",
       "hidden": true,
       "generator": "Visual Studio 17 2022",
@@ -164,6 +192,32 @@
       "configurePreset": "macos-ninja",
       "displayName": "Build macOS (Release)",
       "description": "Build for macOS (Release)",
+      "configuration": "Release"
+    },
+    {
+      "name": "macos-ninja-x64",
+      "configurePreset": "macos-ninja-x64",
+      "displayName": "Build macOS x64",
+      "description": "Build for macOS x64"
+    },
+    {
+      "name": "macos-ninja-x64-release",
+      "configurePreset": "macos-ninja-x64",
+      "displayName": "Build macOS x64 (Release)",
+      "description": "Build for macOS x64 (Release)",
+      "configuration": "Release"
+    },
+    {
+      "name": "macos-ninja-arm64",
+      "configurePreset": "macos-ninja-arm64",
+      "displayName": "Build macOS arm64",
+      "description": "Build for macOS arm64"
+    },
+    {
+      "name": "macos-ninja-arm64-release",
+      "configurePreset": "macos-ninja-arm64",
+      "displayName": "Build macOS arm64 (Release)",
+      "description": "Build for macOS arm64 (Release)",
       "configuration": "Release"
     },
     {
