@@ -32,10 +32,26 @@ build_variant OS64
 build_variant SIMULATOR64
 build_variant SIMULATORARM64
 
+sim64_lib="${ios_output_root}/SIMULATOR64/bin/libsimple.a"
+simarm64_lib="${ios_output_root}/SIMULATORARM64/bin/libsimple.a"
+sim_universal_dir="${ios_output_root}/SIMULATOR_UNIVERSAL/bin"
+sim_universal_lib="${sim_universal_dir}/libsimple.a"
+
+mkdir -p "${sim_universal_dir}"
+sim64_archs="$(lipo -archs "${sim64_lib}")"
+simarm64_archs="$(lipo -archs "${simarm64_lib}")"
+
+if printf '%s' "${sim64_archs}" | grep -q 'x86_64' && printf '%s' "${sim64_archs}" | grep -q 'arm64'; then
+  cp "${sim64_lib}" "${sim_universal_lib}"
+elif printf '%s' "${simarm64_archs}" | grep -q 'x86_64' && printf '%s' "${simarm64_archs}" | grep -q 'arm64'; then
+  cp "${simarm64_lib}" "${sim_universal_lib}"
+else
+  lipo -create "${sim64_lib}" "${simarm64_lib}" -output "${sim_universal_lib}"
+fi
+
 xcodebuild -create-xcframework \
   -library "${ios_output_root}/OS64/bin/libsimple.a" -headers "${headers_dir}" \
-  -library "${ios_output_root}/SIMULATOR64/bin/libsimple.a" -headers "${headers_dir}" \
-  -library "${ios_output_root}/SIMULATORARM64/bin/libsimple.a" -headers "${headers_dir}" \
+  -library "${sim_universal_lib}" -headers "${headers_dir}" \
   -output "${final_output_root}/libsimple.xcframework"
 
 cp -R "${ios_output_root}/OS64/bin/dict" "${final_output_root}/dict"
