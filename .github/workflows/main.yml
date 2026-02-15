@@ -514,8 +514,20 @@ jobs:
             find "${sdk_root}" -maxdepth 4 -print
             exit 1
           fi
-          for f in "${zips[@]}"; do unzip -q -o "${f}" -d "$(dirname "${f}")"; done
+
+          # Fast path: native build only needs Linux native/toolchains SDK packages.
+          mapfile -t preferred_zips < <(printf '%s\n' "${zips[@]}" | grep -E '/linux/(native|toolchains)-linux-x64-.*\.zip$' || true)
+          if [ "${#preferred_zips[@]}" -gt 0 ]; then
+            for f in "${preferred_zips[@]}"; do unzip -q -o "${f}" -d "$(dirname "${f}")"; done
+          else
+            for f in "${zips[@]}"; do unzip -q -o "${f}" -d "$(dirname "${f}")"; done
+          fi
+
           toolchain_file="$(find "${sdk_root}" -type f -path '*/native/build/cmake/ohos.toolchain.cmake' | head -n 1 || true)"
+          if [ -z "${toolchain_file}" ]; then
+            for f in "${zips[@]}"; do unzip -q -o "${f}" -d "$(dirname "${f}")"; done
+            toolchain_file="$(find "${sdk_root}" -type f -path '*/native/build/cmake/ohos.toolchain.cmake' | head -n 1 || true)"
+          fi
         fi
 
         if [ -z "${toolchain_file}" ]; then
