@@ -438,3 +438,75 @@ jobs:
         files: "${{ github.workspace }}/libsimple-android-${{ matrix.abi }}.zip"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  OHOS:
+    runs-on: ubuntu-latest
+    needs: Linux
+    env:
+      OHOS_SDK_URL: ${{ secrets.OHOS_SDK_URL }}
+      OHOS_SDK_VERSION: v6.0.0.1
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        submodules: true
+
+    - name: Download and extract OHOS SDK
+      shell: bash
+      run: |
+        set -euxo pipefail
+        sdk_root="${RUNNER_TEMP}/ohos-sdk"
+        sdk_archive="${RUNNER_TEMP}/ohos-sdk.tar.gz"
+        mkdir -p "${sdk_root}"
+
+        if [ -n "${OHOS_SDK_URL:-}" ]; then
+          curl -L --retry 3 --retry-all-errors --max-time 3600 "${OHOS_SDK_URL}" -o "${sdk_archive}"
+        else
+          sdk_base_url="https://github.com/openharmony-rs/ohos-sdk/releases/download/${OHOS_SDK_VERSION}"
+          curl -L --retry 3 --retry-all-errors --max-time 3600 "${sdk_base_url}/ohos-sdk-windows_linux-public.tar.gz.aa" -o "${sdk_archive}.aa"
+          curl -L --retry 3 --retry-all-errors --max-time 3600 "${sdk_base_url}/ohos-sdk-windows_linux-public.tar.gz.ab" -o "${sdk_archive}.ab"
+          cat "${sdk_archive}.aa" "${sdk_archive}.ab" > "${sdk_archive}"
+        fi
+
+        tar -xzf "${sdk_archive}" -C "${sdk_root}"
+
+        linux_dir="$(find "${sdk_root}" -type d -name Linux | head -n 1)"
+        if [ -z "${linux_dir}" ]; then
+          echo "Failed to locate Linux directory in OHOS SDK archive." >&2
+          exit 1
+        fi
+
+        cd "${linux_dir}"
+        shopt -s nullglob
+        zips=( *.zip )
+        if [ "${#zips[@]}" -eq 0 ]; then
+          echo "No SDK zip files found under ${linux_dir}." >&2
+          exit 1
+        fi
+        for f in "${zips[@]}"; do unzip -q -o "${f}"; done
+
+        echo "OHOS_SDK=${linux_dir}" >> "${GITHUB_ENV}"
+
+    - name: Build OHOS
+      run: ./build-ohos.sh
+
+    - name: Verify OHOS outputs
+      run: |
+        test -f "output/bin/libsimple.so"
+        test -f "output/bin/dict/jieba.dict.utf8"
+
+    - name: Package OHOS
+      if: startsWith(github.ref, 'refs/tags/')
+      run: |
+        mkdir libsimple-ohos-arm64-v8a
+        cp -r output/bin/libsimple.so output/bin/dict libsimple-ohos-arm64-v8a/
+        zip -r libsimple-ohos-arm64-v8a.zip libsimple-ohos-arm64-v8a
+      working-directory: "${{ github.workspace }}"
+
+    - name: Release OHOS
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: softprops/action-gh-release@v2
+      with:
+        draft: true
+        files: "${{ github.workspace }}/libsimple-ohos-arm64-v8a.zip"
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
