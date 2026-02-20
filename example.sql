@@ -3,6 +3,19 @@
 -- load so file
 .load libsimple
 
+select '自定义拼音词典示例（只包含 周/伦 的拼音）:';
+-- 在本仓库里从 output/bin 运行本例时，路径可使用 ../../contrib/pinyin-mini.txt
+select pinyin_dict('../../contrib/pinyin-mini.txt');
+CREATE VIRTUAL TABLE t0 USING fts5(x, tokenize = 'simple');
+insert into t0(x) values ('周杰伦');
+select '    搜索 zhou，命中数量（预期 1）:', count(*) from t0 where x match simple_query('zhou');
+select '    搜索 lun，命中数量（预期 1）:', count(*) from t0 where x match simple_query('lun');
+select '    搜索 jie，命中数量（预期 0）:', count(*) from t0 where x match simple_query('jie');
+select '    搜索 zhou lun，命中数量（预期 1）:', count(*) from t0 where x match simple_query('zhou lun');
+drop table t0;
+-- 切回默认词典，保证下面示例行为不变
+select pinyin_dict('../../contrib/pinyin.txt');
+
 select '启用拼音分词：';
 -- set tokenize to simple
 CREATE VIRTUAL TABLE t1 USING fts5(x, tokenize = 'simple');

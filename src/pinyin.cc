@@ -1,6 +1,7 @@
 #include "pinyin.h"
 
 #include <cmrc/cmrc.hpp>
+#include <fstream>
 #include <map>
 #include <regex>
 #include <set>
@@ -12,7 +13,9 @@ CMRC_DECLARE(pinyin_text);
 
 namespace simple_tokenizer {
 
-PinYin::PinYin() { pinyin = build_pinyin_map(); }
+PinYin::PinYin() : PinYin("") {}
+
+PinYin::PinYin(const std::string &pinyin_file_path) { pinyin = build_pinyin_map(pinyin_file_path); }
 
 std::set<std::string> PinYin::to_plain(const std::string &input) {
   std::set<std::string> s;
@@ -49,21 +52,45 @@ std::set<std::string> PinYin::to_plain(const std::string &input) {
 }
 
 // clang-format off
-std::map<int, std::vector<std::string> > PinYin::build_pinyin_map() {
+std::map<int, std::vector<std::string> > PinYin::build_pinyin_map(const std::string &pinyin_file_path) {
   std::map<int, std::vector<std::string> > map;
   // clang-format on
-  auto fs = cmrc::pinyin_text::get_filesystem();
-  auto pinyin_data = fs.open("contrib/pinyin.txt");
-  std::istringstream pinyin_file(std::string(pinyin_data.begin(), pinyin_data.end()));
+  std::istringstream embedded_pinyin_file;
+  std::ifstream custom_pinyin_file;
+  std::istream *pinyin_file = nullptr;
+  if (pinyin_file_path.empty()) {
+    auto fs = cmrc::pinyin_text::get_filesystem();
+    auto pinyin_data = fs.open("contrib/pinyin.txt");
+    embedded_pinyin_file = std::istringstream(std::string(pinyin_data.begin(), pinyin_data.end()));
+    pinyin_file = &embedded_pinyin_file;
+  } else {
+    custom_pinyin_file.open(pinyin_file_path);
+    if (!custom_pinyin_file.is_open()) {
+      throw std::runtime_error("failed to open pinyin file: " + pinyin_file_path);
+    }
+    pinyin_file = &custom_pinyin_file;
+  }
   std::string line;
   char delimiter = ' ';
   std::string cp, py;
-  while (std::getline(pinyin_file, line)) {
+  int line_no = 0;
+  while (std::getline(*pinyin_file, line)) {
+    ++line_no;
     if (line.length() == 0 || line[0] == '#') continue;
     std::stringstream tokenStream(line);
     std::getline(tokenStream, cp, delimiter);
     std::getline(tokenStream, py, delimiter);
-    int codepoint = static_cast<int>(std::stoul(cp.substr(2, cp.length() - 3), 0, 16l));
+    if (cp.length() < 4 || cp.rfind("U+", 0) != 0 || cp.back() != ':' || py.empty()) {
+      throw std::runtime_error("invalid pinyin format at line " + std::to_string(line_no));
+    }
+
+    int codepoint = 0;
+    try {
+      codepoint = static_cast<int>(std::stoul(cp.substr(2, cp.length() - 3), 0, 16l));
+    } catch (const std::exception &) {
+      throw std::runtime_error("invalid pinyin codepoint at line " + std::to_string(line_no));
+    }
+
     std::set<std::string> s = to_plain(py);
     std::vector<std::string> m(s.size());
     std::copy(s.begin(), s.end(), m.begin());

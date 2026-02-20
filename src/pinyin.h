@@ -106,7 +106,7 @@ class PinYin {
     };
   // clang-format on
   std::set<std::string> to_plain(const std::string &input);
-  std::map<int, std::vector<std::string> > build_pinyin_map();
+  std::map<int, std::vector<std::string> > build_pinyin_map(const std::string &pinyin_file_path);
   static int codepoint(const std::string &u);
   std::vector<std::string> _split_pinyin(const std::string &input, int begin, int end);
 
@@ -115,6 +115,7 @@ class PinYin {
   static int get_str_len(unsigned char byte);
   std::set<std::string> split_pinyin(const std::string &input);
   PinYin();
+  explicit PinYin(const std::string &pinyin_file_path);
 };
 
 }  // namespace simple_tokenizer

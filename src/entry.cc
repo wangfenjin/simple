@@ -97,12 +97,31 @@ static void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal)
   sqlite3_result_null(pCtx);
 }
 
+static void pinyin_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
+  if (nVal >= 1) {
+    const char *text = (const char *)sqlite3_value_text(apVal[0]);
+    if (text) {
+      std::string err;
+      std::string path(text);
+      if (simple_tokenizer::SimpleTokenizer::set_pinyin_dict(path, err)) {
+        sqlite3_result_text(pCtx, path.c_str(), -1, SQLITE_TRANSIENT);
+      } else {
+        sqlite3_result_error(pCtx, err.c_str(), -1);
+      }
+      return;
+    }
+  }
+  sqlite3_result_null(pCtx);
+}
+
 int sqlite3_simple_init(sqlite3 *db, char **pzErrMsg, const sqlite3_api_routines *pApi) {
   (void)pzErrMsg;
   int rc = SQLITE_OK;
   SQLITE_EXTENSION_INIT2(pApi)
 
   rc = sqlite3_create_function(db, "simple_query", -1, SQLITE_UTF8 | SQLITE_DETERMINISTIC, NULL, &simple_query, NULL,
+                               NULL);
+  rc = sqlite3_create_function(db, "pinyin_dict", 1, SQLITE_UTF8 | SQLITE_DETERMINISTIC, NULL, &pinyin_dict, NULL,
                                NULL);
 #ifdef USE_JIEBA
   rc = sqlite3_create_function(db, "jieba_query", -1, SQLITE_UTF8 | SQLITE_DETERMINISTIC, NULL, &jieba_query, NULL,

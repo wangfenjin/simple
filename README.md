@@ -63,6 +63,26 @@ sqlite> select simple_highlight(t1, 0, '[', ']') as text from t1 where text matc
 5. simple_snippet() 实现截取 match 片段的功能，与 sqlite 自带的 snippet 功能类似，同样是增强连续 match 的词汇分到同一组的逻辑
 6. jieba_query() 实现jieba分词的效果，在索引不变的情况下，可以实现更精准的匹配。可以通过 `-DSIMPLE_WITH_JIEBA=OFF ` 关掉结巴分词的功能 [#35](https://github.com/wangfenjin/simple/pull/35)
 7. jieba_dict() 指定 dict 的目录，只需要调用一次，需要在调用 jieba_query() 之前指定。
+8. pinyin_dict() 支持指定自定义的 `pinyin.txt` 文件路径。调用成功后会立即切换拼音映射；如果文件格式不正确，会返回错误并保持当前映射不变。
+
+### 自定义 pinyin.txt
+
+默认会使用内置在 so 中的 `contrib/pinyin.txt`。如果希望使用自己的拼音表，可以在查询前调用：
+
+```sql
+select pinyin_dict('/path/to/pinyin.txt');
+```
+
+`pinyin.txt` 每行格式与默认文件一致，例如：
+
+```text
+U+3007: líng,yuán,xīng
+U+3007: líng,yuán,xīng # 行尾注释也支持（前面需要空格）
+```
+
+注意：
+- 建议在建索引和查询前先调用一次 `pinyin_dict()`。
+- 如果替换了拼音映射，已有索引中的拼音 token 不会自动重建，需要按你的业务策略重建索引。
 
 ## 开发
 

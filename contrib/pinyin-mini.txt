@@ -1,0 +1,3 @@
+# demo custom pinyin dictionary for example.sql
+U+5468: zhōu # 周
+U+4F26: lún  # 伦
