@@ -26,13 +26,14 @@ enum class TokenCategory {
 
 class SimpleTokenizer {
  private:
-  static PinYin *get_pinyin();
+  static std::shared_ptr<PinYin> get_pinyin();
   bool enable_pinyin = true;
 
  public:
   SimpleTokenizer(const char **zaArg, int nArg);
   int tokenize(void *pCtx, int flags, const char *text, int textLen, xTokenFn xToken) const;
   static std::string tokenize_query(const char *text, int textLen, int flags = 1);
+  static bool set_pinyin_dict(const std::string &pinyin_file_path, std::string &err);
 #ifdef USE_JIEBA
   static std::string tokenize_jieba_query(const char *text, int textLen, int flags = 1);
 #endif

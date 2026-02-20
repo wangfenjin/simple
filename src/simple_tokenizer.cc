@@ -3,20 +3,48 @@
 #include <algorithm>
 #include <cctype>
 #include <cstdlib>
+#include <memory>
+#include <mutex>
 #include <set>
 #include <string>
 #include <vector>
 
 namespace simple_tokenizer {
+namespace {
+std::mutex pinyin_mutex;
+std::shared_ptr<PinYin> global_pinyin;
+}
+
 SimpleTokenizer::SimpleTokenizer(const char **azArg, int nArg) {
   if (nArg >= 1) {
     enable_pinyin = atoi(azArg[0]) != 0;
   }
 }
 
-PinYin *SimpleTokenizer::get_pinyin() {
-  static auto *py = new PinYin();
-  return py;
+std::shared_ptr<PinYin> SimpleTokenizer::get_pinyin() {
+  std::lock_guard<std::mutex> lock(pinyin_mutex);
+  if (global_pinyin == nullptr) {
+    global_pinyin = std::make_shared<PinYin>();
+  }
+  return global_pinyin;
+}
+
+bool SimpleTokenizer::set_pinyin_dict(const std::string &pinyin_file_path, std::string &err) {
+  std::shared_ptr<PinYin> new_pinyin;
+  try {
+    if (pinyin_file_path.empty()) {
+      new_pinyin = std::make_shared<PinYin>();
+    } else {
+      new_pinyin = std::make_shared<PinYin>(pinyin_file_path);
+    }
+  } catch (const std::exception &e) {
+    err = e.what();
+    return false;
+  }
+
+  std::lock_guard<std::mutex> lock(pinyin_mutex);
+  global_pinyin = new_pinyin;
+  return true;
 }
 
 static TokenCategory from_char(char c) {
@@ -159,7 +187,8 @@ int SimpleTokenizer::tokenize(void *pCtx, int flags, const char *text, int textL
 
       rc = xToken(pCtx, 0, result.c_str(), (int)result.length(), start, index);
       if (enable_pinyin && category == TokenCategory::OTHER && (flags & FTS5_TOKENIZE_DOCUMENT)) {
-        const std::vector<std::string> &pys = SimpleTokenizer::get_pinyin()->get_pinyin(result);
+        std::shared_ptr<PinYin> pinyin = SimpleTokenizer::get_pinyin();
+        const std::vector<std::string> &pys = pinyin->get_pinyin(result);
         for (const std::string &s : pys) {
           rc = xToken(pCtx, FTS5_TOKEN_COLOCATED, s.c_str(), (int)s.length(), start, index);
         }
