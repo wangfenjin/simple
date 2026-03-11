@@ -44,7 +44,7 @@ static int fts5_api_from_db(sqlite3 *db, fts5_api **ppApi) {
 }
 
 #ifdef USE_JIEBA
-static void jieba_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
+void jieba_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
   if (nVal >= 1) {
     const char *text = (const char *)sqlite3_value_text(apVal[0]);
     if (text) {
@@ -64,7 +64,7 @@ static void jieba_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
   sqlite3_result_null(pCtx);
 }
 
-static void jieba_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
+void jieba_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
   if (nVal >= 1) {
     const char *text = (const char *)sqlite3_value_text(apVal[0]);
     if (text) {
@@ -81,7 +81,7 @@ static void jieba_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) 
 }
 #endif
 
-static void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
+void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
   if (nVal >= 1) {
     const char *text = (const char *)sqlite3_value_text(apVal[0]);
     if (text) {
@@ -97,7 +97,7 @@ static void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal)
   sqlite3_result_null(pCtx);
 }
 
-static void pinyin_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
+void pinyin_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal) {
   if (nVal >= 1) {
     const char *text = (const char *)sqlite3_value_text(apVal[0]);
     if (text) {
