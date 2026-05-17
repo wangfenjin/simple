@@ -44,6 +44,13 @@ class SimpleTokenizer {
 
 }  // namespace simple_tokenizer
 
+extern "C" void simple_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal);
+extern "C" void pinyin_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal);
+#ifdef USE_JIEBA
+extern "C" void jieba_dict(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal);
+extern "C" void jieba_query(sqlite3_context *pCtx, int nVal, sqlite3_value **apVal);
+#endif
+
 extern "C" int fts5_simple_xCreate(void *sqlite3, const char **azArg, int nArg, Fts5Tokenizer **ppOut);
 extern "C" int fts5_simple_xTokenize(Fts5Tokenizer *tokenizer_ptr, void *pCtx, int flags, const char *pText, int nText,
                                      xTokenFn xToken);
