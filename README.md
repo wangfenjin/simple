@@ -133,4 +133,4 @@ for i in *.zip;do unzip ${i};done
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=wangfenjin/simple&type=Date)](https://www.star-history.com/#wangfenjin/simple&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=wangfenjin/simple&type=Date)](https://star-history.dera.page/#wangfenjin/simple&Date)
